@@ -1,0 +1,157 @@
+// Page top margin
+#page {
+  margin: 75px auto 0;
+}
+
+// header
+.headerButtons {
+  margin: -23px auto 15px auto;
+}
+
+// footer
+footer {
+  margin: 25px 0;
+}
+
+// Columns
+.col-xs-1, .col-sm-1, .col-md-1, .col-lg-1, .col-xs-2, .col-sm-2, .col-md-2, .col-lg-2, .col-xs-3, .col-sm-3, .col-md-3, .col-lg-3, .col-xs-4, .col-sm-4, .col-md-4, .col-lg-4, .col-xs-5, .col-sm-5, .col-md-5, .col-lg-5, .col-xs-6, .col-sm-6, .col-md-6, .col-lg-6, .col-xs-7, .col-sm-7, .col-md-7, .col-lg-7, .col-xs-8, .col-sm-8, .col-md-8, .col-lg-8, .col-xs-9, .col-sm-9, .col-md-9, .col-lg-9, .col-xs-10, .col-sm-10, .col-md-10, .col-lg-10, .col-xs-11, .col-sm-11, .col-md-11, .col-lg-11, .col-xs-12, .col-sm-12, .col-md-12, .col-lg-12 {
+  padding-right: 30px !important;
+  padding-left: 30px !important;
+}
+
+.form-group .col-xs-1, .form-group .col-sm-1, .form-group .col-md-1, .form-group .col-lg-1, .form-group .col-xs-2, .form-group .col-sm-2, .form-group .col-md-2, .form-group .col-lg-2, .form-group .col-xs-3, .form-group .col-sm-3, .form-group .col-md-3, .form-group .col-lg-3, .form-group .col-xs-4, .form-group .col-sm-4, .form-group .col-md-4, .form-group .col-lg-4, .form-group .col-xs-5, .form-group .col-sm-5, .form-group .col-md-5, .form-group .col-lg-5, .form-group .col-xs-6, .form-group .col-sm-6, .form-group .col-md-6, .form-group .col-lg-6, .form-group .col-xs-7, .form-group .col-sm-7, .form-group .col-md-7, .form-group .col-lg-7, .form-group .col-xs-8, .form-group .col-sm-8, .form-group .col-md-8, .form-group .col-lg-8, .form-group .col-xs-9, .form-group .col-sm-9, .form-group .col-md-9, .form-group .col-lg-9, .form-group .col-xs-10, .form-group .col-sm-10, .form-group .col-md-10, .form-group .col-lg-10, .form-group .col-xs-11, .form-group .col-sm-11, .form-group .col-md-11, .form-group .col-lg-11, .form-group .col-xs-12, .form-group .col-sm-12, .form-group .col-md-12, .form-group .col-lg-12 {
+  padding-right: 15px !important;
+  padding-left: 15px !important;
+}
+
+/* Inputs */
+.table-responsive {
+  border: none;
+}
+
+/* Tables */
+td a {
+  display: inline-block;
+  height:100%;
+  width:100%;
+}
+
+/* Slider */
+input[type='range'] {
+  -webkit-appearance: none;
+  border-radius: 5px;
+  background-color: #999;
+  height: 10px;
+  margin: 10px 0 10px 0;
+  vertical-align: middle;
+}
+input[type='range']::-moz-range-track {
+  -moz-appearance: none;
+  border-radius: 5px;
+  background-color: #999;
+  height: 10px;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  border-radius: 20px;
+  background-color: #FFF;
+  border: 1px solid #999;
+  height: 20px;
+  width: 20px;
+}
+input[type='range']::-moz-range-thumb {
+  -moz-appearance: none;
+  border-radius: 20px;
+  background-color: #FFF;
+  border: 1px solid #999;
+  height: 20px;
+  width: 20px;
+}
+
+header {
+  .navbar-brand {
+    padding: 0 0 0 0 !important;
+    #mainLogo{
+      height: 40px;
+      width: auto;
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+}
+
+/* File Upload */
+.btn-file {
+  position: relative;
+  overflow: hidden;
+}
+.btn-file input[type=file] {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 100%;
+  min-height: 100%;
+  font-size: 999px;
+  text-align: right;
+  filter: alpha(opacity=0);
+  opacity: 0;
+  outline: none;
+  background: white;
+  cursor: inherit;
+  display: block;
+}
+
+.btn-file input[type=file].disabled, .btn-file input[type=file][disabled] {
+  background-color: #eeeeee;
+  border-color: #e2e2e2;
+}
+
+.btn-file input[type=file].disabled, .btn-file input[type=file][disabled] {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+/* Drag and Drop */
+.icon-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 1px;
+}
+.icon-bar + .icon-bar {
+  margin-top: 4px;
+}
+
+.icon-bar {
+  background-color: #888;
+}
+
+/* Highlight */
+::selection {
+  background: #80deea !important;
+  color: #000 !important;
+}
+
+::-moz-selection {
+  background: #80deea !important;
+  color: #000 !important;
+}
+
+::-webkit-selection {
+  background: #80deea !important;
+  color: #000 !important;
+}
+
+::-ms-selection {
+  background: #80deea !important;
+  color: #000 !important;
+}
+
+::-o-selection {
+  background: #80deea !important;
+  color: #000 !important;
+}
