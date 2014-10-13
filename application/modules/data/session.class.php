@@ -1,4 +1,4 @@
-<?php
+<?hh
 
 namespace HCMS;
 
@@ -37,7 +37,7 @@ class Session extends \HC\Core implements \SessionHandlerInterface
     {
         $result = $this->connection->query('SELECT `id`, `data` FROM `sessions` WHERE `hash` = ? AND `lifeTime` > ?;', [$sessionID, time()]);
         if(!$result) {
-            return $this->generateNewSession($data);
+            return $this->generateNewSession();
         } else {
           // Old session, check if the data has actually changed
           if($data !== $result[0]['data']) {
@@ -76,18 +76,24 @@ class Session extends \HC\Core implements \SessionHandlerInterface
     }
 
     protected function generateNewSession($data = '') {
-      $this->gc(1);
+        $isLoggedIn = isset($_SESSION['user']);
+        
+        $this->gc(1);
 
-      $encryption = new \HC\Encryption();
-      $sessionID = $encryption->hash(uniqid(true) . mt_rand(0, 1000) . microtime(), ['salt' => uniqid(true) . mt_rand(0, 1000) . microtime(), 'hashlength' => 0]);
+        $encryption = new \HC\Encryption();
+        $sessionID = $encryption->hash(uniqid(true) . mt_rand(0, 1000) . microtime(), ['salt' => uniqid(true) . mt_rand(0, 1000) . microtime(), 'hashlength' => 0]);
 
-      $result = $this->connection->query('INSERT INTO `sessions` (`hash`, `lifeTime`, `data`) VALUES (?,?,?);', [$sessionID, (time() + self::$lifetime), $data]);
-      if($result) {
-        session_id($sessionID);
-        setcookie(session_name(), $sessionID, time() + 63072000, '/', NULL, true);
-        header('Location: /timeout', true, 302);
-        return true;
-      }
+        $result = $this->connection->query('INSERT INTO `sessions` (`hash`, `lifeTime`, `data`) VALUES (?,?,?);', [$sessionID, (time() + self::$lifetime), $data]);
+        if($result) {
+            session_id($sessionID);
+            setcookie(session_name(), $sessionID, time() + 63072000, '/', NULL, true);
+            if($isLoggedIn) {
+                header('Location: /timeout', true, 302);
+            } else {
+                header('Location: /', true, 302);
+            }
+            return true;
+        }
 
       return false;
     }

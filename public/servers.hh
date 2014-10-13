@@ -27,26 +27,56 @@ class ServersPage extends \HC\Page {
 	];
 
 	public function init() {
-		$this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/servers/create">Create Server</a>];
+        if($_SESSION['user']->hasPermission('Create')) {
+            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/servers/create">Create Server</a>];
+        }
+		
 		$db = new \HC\DB();
         
-		$columns = ['ID', 'Title'];
+		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip'];
 		$serversTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover', 'name' => 'serversTable']);
 		$serversTable->openHeader();
 		$serversTable->openRow();
-		foreach($columns as $column) {
-				$serversTable->column(['value' => $column]);
-		}
+		foreach($columns as $key => $column) {
+            $serversTable->column(['value' => $key]);
+        }
 		$serversTable->closeRow();
 		$serversTable->closeHeader();
+        
+        $result = $db->read('servers', array_values($columns), ['status' => 1]);
+        $serversTable->openBody();
+        if($result) {
+            foreach($result as $key => $row) {
+                $serversTable->openRow();
+                foreach($row as $key2 => $value) {
+                    if($key2 === 'title') {
+                        $serversTable->column(['value' => <a href={'/servers/' . $row['id']}>{$value}</a> ]);
+                    } else if($key2 === 'url') {
+                        $serversTable->column(['value' => <a href={$value}>{$value}</a>]);
+                    } else {
+                        $serversTable->column(['value' => $value]);
+                    }
+                }
+                $serversTable->closeRow();
+            }
+        }
+        
+        $serversTable->closeBody();
 
-		$this->body = <div class="row col-lg-12">
-                        <div class="row">
-                                    <div class="table-responsive">
-                                            {$serversTable}
-                                    </div>
-                            </div>
-                    </div>;
+		$this->body = <x:frag>
+            <div class="row col-lg-2 col-md-0 col-sm-0">
+            </div>
+            <div class="row col-lg-8 col-md-12 col-sm-12">
+                <div class="row">
+                    <h1>Severs</h1>
+                    <div class="table-responsive">
+                        {$serversTable}
+                    </div>
+                </div>
+            </div>
+            <div class="row col-lg-2 col-md-0 col-sm-0">
+            </div>
+        </x:frag>;
         
 			return 1;
 	}

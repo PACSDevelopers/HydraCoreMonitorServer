@@ -19,6 +19,11 @@
             'less' => [
                 'fonts' => true
             ]
+        ],
+        'rewrites' => [
+            '@^/domains/(?<id>\d+)$@' => '/domains/domain.hh',
+            '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
+            '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
         ]
     ];
 

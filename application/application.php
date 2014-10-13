@@ -38,6 +38,17 @@
         {
             switch ($class) {
                 /* Usable classes */
+                case 'HCMS\Domain':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/domain.class.php');
+                    break;
+                case 'HCMS\Server':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/server.class.php');
+                    break;
+                case 'HCMS\Database':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/database.class.php');
+                    break;
+                
+                /* System classes */
                 case 'HCMS\Session':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/session.class.php');
                     break;

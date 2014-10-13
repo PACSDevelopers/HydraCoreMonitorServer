@@ -27,26 +27,56 @@ class DatabasesPage extends \HC\Page {
 	];
 
 	public function init() {
-		$this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/databases/create">Create Database</a>];
+        if($_SESSION['user']->hasPermission('Create')) {
+            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/databases/create">Create Database</a>];
+        }
+		
 		$db = new \HC\DB();
         
-		$columns = ['ID', 'Title'];
+		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip'];
 		$databasesTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover', 'name' => 'databasesTable']);
 		$databasesTable->openHeader();
 		$databasesTable->openRow();
-		foreach($columns as $column) {
-				$databasesTable->column(['value' => $column]);
-		}
+		foreach($columns as $key => $column) {
+            $databasesTable->column(['value' => $key]);
+        }
 		$databasesTable->closeRow();
 		$databasesTable->closeHeader();
+        
+        $result = $db->read('databases', array_values($columns), ['status' => 1]);
+        $databasesTable->openBody();
+        if($result) {
+            foreach($result as $key => $row) {
+                $databasesTable->openRow();
+                foreach($row as $key2 => $value) {
+                    if($key2 === 'title') {
+                        $databasesTable->column(['value' => <a href={'/databases/' . $row['id']}>{$value}</a> ]);
+                    } else if($key2 === 'url') {
+                        $databasesTable->column(['value' => <a href={$value}>{$value}</a>]);
+                    } else {
+                        $databasesTable->column(['value' => $value]);
+                    }
+                }
+                $databasesTable->closeRow();
+            }
+        }
+        
+        $databasesTable->closeBody();
 
-		$this->body = <div class="row col-lg-12">
-                        <div class="row">
-                                    <div class="table-responsive">
-                                            {$databasesTable}
-                                    </div>
-                            </div>
-                    </div>;
+		$this->body = <x:frag>
+            <div class="row col-lg-2 col-md-0 col-sm-0">
+            </div>
+            <div class="row col-lg-8 col-md-12 col-sm-12">
+                <div class="row">
+                    <h1>Databases</h1>
+                    <div class="table-responsive">
+                        {$databasesTable}
+                    </div>
+                </div>
+            </div>
+            <div class="row col-lg-2 col-md-0 col-sm-0">
+            </div>
+        </x:frag>;
         
         return 1;
 	}

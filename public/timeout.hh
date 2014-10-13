@@ -1,12 +1,12 @@
 <?hh
 namespace HCPublic;
 
-class IndexPage extends \HC\Page {
+class TimeoutPage extends \HC\Page {
 
 	protected $settings = [
 		'views' => [
 			'header' => [
-				'pageName' => 'Status',
+				'pageName' => 'Timeout',
 				'scss' => [
 					'main' => true,
 					'login' => true
@@ -28,8 +28,9 @@ class IndexPage extends \HC\Page {
 				$this->body = <x:frag>
 					<div class="container">
 							<form class="form-signin" role="form" id="loginForm" autocomplete="on">
-									<h2 class="form-signin-heading">{SITE_NAME} - Status <a class="btn btn-sm btn-primary pull-right" href="/login">Login</a></h2>
-                                    <div class="clearfix"></div>
+									<h2 class="form-signin-heading">{SITE_NAME} - Timeout</h2>
+									<div id="alertBox" style="display: block;"><div class="alert alert-info alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button><strong>Info: </strong>Your session has expired, please login for continued use.</div></div>
+									<a class="btn btn-lg btn-primary btn-block" href="/">Login Again</a>
 							</form>
 					</div>
 				</x:frag>;
