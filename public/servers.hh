@@ -54,6 +54,8 @@ class ServersPage extends \HC\Page {
                         $serversTable->column(['value' => <a href={'/servers/' . $row['id']}>{$value}</a> ]);
                     } else if($key2 === 'url') {
                         $serversTable->column(['value' => <a href={$value}>{$value}</a>]);
+                    } else if($key2 === 'ip') {
+                        $serversTable->column(['value' => long2ip($value)]);
                     } else {
                         $serversTable->column(['value' => $value]);
                     }
