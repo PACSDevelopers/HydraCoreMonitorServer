@@ -46,13 +46,14 @@ class DomainsPage extends \HC\Page {
         $result = $db->read('domains', array_values($columns), ['status' => 1]);
         $domainsTable->openBody();
         if($result) {
+            $result = array_reverse($result);
             foreach($result as $key => $row) {
                 $domainsTable->openRow();
                 foreach($row as $key2 => $value) {
                     if($key2 === 'title') {
                         $domainsTable->column(['value' => <a href={'/domains/' . $row['id']}>{$value}</a> ]);
                     } else if($key2 === 'url') {
-                        $domainsTable->column(['value' => <a href={$value}>{$value}</a>]);
+                        $domainsTable->column(['value' => <a href={'http://' . $value}>{$value}</a>]);
                     } else {
                         $domainsTable->column(['value' => $value]);
                     }

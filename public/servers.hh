@@ -46,6 +46,7 @@ class ServersPage extends \HC\Page {
         $result = $db->read('servers', array_values($columns), ['status' => 1]);
         $serversTable->openBody();
         if($result) {
+            $result = array_reverse($result);
             foreach($result as $key => $row) {
                 $serversTable->openRow();
                 foreach($row as $key2 => $value) {

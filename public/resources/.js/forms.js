@@ -8,8 +8,26 @@ function validateURL(url, withExtension) {
         var urlRegex = new RegExp('(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
         return (urlRegex.test(url) > 0);
     } else {
-        var urlRegex = new RegExp('[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
+        var urlRegex = new RegExp('[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-]/)?');
         return (urlRegex.test(url) > 0);
+    }
+}
+
+function replaceURL(url, withExtension) {
+    if(withExtension && withExtension != 'false') {
+        var urlRegex = new RegExp('(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
+        var matches = url.match(urlRegex);
+        if(matches) {
+            return matches[0];
+        }
+        return '';
+    } else {
+        var urlRegex = new RegExp('[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-]/)?');
+        var matches = url.match(urlRegex);
+        if(matches) {
+            return matches[0];
+        }
+        return '';
     }
 }
 

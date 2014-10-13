@@ -46,6 +46,7 @@ class DatabasesPage extends \HC\Page {
         $result = $db->read('databases', array_values($columns), ['status' => 1]);
         $databasesTable->openBody();
         if($result) {
+            $result = array_reverse($result);
             foreach($result as $key => $row) {
                 $databasesTable->openRow();
                 foreach($row as $key2 => $value) {
@@ -53,6 +54,8 @@ class DatabasesPage extends \HC\Page {
                         $databasesTable->column(['value' => <a href={'/databases/' . $row['id']}>{$value}</a> ]);
                     } else if($key2 === 'url') {
                         $databasesTable->column(['value' => <a href={$value}>{$value}</a>]);
+                    } else if($key2 === 'ip') {
+                        $databasesTable->column(['value' => long2ip($value)]);
                     } else {
                         $databasesTable->column(['value' => $value]);
                     }

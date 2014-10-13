@@ -32,7 +32,7 @@ class LogoutPage extends \HC\Page {
 					<div class="container">
 							<form class="form-signin" role="form" id="loginForm" autocomplete="on">
 									<h2 class="form-signin-heading">{SITE_NAME} - Logout</h2>
-									<a class="btn btn-lg btn-primary btn-block" href="/">Login Again</a>
+									<a class="btn btn-lg btn-primary btn-block" href="/login">Login Again</a>
 							</form>
 					</div>
 				</x:frag>;

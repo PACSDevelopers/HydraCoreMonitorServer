@@ -1,9 +1,10 @@
 'use strict';
 
 function submitForm() {
-  var $alertBox = $('#alertBox');
-  $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for domain creation.')).slideDown();
-
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for domain creation.')).slideDown();
+    $('#domainURL').val(replaceURL($('#domainURL').val()));
+    
   var submitThis = true;
   var inputs = [
     'domainTitle',
@@ -44,6 +45,8 @@ function submitForm() {
               $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
             }
           }
+        } else {
+            $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
         }
       })
       .fail(function() {
@@ -56,9 +59,10 @@ function submitForm() {
 }
 
 function updateForm() {
-  var $alertBox = $('#alertBox');
-  $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for domain update.')).slideDown();
-
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for domain update.')).slideDown();
+    $('#domainURL').val(replaceURL($('#domainURL').val()));
+    
   var submitThis = false;
   var inputs = [
       'domainTitle',
@@ -91,7 +95,9 @@ function updateForm() {
     })
       .done(function(response) {
         if (typeof(response.status) != 'undefined') {
-          $alertBox.html(bootstrapAlert('success', 'Domain successfully edited.')).slideDown();
+            $alertBox.html(bootstrapAlert('success', 'Domain successfully edited.')).slideDown();
+        } else {
+            $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
         }
       })
       .fail(function() {
@@ -121,6 +127,8 @@ function deleteDomain() {
     .done(function(response) {
         if (typeof(response.status) != 'undefined') {
             $alertBox.html(bootstrapAlert('success', 'Domain successfully deleted.')).slideDown();
+        } else {
+            $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
         }
     })
     .fail(function() {

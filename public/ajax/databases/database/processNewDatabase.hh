@@ -35,11 +35,17 @@ class ProcessNewDatabaseAjax extends \HC\Ajax {
                     }
                 }
             }
-            
+
             if(isset($data['ip'])) {
                 $data['ip'] = ip2long($data['ip']);
                 if(!$data['ip']) {
                     $isValid = false;
+                } else {
+                    if(!$fp = @fsockopen(long2ip($data['ip']), 3306)){
+                        $isValid = false;
+                    } else {
+                        fclose($fp);
+                    }
                 }
             }
             

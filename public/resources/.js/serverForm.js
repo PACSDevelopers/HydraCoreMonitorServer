@@ -44,6 +44,8 @@ function submitForm() {
               $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
             }
           }
+        } else {
+            $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
         }
       })
       .fail(function() {
@@ -91,7 +93,9 @@ function updateForm() {
     })
       .done(function(response) {
         if (typeof(response.status) != 'undefined') {
-          $alertBox.html(bootstrapAlert('success', 'Server successfully edited.')).slideDown();
+            $alertBox.html(bootstrapAlert('success', 'Server successfully edited.')).slideDown();
+        } else {
+            $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
         }
       })
       .fail(function() {

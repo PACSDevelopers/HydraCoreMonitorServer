@@ -38,6 +38,7 @@ class Domain extends \HC\Core
             'domainStatus' => 'status',
         ];
 
+        $isValid = true;
         $data = [];
         foreach($POST['data'] as $key => $value) {
             if(isset($updateKeys[$key])) {
@@ -49,6 +50,38 @@ class Domain extends \HC\Core
             }
         }
 
+        if(isset($data['url'])) {
+            if(gethostbyname($data['url']) === $data['url']) {
+                $isValid = false;
+            } else {
+                $httpCode = false;
+                $data['url'] = str_replace('http://', '', $data['url']);
+                $data['url'] = str_replace('https://', '', $data['url']);
+                $data['url'] = rtrim((string)$data['url'], '/');
+                $handle = curl_init('http://' . $data['url']);
+
+                curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
+                $tempCookiesFile = sys_get_temp_dir() . '/' . md5((string)$data['url']) . '.cookies';
+                if(!is_file($tempCookiesFile)) {
+                    touch($tempCookiesFile);
+                }
+                curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
+                curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
+
+                $curlResponse = curl_exec($handle);
+                if($curlResponse) {
+                    $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+                }
+
+                curl_close($handle);
+
+                if($httpCode !== 200) {
+                    $isValid = false;
+                }
+            }
+        }
+
         if(!isset($data['editedBy'])) {
             $data['editedBy'] = $_SESSION['user']->getUserID();
         }
@@ -56,14 +89,18 @@ class Domain extends \HC\Core
         if(!isset($data['dateEdited'])) {
             $data['dateEdited'] = time();
         }
-
-        $query = $this->db->update('domains', ['id' => $POST['data']['domainID']], $data);
-        if($query){
-            $response = ['status' => 1, 'dateEdited' => $data['dateEdited']];
+        
+        if($isValid) {
+            $query = $this->db->update('domains', ['id' => $POST['data']['domainID']], $data);
+            if($query){
+                $response = ['status' => 1, 'dateEdited' => $data['dateEdited']];
+            } else {
+                $response['errors']['e4'] = true;
+            }
         } else {
-            $response['errors']['e4'] = true;
+            $response['errors']['e5'] = true;
         }
-
+        
         return $response;
     }
 

@@ -24,6 +24,7 @@ class ProcessNewDomainAjax extends \HC\Ajax {
                 'domainURL' => 'url'
             ];
             
+            $isValid = true;
             $data = [];
             foreach($POST['data'] as $key => $value) {
                 if(isset($insertKeys[$key])) {
@@ -31,6 +32,38 @@ class ProcessNewDomainAjax extends \HC\Ajax {
                             $data[$insertKeys[$key]] = <x:frag>{$value}</x:frag>;
                     } else {
                             $data[$insertKeys[$key]] = $value;
+                    }
+                }
+            }
+
+            if(isset($data['url'])) {
+                if(gethostbyname($data['url']) === $data['url']) {
+                    $isValid = false;
+                } else {
+                    $httpCode = false;
+                    $data['url'] = str_replace('http://', '', $data['url']);
+                    $data['url'] = str_replace('https://', '', $data['url']);
+                    $data['url'] = rtrim((string)$data['url'], '/');
+                    $handle = curl_init('http://' . $data['url']);
+
+                    curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
+                    $tempCookiesFile = sys_get_temp_dir() . '/' . md5((string)$data['url']) . '.cookies';
+                    if(!is_file($tempCookiesFile)) {
+                        touch($tempCookiesFile);
+                    }
+                    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+                    curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
+                    curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
+
+                    $curlResponse = curl_exec($handle);
+                    if($curlResponse) {
+                        $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+                    }
+
+                    curl_close($handle);
+
+                    if($httpCode !== 200) {
+                        $isValid = false;
                     }
                 }
             }
@@ -43,12 +76,16 @@ class ProcessNewDomainAjax extends \HC\Ajax {
                 $data['dateCreated'] = time();
             }
 
-            $domain = \HCMS\Domain::create($data);
+            if($isValid) {
+                $domain = \HCMS\Domain::create($data);
 
-            if($domain){
-                $response = ['status' => 1, 'data' => $POST['data'], 'domainID' => $domain->id];
+                if($domain){
+                    $response = ['status' => 1, 'data' => $POST['data'], 'domainID' => $domain->id];
+                } else {
+                    $response['errors']['e2'] = true;
+                }
             } else {
-                $response['errors']['e2'] = true;
+                $response['errors']['e3'] = true;
             }
 		}
 
