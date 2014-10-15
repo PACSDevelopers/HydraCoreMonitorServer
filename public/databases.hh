@@ -13,8 +13,8 @@ class DatabasesPage extends \HC\Page {
 							'js' => [
 									'extenders' => true,
 									'main' => true,
-									'databasesTable' => true,
-									'bootstrap-functions' => true
+									'bootstrap-functions' => true,
+                                    'databaseTable' => true
 							]
 					],
 					'body' => [
@@ -40,6 +40,7 @@ class DatabasesPage extends \HC\Page {
 		foreach($columns as $key => $column) {
             $databasesTable->column(['value' => $key]);
         }
+        $databasesTable->column(['value' => 'Status']);
 		$databasesTable->closeRow();
 		$databasesTable->closeHeader();
         
@@ -60,6 +61,7 @@ class DatabasesPage extends \HC\Page {
                         $databasesTable->column(['value' => $value]);
                     }
                 }
+                $databasesTable->column(['value' => <span class="databaseStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span>]);
                 $databasesTable->closeRow();
             }
         }

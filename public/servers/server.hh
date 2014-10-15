@@ -46,46 +46,117 @@ class ServerPage extends \HC\Page {
         }
 
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
+
+        $results = $db->read([
+            'servers' => 'S',
+            'J.SM.server_mapping' => [
+                'SM.serverID' => 'S.id'
+            ],
+            'J.D.domains' => [
+                'D.id' => 'SM.domainID'
+            ]
+        ], ['D.id', 'D.title', 'D.url'], ['S.id' => $server->id,'D.status' => 1]);
+
+        $domains = <tbody id="domainTableBody"></tbody>;
+        
+        if($results) {
+            foreach($results as $row) {
+                $domains->appendChild(<tr>
+                    <td>{$row['id']}</td>
+                    <td><a href={'/domains/' . $row['id']}>{$row['title']}</a></td>
+                    <td><a href={'http://' . $row['url']}>{$row['url']}</a></td>
+                    <td><button type="button" disabled={$isDisabled} class="btn btn-default removeDomain pull-right" data-id={$row['id']}><span class="glyphicons remove"></span></button></td>
+                </tr>);
+            }
+        }
+        
         
         $this->body = <x:frag>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
-                        </div>
-                        <div class="row col-lg-8 col-md-12 col-sm-12">
-                            <h1>Server Details</h1>
-                            <div class="row">
-                                    <form action="" class="form-horizontal" role="form"> 
-                                            <input type="hidden" name="serverD" id="serverID" value={$server->id} />
-                                            <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="serverTitle">Title</label>
-    
-                                                    <div class="col-sm-10">
-                                                            <input type="text" disabled={$isDisabled} class="form-control" placeholder="Title"
-                                                                        data-orgval={$server->title}
-                                                                        id="serverTitle" required="required" maxlength="50" value={$server->title} />
-                                                    </div>
-                                            </div>
-    
-                                            <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="serverIP">IP</label>
-    
-                                                    <div class="col-sm-10">
-                                                            <input type="text" disabled={$isDisabled} class="form-control" placeholder="IP" id="serverIP"
-                                                                        data-orgval={long2ip($server->ip)}
-                                                                        required="required" value={long2ip($server->ip)} />
-                                                    </div>
-                                            </div>
-    
-                                            <div class="form-group">
-                                                    <div id="alertBox"></div>
-                                                    <div class="col-sm-2"></div>
-                                                    <div class="col-sm-10 text-right">
-                                                        <button type="button" disabled={$isDisabled} class="btn btn-primary" onclick="updateForm();">Update Server</button>
-                                                    </div>
-                                            </div>
-                                    </form>
+                        <div id="domainModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Add Domain" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                                        <h4 class="modal-title">Add Domain</h4>
+                                    </div>
+                                    <div id="domainModalBody" class="modal-body">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        <button type="button" class="btn btn-primary" id="domainModalSaveButton" disabled="disabled">
+                                            Add
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-0 col-sm-0">
+                            </div>
+                            <div class="col-lg-8 col-md-12 col-sm-12">
+                                <h1>Server Details</h1>
+                                <div class="row">
+                                        <form action="" class="form-horizontal" role="form"> 
+                                                <input type="hidden" name="serverD" id="serverID" value={$server->id} />
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverTitle">Title</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="text" disabled={$isDisabled} class="form-control" placeholder="Title"
+                                                                            data-orgval={$server->title}
+                                                                            id="serverTitle" required="required" maxlength="50" value={$server->title} />
+                                                        </div>
+                                                </div>
+        
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverIP">IP</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="text" disabled={$isDisabled} class="form-control" placeholder="IP" id="serverIP"
+                                                                            data-orgval={long2ip($server->ip)}
+                                                                            required="required" value={long2ip($server->ip)} />
+                                                        </div>
+                                                </div>
+        
+                                                <div class="form-group">
+                                                        <div id="alertBox"></div>
+                                                        <div class="col-sm-2"></div>
+                                                        <div class="col-sm-10 text-right">
+                                                            <button type="button" disabled={$isDisabled} class="btn btn-primary" onclick="updateForm();">Update Server</button>
+                                                        </div>
+                                                </div>
+                                        </form>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-0 col-sm-0">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-2 col-md-0 col-sm-0">
+                            </div>
+        
+                            <div class="col-lg-8 col-md-12 col-sm-12">
+                                <h2>Domains</h2>
+                                <div class="row">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped table-hover" id="domainsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Title</th>
+                                                    <th>URL</th>
+                                                    <th>Remove</th>
+                                                </tr>
+                                            </thead>
+                                            {$domains}
+                                        </table>
+                                        <button type="button" disabled={$isDisabled} class="btn btn-primary pull-right" onclick="addDomain();">Add Domain</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-lg-2 col-md-0 col-sm-0">
+                            </div>
                         </div>
                       </x:frag>;
         

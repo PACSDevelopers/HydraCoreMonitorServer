@@ -37,34 +37,9 @@ class ProcessNewDomainAjax extends \HC\Ajax {
             }
 
             if(isset($data['url'])) {
-                if(gethostbyname($data['url']) === $data['url']) {
+                $httpCheck = \HCMS\Domain::checkHTTP($data['url']);
+                if(!$httpCheck) {
                     $isValid = false;
-                } else {
-                    $httpCode = false;
-                    $data['url'] = str_replace('http://', '', $data['url']);
-                    $data['url'] = str_replace('https://', '', $data['url']);
-                    $data['url'] = rtrim((string)$data['url'], '/');
-                    $handle = curl_init('http://' . $data['url']);
-
-                    curl_setopt($handle, CURLOPT_FOLLOWLOCATION, true);
-                    $tempCookiesFile = sys_get_temp_dir() . '/' . md5((string)$data['url']) . '.cookies';
-                    if(!is_file($tempCookiesFile)) {
-                        touch($tempCookiesFile);
-                    }
-                    curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-                    curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
-                    curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
-
-                    $curlResponse = curl_exec($handle);
-                    if($curlResponse) {
-                        $httpCode = curl_getinfo($handle, CURLINFO_HTTP_CODE);
-                    }
-
-                    curl_close($handle);
-
-                    if($httpCode !== 200) {
-                        $isValid = false;
-                    }
                 }
             }
             

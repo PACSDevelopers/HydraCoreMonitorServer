@@ -13,8 +13,8 @@ class DomainsPage extends \HC\Page {
 							'js' => [
 									'extenders' => true,
 									'main' => true,
-									'domainsTable' => true,
-									'bootstrap-functions' => true
+									'bootstrap-functions' => true,
+                                    'domainTable' => true
 							]
 					],
 					'body' => [
@@ -30,7 +30,7 @@ class DomainsPage extends \HC\Page {
         if($_SESSION['user']->hasPermission('Create')) {
             $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/domains/create">Create Domain</a>];
         }
-		
+        
 		$db = new \HC\DB();
         
 		$columns = ['ID' => 'id', 'Title' => 'title', 'URL' => 'url'];
@@ -40,6 +40,7 @@ class DomainsPage extends \HC\Page {
 		foreach($columns as $key => $column) {
 				$domainsTable->column(['value' => $key]);
 		}
+        $domainsTable->column(['value' => 'Status']);
 		$domainsTable->closeRow();
 		$domainsTable->closeHeader();
         
@@ -58,6 +59,7 @@ class DomainsPage extends \HC\Page {
                         $domainsTable->column(['value' => $value]);
                     }
                 }
+                $domainsTable->column(['value' => <span class="domainStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span>]);
                 $domainsTable->closeRow();
             }
         }

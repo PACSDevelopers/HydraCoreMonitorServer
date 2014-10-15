@@ -52,7 +52,12 @@ class Server extends \HC\Core
 
         if(isset($data['ip'])) {
             $data['ip'] = ip2long($data['ip']);
-            if(!$data['ip']) {
+            if($data['ip']) {
+                $check = self::checkHTTP($data['ip'], $data['ip']);
+                if(!$check) {
+                    $isValid = false;
+                }
+            } else {
                 $isValid = false;
             }
         }
@@ -77,6 +82,100 @@ class Server extends \HC\Core
         }
 
         return $response;
+    }
+
+    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0) {
+        $httpCode = false;
+        $port = 80;
+        if($prefix === 'https') {
+            $port = 443;
+        }
+        
+        if($trips >= 20) {
+            return false;
+        }
+                
+        $handle = curl_init();
+
+        $tempCookiesFile = sys_get_temp_dir() . '/' . md5($url . $ip) . '.cookies';
+        if(!is_file($tempCookiesFile)) {
+            file_put_contents($tempCookiesFile, json_encode($cookies));
+        } else if(empty($cookies)) {
+            $cookies = (array)json_decode(file_get_contents($tempCookiesFile));
+        }
+                
+        curl_setopt($handle, CURLOPT_URL, $prefix . '://' . $ip . $suffix);
+        curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
+        curl_setopt($handle, CURLOPT_HEADER, true);
+        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url]);
+        curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
+        
+        $curlResponse = curl_exec($handle);
+        
+        if($curlResponse) {
+            $extraData = curl_getinfo($handle);
+            $httpCode = $extraData['http_code'];
+            if($httpCode === 301 || $httpCode === 302) {
+                $oldCookies = $cookies;
+                $matches = [];
+                preg_match_all('/^Set-Cookie: (.*?)=(.*?);/m', $curlResponse, $matches);
+                if(isset($matches[1])) {
+                    foreach($matches[1] as $index => $cookie) {
+                        $cookies[$cookie] = $matches[2][$index];
+                    }
+                }
+                if($cookies !== $oldCookies) {
+                    file_put_contents($tempCookiesFile, json_encode($cookies));
+                }
+                
+                $matches = [];
+                $result = preg_match('/(Location:|URI:)(.*?)\n/', $curlResponse, $matches);
+                if(isset($matches[2])) {
+                    $location = trim($matches[2]);
+                    $location = parse_url($location);
+                    if($location) {
+                        $trips++;
+                        if(!isset($location['scheme'])) {
+                            $location['scheme'] = $prefix;
+                        }
+
+                        if(!isset($location['host'])) {
+                            $location['host'] = $url;
+                        }
+
+                        if(!isset($location['path'])) {
+                            $location['path'] = '';
+                        }
+
+                        if(isset($location['query'])) {
+                            $location['path'] .= '?' . $location['query'];
+                        }
+                        
+                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips);
+                        $extraData['redirect_count'] = $trips;
+                        return $returnValue;
+                    }
+                }
+            }
+        }
+
+        $curlErrorCode = curl_errno($handle);
+        if($curlErrorCode) {
+            $httpCode = $curlErrorCode;
+        }
+
+        curl_close($handle);
+
+        if($returnCode) {
+            return $httpCode;
+        } else if($httpCode === 200) {
+            return true;
+        }
+
+        return false;
     }
 
     public static function create($data){

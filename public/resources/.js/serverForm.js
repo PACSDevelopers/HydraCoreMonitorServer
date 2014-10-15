@@ -7,7 +7,7 @@ function submitForm() {
   var submitThis = true;
   var inputs = [
     'serverTitle',
-    'serverURL',
+    'serverIP',
   ];
 
   var data = {};
@@ -132,3 +132,98 @@ function deleteServer() {
         $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
     });
 }
+
+
+function addDomain($this) {
+    $('#domainModalSaveButton').attr('disabled', 'disabled');
+    
+    if($this) {
+
+        var data = {'serverID':  $('#serverID').val(), 'domainID': $this.val()};
+        $.ajax({
+            type: "POST",
+            url: '/ajax/servers/domain/processAddDomain',
+            data: {
+                data: data
+            }
+        }).done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                var row = '<tr><td>' + $this.val() + '</td>' +
+                    '<td><a href="/domains/' + $this.val() + '">' + $this.attr('data-title') + '</a></td>' +
+                    '<td><a href="http://' + $this.attr('data-url') + '">' + $this.attr('data-url') + '</a></td>' +
+                    '<td><button type="button" class="btn btn-default removeDomain pull-right" data-id="' + $this.val() + '"><span class="glyphicons remove"></span></button></td>' +
+                    '</tr>';
+
+                $('#domainTableBody').append(row);
+                $('#domainModal').modal('hide');
+            }
+        }).fail(function() {
+            // Tell user error
+            alert('Something went wrong, please try again');
+            $('#domainModal').modal('hide');
+        });
+    } else {
+        var data = {'serverID':  $('#serverID').val()};
+
+        $.ajax({
+            type: "POST",
+            url: '/ajax/servers/domain/processAddDomain',
+            data: {
+                data: data
+            }
+        }).done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.result) {
+                    var select = '<select id="addDomainModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
+                    
+                    response.result.forEach(function(value){
+                        select += '<option value="' + value['id'] + '" data-title="' + value['title'] + '" data-url="' +  value['url'] + '">' + value['title'] + '</option>';
+                    });
+
+                    select += '</select>';
+                    
+                    $('#domainModalBody').html(select);
+                    $('#domainModalSaveButton').removeAttr('disabled');
+                    $('#domainModalSaveButton').off('click');
+                    $('#domainModalSaveButton').on('click', function(){
+                        var $this = $('#addDomainModalSelect');
+                        if($this.val()) {
+                            addDomain($this.find(':selected'));
+                        }
+                    });
+                    $('#domainModal').modal('show');
+                }
+            }
+        }).fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+    }
+    
+}
+
+function removeDomain($this) {
+    var data = {'domainID': $this.attr('data-id'), 'serverID':  $('#serverID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/servers/domain/processRemoveDomain',
+        data: {
+            data: data
+        }
+    }).done(function(response) {
+        if (typeof(response.status) != 'undefined') {
+            $this.parent().parent().remove();
+        }
+    })
+    .fail(function() {
+        // Tell user error
+        $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+    });
+}
+
+$(document).ready(function(){
+   $(document).on('click', '.removeDomain', function(){
+       removeDomain($(this));
+   });
+});

@@ -13,8 +13,8 @@ class ServersPage extends \HC\Page {
 							'js' => [
 									'extenders' => true,
 									'main' => true,
-									'serversTable' => true,
-									'bootstrap-functions' => true
+									'bootstrap-functions' => true,
+                                    'serverTable' => true
 							]
 					],
 					'body' => [
@@ -40,6 +40,7 @@ class ServersPage extends \HC\Page {
 		foreach($columns as $key => $column) {
             $serversTable->column(['value' => $key]);
         }
+        $serversTable->column(['value' => 'Status']);
 		$serversTable->closeRow();
 		$serversTable->closeHeader();
         
@@ -60,6 +61,7 @@ class ServersPage extends \HC\Page {
                         $serversTable->column(['value' => $value]);
                     }
                 }
+                $serversTable->column(['value' => <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span>]);
                 $serversTable->closeRow();
             }
         }

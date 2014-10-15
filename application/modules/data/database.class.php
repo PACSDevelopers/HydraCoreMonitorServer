@@ -52,9 +52,12 @@ class Database extends \HC\Core
         }
 
         if(isset($data['ip'])) {
-            $data['ip'] = ip2long($data['ip']);
-            if(!$data['ip']) {
+            $isIPValid = self::testMySQLPort($data['ip']);
+            
+            if(!$isIPValid) {
                 $isValid = false;
+            } else {
+                $data['ip'] = ip2long($data['ip']);
             }
         }
 
@@ -86,6 +89,18 @@ class Database extends \HC\Core
         if($query) {
             return new self(['id' => $db->getLastID()]);
         }
+        return false;
+    }
+    
+    public static function testMySQLPort($ip, $port = 3306) {
+        $ip = ip2long($ip);
+        if($ip) {
+            if($fp = @fsockopen(long2ip($ip), $port)){
+                fclose($fp);
+                return true;
+            }
+        }
+        
         return false;
     }
 

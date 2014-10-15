@@ -48,6 +48,17 @@
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/database.class.php');
                     break;
                 
+                /* Hooks */
+                case 'HCMS\Hooks\Cron\ProcessDatabases':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processDatabases.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessDomains':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processDomains.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessServers':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processServers.class.php');
+                    break;
+                
                 /* System classes */
                 case 'HCMS\Session':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/session.class.php');
