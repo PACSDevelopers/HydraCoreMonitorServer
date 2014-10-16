@@ -33,11 +33,10 @@ class ProcessAddDomainAjax extends \HC\Ajax {
                                                 FROM
                                                     `domains` `D`
                                                         LEFT JOIN
-                                                    `server_mapping` `SM` ON (`SM`.`domainID` = `D`.`id`)
+                                                    `server_mapping` `SM` ON (`SM`.`domainID` = `D`.`id` AND `SM`.`serverID` = ?)
                                                 WHERE
                                                     `D`.`status` = 1
-                                                        AND `SM`.`domainID` IS NULL
-                                                        AND (`SM`.`serverID` = ? OR `SM`.`serverID` IS NULL);', [$POST['data']['serverID']]);
+                                                AND `SM`.`domainID` IS NULL;', [$POST['data']['serverID']]);
                         if($result) {
                             $response = ['status' => 1, 'result' => $result];
                         } else {

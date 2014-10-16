@@ -44,6 +44,12 @@
 
       {
           echo 'Processing Servers' . PHP_EOL;
+            
+          $settings = [];
+          $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+          if(isset($globalSettings['monitor-server'])) {
+              $settings = $globalSettings['monitor-server'];
+          }
           
           $db = new \HC\DB();
           $result = $db->read([
@@ -67,6 +73,13 @@
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
               
               $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => []];
+
+              if(isset($settings['domain']) && isset($settings['key'])) {
+                  $authenticator = new \HC\Authenticator();
+                  $authenticator->setCodeLength(9);
+              } else {
+                  $clientData = [['cpu' => 0, 'memory' => 0, 'disk' => 0, 'network' => 0]];
+              }
               
               $db->beginTransaction();
 
@@ -84,7 +97,7 @@
                       $dateTokens[1] = 0;
                   }
                   $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-                  
+
                   if($isValidConnection === 200) {
                       $overview['up']++;
                       echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Passed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
@@ -93,6 +106,17 @@
                   }
 
                   $overview['responseTime'][] = $after;
+                  
+                  if(isset($settings['domain']) && isset($settings['key'])) {
+                      $before2 = microtime(true);
+                      $tempClientData = \HCMS\Server::checkClient(long2ip($row['ip']), $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
+                      $after2 = microtime(true) - $before2;
+                      var_dump($after2);
+                      if($tempClientData) {
+                          $clientData[] = $tempClientData;
+                          var_dump($tempClientData);
+                      }
+                  }
                   
                   $db->write('server_history', ['domainID' => $row['domainID'], 'serverID' => $row['serverID'], 'status' => $isValidConnection, 'responseTime' => $after, 'dateCreated' => $dateCreated, 'redirects' => $extraData['redirect_count']]);
               }

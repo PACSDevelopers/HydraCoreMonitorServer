@@ -29,7 +29,7 @@ class ProcessServerStatusAjax extends \HC\Ajax {
                         'J.D.domains' => [
                             'D.id' => 'SM.domainID'
                         ]
-                    ], ['D.id' => 'domainID', 'S.id' => 'serverID', 'D.title' => 'domainTitle', 'S.title' => 'serverTitle', 'D.url', 'S.ip'], ['S.status' => 1,'D.status' => 1]);
+                    ], ['D.id' => 'domainID', 'S.id' => 'serverID', 'D.title' => 'domainTitle', 'S.title' => 'serverTitle', 'D.url', 'S.ip'], ['S.id' => $POST['data']['serverID'],'D.status' => 1]);
 
                     if($result) {
                         foreach ($result as $row) {
@@ -38,7 +38,7 @@ class ProcessServerStatusAjax extends \HC\Ajax {
                                 break;
                             }
                         }
-                        $response = ['status' => $isValidConnection];
+                        $response = ['status' => $isValidConnection, 'lastURL' => $row['url']];
                     } else {
                         $response = ['status' => 1];
                     }
