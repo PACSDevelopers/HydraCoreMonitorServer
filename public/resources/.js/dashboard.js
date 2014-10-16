@@ -120,6 +120,13 @@ function drawServerCharts(result) {
         },
         vAxis: {
             format: '#.#ms',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindowMode:'explicit',
+            viewWindow:
+            {
+                min:0.00
+            },
             gridlines:{count:3}
         }
     };
@@ -199,6 +206,13 @@ function drawDatabaseCharts(result) {
         },
         vAxis: {
             format: '#.#ms',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindowMode:'explicit',
+            viewWindow:
+            {
+                min:0.00
+            },
             gridlines:{count:3}
         }
     };
@@ -277,6 +291,13 @@ function drawDomainCharts(result) {
         },
         vAxis: {
             format: '#.#ms',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindowMode:'explicit',
+            viewWindow:
+            {
+                min:0.00
+            },
             gridlines:{count:3}
         }
     };
