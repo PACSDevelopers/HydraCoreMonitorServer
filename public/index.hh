@@ -34,19 +34,29 @@ class IndexPage extends \HC\Page {
                         </form>
                     </div>
                     <div class="row">
+                        <div id="serverHistoryApplicationResponseTime"></div>
                         <div class="col-lg-4">
                                 <div id="domainHistoryAvailability"></div>
                                 <div id="domainHistoryResponseTime"></div>
+                                <div id="serverHistoryCPU"></div>
+                                <div id="serverHistoryStorageCapacity"></div>
+                                <div id="serverHistoryTPS"></div>
                         </div>
 
                         <div class="col-lg-4">
                                 <div id="serverHistoryAvailability"></div>
                                 <div id="serverHistoryResponseTime"></div>
+                                <div id="serverHistoryMemory"></div>
+                                <div id="serverHistoryNetworkTraffic"></div>
+                                <div id="serverHistoryQPM"></div>
                         </div>
 
                         <div class="col-lg-4">
                                 <div id="databaseHistoryAvailability"></div>
                                 <div id="databaseHistoryResponseTime"></div>
+                                <div id="serverHistoryIOWait"></div>
+                                <div id="serverHistoryRPS"></div>
+                                <div id="serverHistoryAVGTimeCPUBound"></div>
                         </div>
                     </div>
             </div>

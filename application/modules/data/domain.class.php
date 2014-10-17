@@ -103,7 +103,8 @@ class Domain extends \HC\Core
             if(!is_file($tempCookiesFile)) {
                 touch($tempCookiesFile);
             }
-            
+
+            curl_setopt($handle, CURLOPT_HTTPHEADER, ['X-Hc-Skip-App-Stats: 1']);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);

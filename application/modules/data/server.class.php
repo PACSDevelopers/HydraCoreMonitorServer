@@ -108,7 +108,7 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($handle, CURLOPT_HEADER, true);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url]);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1']);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
@@ -202,13 +202,13 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($handle, CURLOPT_HEADER, true);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url]);
+        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1']);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
 
         $curlResponse = curl_exec($handle);
-
+        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
@@ -265,8 +265,6 @@ class Server extends \HC\Core
         $body = substr($curlResponse, $header_size);
 
         curl_close($handle);
-        
-        var_dump($body);
         
         if($httpCode === 200) {
             return json_decode($body, true);
