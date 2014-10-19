@@ -215,6 +215,31 @@ function GetObjectSize(obj) {
     return size;
 };
 
+
+(function(){
+    if (typeof Object.defineProperty === 'function'){
+        try{Object.defineProperty(Array.prototype,'sortBy',{value:sb}); }catch(e){}
+    }
+    if (!Array.prototype.sortBy) Array.prototype.sortBy = sb;
+
+    function sb(f){
+        for (var i=this.length;i;){
+            var o = this[--i];
+            this[i] = [].concat(f.call(o,o,i),o);
+        }
+        this.sort(function(a,b){
+            for (var i=0,len=a.length;i<len;++i){
+                if (a[i]!=b[i]) return a[i]<b[i]?-1:1;
+            }
+            return 0;
+        });
+        for (var i=this.length;i;){
+            this[--i]=this[i][this[i].length-1];
+        }
+        return this;
+    }
+})();
+
 function php_timezone_abbreviations_list() {
     var list = {},
         i = 0,
@@ -3082,3 +3107,28 @@ var MD5 = function (string) {
 
     return temp.toLowerCase();
 }
+
+(function() {
+    var lastTime = 0;
+    var vendors = ['webkit', 'moz', 'ms', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame =
+            window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+                timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());

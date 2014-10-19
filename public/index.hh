@@ -34,29 +34,132 @@ class IndexPage extends \HC\Page {
                         </form>
                     </div>
                     <div class="row">
-                        <div id="serverHistoryApplicationResponseTime"></div>
-                        <div class="col-lg-4">
-                                <div id="domainHistoryAvailability"></div>
-                                <div id="domainHistoryResponseTime"></div>
-                                <div id="serverHistoryCPU"></div>
-                                <div id="serverHistoryStorageCapacity"></div>
-                                <div id="serverHistoryTPS"></div>
+                        <div class="row">
+                            <div id="serverHistoryApplicationResponseTime" class="chart forceGPU noselect">
+                                <div class="spinner">
+                                  <div class="rect1"></div>
+                                  <div class="rect2"></div>
+                                  <div class="rect3"></div>
+                                  <div class="rect4"></div>
+                                  <div class="rect5"></div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-lg-4">
-                                <div id="serverHistoryAvailability"></div>
-                                <div id="serverHistoryResponseTime"></div>
-                                <div id="serverHistoryMemory"></div>
-                                <div id="serverHistoryNetworkTraffic"></div>
-                                <div id="serverHistoryQPM"></div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="serverHistoryUsage" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div id="historyAvailability" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div id="historyResponseTime" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="col-lg-4">
-                                <div id="databaseHistoryAvailability"></div>
-                                <div id="databaseHistoryResponseTime"></div>
-                                <div id="serverHistoryIOWait"></div>
-                                <div id="serverHistoryRPS"></div>
-                                <div id="serverHistoryAVGTimeCPUBound"></div>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationRPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationQPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationAVGTimeCPUBound" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryIOWait" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryTPS" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryNetworkTraffic" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
             </div>

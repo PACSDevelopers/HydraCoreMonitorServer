@@ -74,6 +74,7 @@ $(document).ready(function (){
     $.webshims.polyfill();
 
     $(window).resize(function() {
+        $(this).trigger('resizeStart');
         if(this.resizeTO) clearTimeout(this.resizeTO);
         this.resizeTO = setTimeout(function() {
             $(this).trigger('resizeEnd');
