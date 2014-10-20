@@ -127,25 +127,6 @@
                           $overview['avgTimeCpuBound'][] = $tempClientData['result']['avgTimeCpuBound'];
                       }
                   }
-                  
-                  $db->write('server_history', [
-                      'domainID' => $row['domainID'],
-                      'serverID' => $row['serverID'],
-                      'status' => $isValidConnection,
-                      'responseTime' => $after,
-                      'cpu' => $currentClientData['cpu'],
-                      'mem' => $currentClientData['mem'],
-                      'iow' => $currentClientData['iow'],
-                      'ds' => $currentClientData['ds'],
-                      'net' => $currentClientData['net'],
-                      'rpm' => $currentClientData['rpm'],
-                      'tps' => $currentClientData['tps'],
-                      'avgRespTime' => $currentClientData['avgRespTime'],
-                      'qpm' => $currentClientData['qpm'],
-                      'avgTimeCpuBound' => $currentClientData['avgTimeCpuBound'],
-                      'dateCreated' => $dateCreated,
-                      'redirects' => $extraData['redirect_count']
-                  ]);
               }
             
               $serverCount = count($result);
@@ -183,6 +164,8 @@
               }
                 
               unset($overview['up']);
+              
+              var_dump($overview);
               $db->write('server_history_overview', $overview);
               
               $db->commit();

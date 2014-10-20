@@ -572,8 +572,12 @@
 		}
 
         protected static function getErrorLine($file, $line, $endLine) {
-            $fileLines = file($file);
-            return '[0] ' . $file . ':' . $line . ' ' . $fileLines[$line - 1] . $endLine . $endLine;
+            if(is_file($file)) {
+                $fileLines = file($file);
+                return '[0] ' . $file . ':' . $line . ' ' . $fileLines[$line - 1] . $endLine . $endLine;
+            } else {
+                return '[0] ' . $file . ':' . $line . ' ' . $endLine . $endLine;
+            }
         }
 
         protected static function friendlyErrorType($type)

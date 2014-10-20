@@ -94,7 +94,6 @@
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
-                  $db->write('domain_history', ['domainID' => $row['id'], 'status' => $isValidConnection, 'responseTime' => $after, 'dateCreated' => $dateCreated, 'redirects' => $extraData['redirect_count'], 'redirectTime' => $extraData['redirect_time'], 'ssl' => $extraData['ssl_verify_result']]);
               }
 
               $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);

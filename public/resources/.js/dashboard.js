@@ -712,7 +712,8 @@ function drawAvailability(availability, result, type) {
                 'slantedText': true
             },
             legend: {
-                'position': 'top'
+                position: 'top',
+                alignment: 'center',
             },
             animation:{
                 duration: 250,
@@ -732,21 +733,26 @@ function drawAvailability(availability, result, type) {
 function drawResponseTimes(responseTimes, result, type) {
     responseTimes[type] = result;
     if(GetObjectSize(responseTimes) === 3) {
-
         var dataArray = [];
+
+        if(responseTimes['server']) {
+            responseTimes['server'].forEach(function(value){
+                dataArray.push([new Date(value['dateCreated']), parseFloat(value['responseTime']) * 1000, null, null]);
+            });
+        }
+
+        if(responseTimes['domain']) {
+            responseTimes['domain'].forEach(function(value){
+                dataArray.push([new Date(value['dateCreated']), null, parseFloat(value['responseTime']) * 1000, null]);
+            });
+        }
+
+        if(responseTimes['database']) {
+            responseTimes['database'].forEach(function(value){
+                dataArray.push([new Date(value['dateCreated']), null, null, parseFloat(value['responseTime']) * 1000]);
+            });
+        }
         
-        responseTimes['server'].forEach(function(value){
-            dataArray.push([new Date(value['dateCreated']), parseFloat(value['responseTime']) * 1000, null, null]);
-        });
-
-        responseTimes['domain'].forEach(function(value){
-            dataArray.push([new Date(value['dateCreated']), null, parseFloat(value['responseTime']) * 1000, null]);
-        });
-
-        responseTimes['database'].forEach(function(value){
-            dataArray.push([new Date(value['dateCreated']), null, null, parseFloat(value['responseTime']) * 1000]);
-        });
-
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', '');
         data.addColumn('number', 'Server');
