@@ -35,5 +35,4 @@ assets/*
 tmp/*
 tmp/processes/*
 *.log
-vendor/*
 translations/*.res
