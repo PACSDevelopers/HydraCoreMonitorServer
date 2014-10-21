@@ -79,6 +79,8 @@
                   $authenticator->setCodeLength(9);
               }
               
+              $servers = [];
+              
               $db->beginTransaction();
 
               foreach($result as $row) {
@@ -108,23 +110,25 @@
                   $currentClientData = ['cpu' => 0, 'mem' => 0, 'iow' => 0, 'ds' => 0, 'net' => 0, 'rpm' => 0, 'tps' => 0, 'avgRespTime' => 0, 'qpm' => 0, 'avgTimeCpuBound' => 0];
                   
                   if(isset($settings['domain']) && isset($settings['key'])) {
-                      $before2 = microtime(true);
-                      $tempClientData = \HCMS\Server::checkClient(long2ip($row['ip']), $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
-                      $after2 = microtime(true) - $before2;
-                      var_dump($after2);
-                      if($tempClientData && isset($tempClientData['result'])) {
-                          var_dump($tempClientData);
-                          $currentClientData = $tempClientData['result'];
-                          $overview['cpu'][] = $tempClientData['result']['cpu'];
-                          $overview['mem'][] = $tempClientData['result']['mem'];
-                          $overview['iow'][] = $tempClientData['result']['iow'];
-                          $overview['ds'][] = $tempClientData['result']['ds'];
-                          $overview['net'][] = $tempClientData['result']['net'];
-                          $overview['rpm'][] = $tempClientData['result']['rpm'];
-                          $overview['tps'][] = $tempClientData['result']['tps'];
-                          $overview['avgRespTime'][] = $tempClientData['result']['avgRespTime'];
-                          $overview['qpm'][] = $tempClientData['result']['qpm'];
-                          $overview['avgTimeCpuBound'][] = $tempClientData['result']['avgTimeCpuBound'];
+                      $ip = long2ip($row['ip']);
+                      if(!isset($servers[$ip])) {
+                          $servers[$ip] = true;
+                          $before2 = microtime(true);
+                          $tempClientData = \HCMS\Server::checkClient($ip, $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
+                          $after2 = microtime(true) - $before2;
+                          if($tempClientData && isset($tempClientData['result'])) {
+                              $currentClientData = $tempClientData['result'];
+                              $overview['cpu'][] = $tempClientData['result']['cpu'];
+                              $overview['mem'][] = $tempClientData['result']['mem'];
+                              $overview['iow'][] = $tempClientData['result']['iow'];
+                              $overview['ds'][] = $tempClientData['result']['ds'];
+                              $overview['net'][] = $tempClientData['result']['net'];
+                              $overview['rpm'][] = $tempClientData['result']['rpm'];
+                              $overview['tps'][] = $tempClientData['result']['tps'];
+                              $overview['avgRespTime'][] = $tempClientData['result']['avgRespTime'];
+                              $overview['qpm'][] = $tempClientData['result']['qpm'];
+                              $overview['avgTimeCpuBound'][] = $tempClientData['result']['avgTimeCpuBound'];
+                          }
                       }
                   }
               }
@@ -165,7 +169,6 @@
                 
               unset($overview['up']);
               
-              var_dump($overview);
               $db->write('server_history_overview', $overview);
               
               $db->commit();
