@@ -366,8 +366,8 @@
                         $avgRespTime = apc_fetch('HC_APP_STATS_TIME');
                         $oldQueries = apc_fetch('HC_APP_STATS_QPM');
                         $avgTimeCPUBound = apc_fetch('HC_APP_STATS_TIME_CPUBOUND');
-
-                        if($timecode < (time() - 60)) {
+                        $expire = (time() - 60);
+                        if($timecode > $expire) {
                             // In range
 
                             // Calculate new average
