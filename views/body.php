@@ -42,7 +42,7 @@ class BodyView extends \HC\View {
                     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
                         <div class="container">
                             <div class="navbar-header">
-                                <a class="navbar-brand" href={PROTOCOL.'://'.SITE_DOMAIN}><img src={PROTOCOL.'://'.SITE_DOMAIN . '/resources/images/logo.png'} alt="HydraCore" id="mainLogo" width="400" height="94" /></a>
+                                <a class="navbar-brand" href={PROTOCOL.'://'.SITE_DOMAIN}><img src={PROTOCOL.'://'.SITE_DOMAIN . '/resources/images/logo.png'} alt="HydraCore" id="mainLogo" width="186" height="50" /></a>
                                 {$navButton}
                             </div>
                             <div class="navbar-collapse collapse" id="navbar-main" role="list">

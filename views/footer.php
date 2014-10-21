@@ -60,8 +60,6 @@ class FooterView extends \HC\View {
               </div>
               <div class="col-xs-12">
                   <small>Copyright © {AUTHOR} - {date('Y')}</small>
-                  <br />
-                  <small>Powered by: HydraCore {HC_VERSION}</small>
               </div>
             </div>
         </footer>;

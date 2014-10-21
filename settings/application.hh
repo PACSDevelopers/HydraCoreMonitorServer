@@ -3,8 +3,8 @@
     /**
      * Constants
      */
-    const SITE_NAME = 'HydraCore Monitor Server';
-    const AUTHOR = 'Ryan Howell';
+    const SITE_NAME = 'PACS Tools Monitor';
+    const AUTHOR = 'PACS Tools';
     const REGISTER_SHUTDOWN = true;
     const MODE = 'MVC';
 
