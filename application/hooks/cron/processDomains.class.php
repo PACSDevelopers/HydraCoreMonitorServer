@@ -94,6 +94,8 @@
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
+                  
+                  $db->write('domain_history', ['domainID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
               }
 
               $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);

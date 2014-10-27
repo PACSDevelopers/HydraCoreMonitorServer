@@ -208,7 +208,6 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
 
         $curlResponse = curl_exec($handle);
-        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
