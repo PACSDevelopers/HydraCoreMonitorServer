@@ -94,6 +94,8 @@
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
+                  
+                  $db->write('domain_history', ['domainID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
               }
 
               $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);
@@ -102,6 +104,17 @@
 
               unset($overview['up']);
               $db->write('domain_history_overview', $overview);
+
+              $before = (microtime(true) - (86400*30));
+              $dateTokens = explode('.', $before);
+              if(!isset($dateTokens[1])) {
+                  $dateTokens[1] = 0;
+              }
+
+              $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
+
+              $db->query('DELETE FROM `domain_history` WHERE `dateCreated` < ?;', [$dateCreated]);
+              $db->query('DELETE FROM `domain_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
               
               $db->commit();
 
