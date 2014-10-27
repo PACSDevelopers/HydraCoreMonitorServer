@@ -5,372 +5,368 @@
 
 
 
-	/**
-	 * Class Authenticator
-	 */
+    /**
+     * Class Authenticator
+     */
 
-	class Authenticator extends Core
+    class Authenticator extends Core
 
-	{
+    {
 
-		protected $settings = [];
+        protected $settings = [];
 
 
 
-		protected $base32LookupTable = [
+        protected $base32LookupTable = [
 
-				'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
-				'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
-				'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 23
-				'Y', 'Z', '2', '3', '4', '5', '6', '7', // 31
-				'='  																		// padding character
-		];
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', //  7
+            'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', // 15
+            'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', // 23
+            'Y', 'Z', '2', '3', '4', '5', '6', '7', // 31
+            '='  																		// padding character
+        ];
 
 
 
-		protected $codeLength = 6;
+        protected $codeLength = 6;
 
 
 
-		public function __construct($settings = [])
+        public function __construct($settings = [])
 
-		{
+        {
 
-			$globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+            $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
 
-			if (isset($globalSettings['authenticator'])) {
+            if (isset($globalSettings['authenticator'])) {
 
-				if (is_array($globalSettings['authenticator'])) {
+                if (is_array($globalSettings['authenticator'])) {
 
-					$this->settings = $this->parseOptions($settings, $globalSettings['authenticator']);
+                    $this->settings = $this->parseOptions($settings, $globalSettings['authenticator']);
 
-				}
+                }
 
-			}
+            }
 
 
 
-			$this->settings = $this->parseOptions($settings, $this->settings);
+            $this->settings = $this->parseOptions($settings, $this->settings);
 
 
 
-			return true;
+            return true;
 
-		}
+        }
 
 
 
-		public function __destruct()
+        public function __destruct()
 
-		{
+        {
 
-			$this->settings = null;
+            $this->settings = null;
 
-		}
+        }
 
 
 
-		/**
-		* @param int $secretLength
-		* @return string
-		*/
+        /**
+         * @param int $secretLength
+         * @return string
+         */
 
-		public function createSecret($secretLength = 32)
+        public function createSecret($secretLength = 32)
 
-		{
+        {
 
-				$validChars = $this->base32LookupTable;
+            $validChars = $this->base32LookupTable;
 
 
 
-				unset($validChars[32]);
+            unset($validChars[32]);
 
 
 
-				$secret = '';
+            $secret = '';
 
-				for ($i = 0; $i < $secretLength; $i++) {
+            for ($i = 0; $i < $secretLength; $i++) {
 
-						$secret .= $validChars[array_rand($validChars)];
+                $secret .= $validChars[array_rand($validChars)];
 
-				}
+            }
 
 
 
-				return $secret;
+            return $secret;
 
-		}
+        }
 
 
 
-		/**
-		* @param string $secret
-		* @param int|false $timeSlice
-		* @return string
-		*/
+        /**
+         * @param string $secret
+         * @param int|false $timeSlice
+         * @return string
+         */
 
-		public function getCode($secret, $timeSlice = false)
+        public function getCode($secret, $timeSlice = false)
 
-		{
+        {
 
-				if ($timeSlice === false) {
+            if ($timeSlice === false) {
+                $timeSlice = floor(time() / 30);
+            }
 
-						$timeSlice = floor(time() / 30);
 
-				}
 
+            $secretkey = $this->_base32Decode($secret);
 
 
-				$secretkey = $this->_base32Decode($secret);
 
+            // Pack time into binary string
+            $time = chr(0).chr(0).chr(0).chr(0).pack('N*', $timeSlice);
 
 
-				// Pack time into binary string
-				$time = chr(0).chr(0).chr(0).chr(0).pack('N*', $timeSlice);
 
+            // Hash it with users secret key
+            $hm = hash_hmac('SHA1', $time, $secretkey, true);
 
 
-				// Hash it with users secret key
-				$hm = hash_hmac('SHA1', $time, $secretkey, true);
 
+            // Use last char of result as index/offset
+            $offset = ord(substr($hm, -1)) & 0x0F;
 
 
-				// Use last char of result as index/offset
-				$offset = ord(mb_substr($hm, -1)) & 0x0F;
 
+            // grab 4 bytes of the result
+            $hashpart = substr($hm, $offset, 4);
 
+            // Unpack binary value
+            $value = unpack('N', $hashpart);
 
-				// grab 4 bytes of the result
-				$hashpart = mb_substr($hm, $offset, 4);
+            $value = $value[1];
 
 
 
-				// Unpack binary value
-				$value = unpack('N', $hashpart);
+            // Only 32 bits
+            $value = $value & 0x7FFFFFFF;
 
-				$value = $value[1];
 
 
+            $modulo = pow(10, $this->codeLength);
 
-				// Only 32 bits
-				$value = $value & 0x7FFFFFFF;
 
 
+            return str_pad($value % $modulo, $this->codeLength, '0', STR_PAD_LEFT);
 
-				$modulo = pow(10, $this->codeLength);
+        }
 
 
 
-				return str_pad($value % $modulo, $this->codeLength, '0', STR_PAD_LEFT);
+        /**
+         * @param string $name
+         * @param string $secret
+         * @return string
+         */
 
-		}
+        public function getQRCode($name, $secret, $size = 200) {
 
+            return 'https://chart.googleapis.com/chart?chs=' . $size . 'x' . $size . '&chld=M|0&cht=qr&chl='. urlencode('otpauth://totp/' . $name . '?secret='. $secret);
 
+        }
 
-		/**
-		* @param string $name
-		* @param string $secret
-		* @return string
-		*/
 
-		public function getQRCode($name, $secret, $size = 200) {
 
-				return 'https://chart.googleapis.com/chart?chs=' . $size . 'x' . $size . '&chld=M|0&cht=qr&chl='. urlencode('otpauth://totp/' . $name . '?secret='. $secret);
+        /**
+         * Check if the code is correct. This will accept codes starting from $discrepancy*30sec ago to $discrepancy*30sec from now
+         *
+         * @param string $secret
+         * @param string $code
+         * @param int $discrepancy This is the allowed time drift in 30 second units (8 means 4 minutes before or after)
+         * @return bool
+         */
 
-		}
+        public function verifyCode($secret, $code, $discrepancy = 1)
 
+        {
 
+            $currentTimeSlice = floor(time() / 30);
 
-		/**
-		* Check if the code is correct. This will accept codes starting from $discrepancy*30sec ago to $discrepancy*30sec from now
-		*
-		* @param string $secret
-		* @param string $code
-		* @param int $discrepancy This is the allowed time drift in 30 second units (8 means 4 minutes before or after)
-		* @return bool
-		*/
 
-		public function verifyCode($secret, $code, $discrepancy = 1)
 
-		{
+            for ($i = -$discrepancy; $i <= $discrepancy; $i++) {
 
-				$currentTimeSlice = floor(time() / 30);
+                $calculatedCode = $this->getCode($secret, $currentTimeSlice + $i);
 
+                if ($calculatedCode == $code ) {
 
+                    return true;
 
-				for ($i = -$discrepancy; $i <= $discrepancy; $i++) {
+                }
 
-						$calculatedCode = $this->getCode($secret, $currentTimeSlice + $i);
+            }
 
-						if ($calculatedCode == $code ) {
 
-								return true;
 
-						}
+            return false;
 
-				}
+        }
 
 
 
-				return false;
+        /**
+         * Set the code length
+         *
+         * @param int $length
+         * @return bool
+         */
 
-		}
+        public function setCodeLength($length)
 
+        {
 
+            if($length < 6) {
 
-		/**
-		* Set the code length
-		*
-		* @param int $length
-		* @return bool
-		*/
+                return false;
 
-		public function setCodeLength($length)
+            }
 
-		{
 
-				if($length < 6) {
 
-					return false;
+            $this->codeLength = $length;
 
-				}
+            return true;
 
+        }
 
 
-				$this->codeLength = $length;
 
-				return true;
+        /**
+         * @param $secret
+         * @return bool|string
+         */
 
-		}
+        protected function _base32Decode($secret)
 
+        {
 
+            if (empty($secret)) return '';
 
-		/**
-		* @param $secret
-		* @return bool|string
-		*/
 
-		protected function _base32Decode($secret)
 
-		{
+            $base32chars = $this->base32LookupTable;
 
-				if (empty($secret)) return '';
+            $base32charsFlipped = array_flip($base32chars);
 
 
 
-				$base32chars = $this->base32LookupTable;
+            $paddingCharCount = substr_count($secret, $base32chars[32]);
 
-				$base32charsFlipped = array_flip($base32chars);
+            $allowedValues = array(6, 4, 3, 1, 0);
 
+            if (!in_array($paddingCharCount, $allowedValues)) return false;
 
+            for ($i = 0; $i < 4; $i++){
 
-				$paddingCharCount = mb_substr_count($secret, $base32chars[32]);
+                if ($paddingCharCount == $allowedValues[$i] &&
 
-				$allowedValues = array(6, 4, 3, 1, 0);
+                    substr($secret, -($allowedValues[$i])) != str_repeat($base32chars[32], $allowedValues[$i])) return false;
 
-				if (!in_array($paddingCharCount, $allowedValues)) return false;
+            }
 
-				for ($i = 0; $i < 4; $i++){
+            $secret = str_replace('=','', $secret);
 
-						if ($paddingCharCount == $allowedValues[$i] &&
+            $secret = str_split($secret);
 
-								mb_substr($secret, -($allowedValues[$i])) != str_repeat($base32chars[32], $allowedValues[$i])) return false;
+            $binaryString = "";
 
-				}
+            for ($i = 0; $i < count($secret); $i = $i+8) {
 
-				$secret = str_replace('=','', $secret);
+                $x = "";
 
-				$secret = str_split($secret);
+                if (!in_array($secret[$i], $base32chars)) return false;
 
-				$binaryString = "";
+                for ($j = 0; $j < 8; $j++) {
 
-				for ($i = 0; $i < count($secret); $i = $i+8) {
+                    $x .= str_pad(base_convert(@$base32charsFlipped[@$secret[$i + $j]], 10, 2), 5, '0', STR_PAD_LEFT);
 
-						$x = "";
+                }
 
-						if (!in_array($secret[$i], $base32chars)) return false;
+                $eightBits = str_split($x, 8);
 
-						for ($j = 0; $j < 8; $j++) {
+                for ($z = 0; $z < count($eightBits); $z++) {
 
-								$x .= str_pad(base_convert(@$base32charsFlipped[@$secret[$i + $j]], 10, 2), 5, '0', STR_PAD_LEFT);
+                    $binaryString .= ( ($y = chr(base_convert($eightBits[$z], 2, 10))) || ord($y) == 48 ) ? $y:"";
 
-						}
+                }
 
-						$eightBits = str_split($x, 8);
+            }
 
-						for ($z = 0; $z < count($eightBits); $z++) {
+            return $binaryString;
 
-								$binaryString .= ( ($y = chr(base_convert($eightBits[$z], 2, 10))) || ord($y) == 48 ) ? $y:"";
+        }
 
-						}
 
-				}
 
-				return $binaryString;
+        /**
+         * @param string $secret
+         * @param bool $padding
+         * @return string
+         */
 
-		}
+        protected function _base32Encode($secret, $padding = true)
 
+        {
 
+            if (empty($secret)) return '';
 
-		/**
-		* @param string $secret
-		* @param bool $padding
-		* @return string
-		*/
 
-		protected function _base32Encode($secret, $padding = true)
 
-		{
+            $base32chars = $this->base32LookupTable;
 
-				if (empty($secret)) return '';
 
 
+            $secret = str_split($secret);
 
-				$base32chars = $this->base32LookupTable;
+            $binaryString = "";
 
+            for ($i = 0; $i < count($secret); $i++) {
 
+                $binaryString .= str_pad(base_convert(ord($secret[$i]), 10, 2), 8, '0', STR_PAD_LEFT);
 
-				$secret = str_split($secret);
+            }
 
-				$binaryString = "";
+            $fiveBitBinaryArray = str_split($binaryString, 5);
 
-				for ($i = 0; $i < count($secret); $i++) {
+            $base32 = "";
 
-						$binaryString .= str_pad(base_convert(ord($secret[$i]), 10, 2), 8, '0', STR_PAD_LEFT);
+            $i = 0;
 
-				}
+            while ($i < count($fiveBitBinaryArray)) {
 
-				$fiveBitBinaryArray = str_split($binaryString, 5);
+                $base32 .= $base32chars[base_convert(str_pad($fiveBitBinaryArray[$i], 5, '0'), 2, 10)];
 
-				$base32 = "";
+                $i++;
 
-				$i = 0;
+            }
 
-				while ($i < count($fiveBitBinaryArray)) {
+            if ($padding && ($x = strlen($binaryString) % 40) != 0) {
 
-						$base32 .= $base32chars[base_convert(str_pad($fiveBitBinaryArray[$i], 5, '0'), 2, 10)];
+                if ($x == 8) $base32 .= str_repeat($base32chars[32], 6);
 
-						$i++;
+                elseif ($x == 16) $base32 .= str_repeat($base32chars[32], 4);
 
-				}
+                elseif ($x == 24) $base32 .= str_repeat($base32chars[32], 3);
 
-				if ($padding && ($x = mb_strlen($binaryString) % 40) != 0) {
+                elseif ($x == 32) $base32 .= $base32chars[32];
 
-						if ($x == 8) $base32 .= str_repeat($base32chars[32], 6);
+            }
 
-						elseif ($x == 16) $base32 .= str_repeat($base32chars[32], 4);
 
-						elseif ($x == 24) $base32 .= str_repeat($base32chars[32], 3);
 
-						elseif ($x == 32) $base32 .= $base32chars[32];
+            return $base32;
 
-				}
+        }
 
-
-
-				return $base32;
-
-		}
-
-	}
+    }
 

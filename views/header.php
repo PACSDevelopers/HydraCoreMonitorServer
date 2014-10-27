@@ -42,11 +42,17 @@ class HeaderView extends \HC\View {
                         <link rel="stylesheet" type="text/css" href={PROTOCOL.'://'.SITE_DOMAIN . '/components/bootstrap/css/bootstrap.css'} />
                         <link rel="stylesheet" type="text/css" href={PROTOCOL.'://'.SITE_DOMAIN . '/components/bootstrap/css/bootstrap-theme.css'} />
                         <link rel="stylesheet" type="text/css" href={PROTOCOL.'://'.SITE_DOMAIN . '/components/font-awesome/css/font-awesome.css'} />
-        
+                        
+                        <script type="text/javascript" src="https://www.google.com/jsapi"></script>
                         <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/jquery/jquery-1.11.1.min.js'}></script>
                         <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/modernizr/modernizr.min.js'}></script>
                         <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/webshim/polyfiller.min.js'}></script>
                         <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/bootstrap/js/bootstrap.js'}></script>
+                        <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/screenfull/screenfull.min.js'}></script>
+                        <script type="text/javascript" src={PROTOCOL.'://'.SITE_DOMAIN . '/components/please/please.min.js'}></script>
+                        <script type="text/javascript">
+                            {'google.load(\'visualization\', \'1.0\', {\'packages\':[\'corechart\']}); google.setOnLoadCallback(function(){$(document).trigger(\'chartDraw\');});'}
+                        </script>
                         <script type="text/javascript">{'window.onload = function(){' . $onLoad . '};'}</script>
                         
                         {POTENTIAL_XSS_HOLE(HC\Page::generateResources($settings))}

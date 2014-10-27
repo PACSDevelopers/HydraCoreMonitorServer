@@ -19,6 +19,11 @@
             'less' => [
                 'fonts' => true
             ]
+        ],
+        'rewrites' => [
+            '@^/domains/(?<id>\d+)$@' => '/domains/domain.hh',
+            '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
+            '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
         ]
     ];
 
@@ -39,5 +44,16 @@
                 'path' => '/resources/'
             ],
             'HC\Hooks\PostReceive\Unlock' => true
+        ],
+        'cron' => [
+            'HCMS\Hooks\Cron\ProcessDatabases' => [
+                'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessDomains' => [
+                'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessServers' => [
+                'microtime' => 60
+            ],
         ]
     ];

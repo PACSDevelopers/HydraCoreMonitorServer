@@ -7,7 +7,7 @@ class BodyView extends \HC\View {
         $navButton = <x:frag></x:frag>;
         if(isset($_SESSION['user'])) {
             $navItems = <ul class="nav navbar-nav">
-                            <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN}>Home</a> </li>
+                            <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/home'}>Home</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/domains'}>Domains</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/servers'}>Servers</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/databases'}>Databases</a> </li>

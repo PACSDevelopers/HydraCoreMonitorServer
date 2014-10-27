@@ -3,9 +3,32 @@ function validateEmail(email) {
   return (emailRegex.test(email) > 0);
 }
 
-function validateURL(url) {
-  var urlRegex = new RegExp('(http|ftp|https)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
-  return (urlRegex.test(url) > 0);
+function validateURL(url, withExtension) {
+    if(withExtension && withExtension != 'false') {
+        var urlRegex = new RegExp('(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
+        return (urlRegex.test(url) > 0);
+    } else {
+        var urlRegex = new RegExp('[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-]/)?');
+        return (urlRegex.test(url) > 0);
+    }
+}
+
+function replaceURL(url, withExtension) {
+    if(withExtension && withExtension != 'false') {
+        var urlRegex = new RegExp('(http|https)://[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-])?');
+        var matches = url.match(urlRegex);
+        if(matches) {
+            return matches[0];
+        }
+        return '';
+    } else {
+        var urlRegex = new RegExp('[\\w-]+(\\.[\\w-]+)+([\\w.,@?^=%&amp;:/~+#-]*[\\w@?^=%&amp;/~+#-]/)?');
+        var matches = url.match(urlRegex);
+        if(matches) {
+            return matches[0];
+        }
+        return '';
+    }
 }
 
 function checkFormElement(thisElement) {
@@ -51,7 +74,7 @@ function checkFormElement(thisElement) {
         } else {
             switch ($thisElement.attr('type')) {
                 case 'url':
-                    isSuccess = validateURL(value);
+                    isSuccess = validateURL(value, $thisElement.attr('data-url-extension'));
                     break;
                 case 'email':
                     isSuccess = validateEmail(value);

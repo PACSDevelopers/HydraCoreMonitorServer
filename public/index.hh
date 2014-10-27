@@ -6,7 +6,7 @@ class IndexPage extends \HC\Page {
 	protected $settings = [
 		'views' => [
 			'header' => [
-				'pageName' => 'Login',
+				'pageName' => 'Status',
 				'scss' => [
 					'main' => true,
 					'login' => true
@@ -16,7 +16,7 @@ class IndexPage extends \HC\Page {
 					'main' => true,
 					'bootstrap-functions' => true,
 					'forms' => true,
-					'login' => true
+                    'dashboard' => true
 				]
 			],
 			'body' => true,
@@ -25,25 +25,146 @@ class IndexPage extends \HC\Page {
 	];
 
 	public function init($GET = [], $POST = []) :int {
-				$this->body = <x:frag>
-					<div class="container">
-							<form class="form-signin" role="form" id="loginForm" autocomplete="on">
-									<h2 class="form-signin-heading">{SITE_NAME} - Login</h2>
-									<div id="alertBox"></div>
-									<label for="loginEmail" class="input-group">
-											<span class="input-group-addon"><span class="glyphicons envelope"></span></span>
-											<input type="email" name="loginEmail" id="loginEmail" class="form-control" placeholder="Email Address" required="required" autofocus="autofocus" autocomplete="on" oninvalid="return false;" />
-									</label>
-									<br />
-									<label for="loginPassword" class="input-group">
-											<span class="input-group-addon"><span class="glyphicons keys"></span></span>
-											<input type="password" name="loginPassword" id="loginPassword" class="form-control" placeholder="Password" required="required" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s).*$" autocomplete="off" oninvalid="return false;" />
-									</label>
-									<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-							</form>
-					</div>
-				</x:frag>;
+        $this->body = <x:frag>
+            <div class="container">
+                    <div class="row">
+                        <form class="form-signin" role="form" id="loginForm" autocomplete="on">
+                                <h2 class="form-signin-heading">{SITE_NAME} - Status <a class="btn btn-sm btn-primary pull-right" href="/login">Login</a></h2>
+                                <div class="clearfix"></div>
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="row">
+                            <div id="serverHistoryApplicationResponseTime" class="chart forceGPU noselect">
+                                <div class="spinner">
+                                  <div class="rect1"></div>
+                                  <div class="rect2"></div>
+                                  <div class="rect3"></div>
+                                  <div class="rect4"></div>
+                                  <div class="rect5"></div>
+                                </div>
+                            </div>
+                        </div>
 
-				return 1;
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="serverHistoryUsage" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div id="historyAvailability" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div id="historyResponseTime" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationRPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationQPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationAVGTimeCPUBound" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryIOWait" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryTPS" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryNetworkTraffic" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </x:frag>;
+
+        return 1;
 	}
 }
