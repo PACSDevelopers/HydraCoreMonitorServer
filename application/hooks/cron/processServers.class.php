@@ -170,7 +170,17 @@
               unset($overview['up']);
               
               $db->write('server_history_overview', $overview);
+
+              $before = (microtime(true) - (86400*30));
+              $dateTokens = explode('.', $before);
+              if(!isset($dateTokens[1])) {
+                  $dateTokens[1] = 0;
+              }
+
+              $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
               
+              $db->query('DELETE FROM `server_history` WHERE `dateCreated` < ?;', [$dateCreated]);
+              $db->query('DELETE FROM `server_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
               $db->commit();
 
               echo 'Processed Servers' . PHP_EOL;
