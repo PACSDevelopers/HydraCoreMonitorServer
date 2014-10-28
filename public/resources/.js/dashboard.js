@@ -837,7 +837,6 @@ function drawChart(id, options, data, columns, series) {
 
     // create a view with the default columns
     var view = new google.visualization.DataView(data);
-    view.setRows(view.getFilteredRows([{column: 0, minValue: new Date(new Date().getTime() - 24*60*60*1000)}]));
     view.setColumns(columns);
 
     google.visualization.events.addListener(chart, 'select', function(){
