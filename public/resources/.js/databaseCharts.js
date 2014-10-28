@@ -259,7 +259,7 @@ function drawAvailability(availability, result, type) {
         if(value['status'] == 1) {
             status = 100;    
         }
-        dataArray.push([new Date(value['dateCreated']), status]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), status]);
     });
 
     var data = new google.visualization.DataTable();
@@ -267,7 +267,7 @@ function drawAvailability(availability, result, type) {
     data.addColumn('number', '');
     data.addRows(dataArray);
     console.log(dataArray);
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
@@ -313,7 +313,7 @@ function drawResponseTimes(responseTimes, result, type) {
 
     if(responseTimes['database']) {
         responseTimes['database'].forEach(function(value){
-            dataArray.push([new Date(value['dateCreated']), parseFloat(value['responseTime']) * 1000]);
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['responseTime']) * 1000]);
         });
     }
     
@@ -322,7 +322,7 @@ function drawResponseTimes(responseTimes, result, type) {
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {

@@ -27,7 +27,7 @@ class ProcessChartDataAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, `DHO`.`dateCreated` as `dateCreated` FROM `domain_history_overview` `DHO` WHERE `DHO`.`dateCreated` < ? AND `DHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
+            $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, UNIX_TIMESTAMP(`DHO`.`dateCreated`) as `dateCreated` FROM `domain_history_overview` `DHO` WHERE `DHO`.`dateCreated` < ? AND `DHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
             $result = json_encode(['status' => 1,  'result' => $result]);
             $cache->insert('\HCPublic\Ajax\Domains\Charts\ProcessDayChartAjax', $result, 60);
         }
