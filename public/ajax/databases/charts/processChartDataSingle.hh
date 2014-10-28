@@ -27,7 +27,7 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, `DH`.`dateCreated` as `dateCreated` FROM `database_history` `DH` WHERE `DH`.`databaseID` = ? AND `DH`.`dateCreated` < ? AND `DH`.`dateCreated` > ?;', [$POST['databaseID'], $currentDate, $currentDate24]);
+            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated` FROM `database_history` `DH` WHERE `DH`.`databaseID` = ? AND `DH`.`dateCreated` < ? AND `DH`.`dateCreated` > ?;', [$POST['databaseID'], $currentDate, $currentDate24]);
             $result = json_encode(['status' => 1,  'result' => $result]);
             $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessDayChartSingleAjax' . $POST['databaseID'], $result, 60);
         }

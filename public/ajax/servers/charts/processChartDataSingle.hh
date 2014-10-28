@@ -27,7 +27,7 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `SH`.`status`, `SH`.`domainID`, `SH`.`responseTime`, `SH`.`cpu`, `SH`.`mem`, `SH`.`iow`, `SH`.`ds`, `SH`.`ds`, `SH`.`net`, `SH`.`rpm`, `SH`.`tps`, `SH`.`qpm`, `SH`.`avgTimeCpuBound`, `SH`.`avgRespTime`, `SH`.`dateCreated` as `dateCreated` FROM `server_history` `SH` WHERE `SH`.`serverID` = ? AND `SH`.`dateCreated` < ? AND `SH`.`dateCreated` > ?;', [$POST['serverID'], $currentDate, $currentDate24]);
+            $result = $db->query('SELECT `SH`.`status`, `SH`.`domainID`, `SH`.`responseTime`, `SH`.`cpu`, `SH`.`mem`, `SH`.`iow`, `SH`.`ds`, `SH`.`ds`, `SH`.`net`, `SH`.`rpm`, `SH`.`tps`, `SH`.`qpm`, `SH`.`avgTimeCpuBound`, `SH`.`avgRespTime`, UNIX_TIMESTAMP(`SH`.`dateCreated`) as `dateCreated` FROM `server_history` `SH` WHERE `SH`.`serverID` = ? AND `SH`.`dateCreated` < ? AND `SH`.`dateCreated` > ?;', [$POST['serverID'], $currentDate, $currentDate24]);
             $result = json_encode(['status' => 1,  'result' => $result]);
             $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessDayChartSingleAjax' . $POST['serverID'], $result, 60);
         }

@@ -284,7 +284,7 @@ function drawServerCharts(result, availability, responseTimes) {
 function drawServerHistoryUsage(result) {
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['cpu']), parseFloat(value['mem']), parseFloat(value['ds'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['cpu']), parseFloat(value['mem']), parseFloat(value['ds'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -294,7 +294,7 @@ function drawServerHistoryUsage(result) {
     data.addColumn('number', 'Storage');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
@@ -333,7 +333,7 @@ function drawServerHistoryUsage(result) {
 function drawServerHistoryIOWait(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['iow'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['iow']) * 100]);
     });
 
     var data = new google.visualization.DataTable();
@@ -341,7 +341,7 @@ function drawServerHistoryIOWait(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
@@ -366,7 +366,7 @@ function drawServerHistoryIOWait(result){
 function drawServerHistoryNetworkTraffic(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['net'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['net'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -374,7 +374,7 @@ function drawServerHistoryNetworkTraffic(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
@@ -399,7 +399,7 @@ function drawServerHistoryNetworkTraffic(result){
 function drawServerHistoryApplicationRPM(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['rpm'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['rpm'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -407,7 +407,7 @@ function drawServerHistoryApplicationRPM(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
@@ -432,7 +432,7 @@ function drawServerHistoryApplicationRPM(result){
 function drawServerHistoryTPS(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['tps'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['tps'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -440,7 +440,7 @@ function drawServerHistoryTPS(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
@@ -465,7 +465,7 @@ function drawServerHistoryTPS(result){
 function drawServerHistoryApplicationResponseTime(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['avgRespTime'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['avgRespTime'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -473,7 +473,7 @@ function drawServerHistoryApplicationResponseTime(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
@@ -497,7 +497,7 @@ function drawServerHistoryApplicationResponseTime(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
@@ -512,7 +512,7 @@ function drawServerHistoryApplicationResponseTime(result){
 function drawServerHistoryApplicationQPM(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['qpm'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['qpm'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -520,7 +520,7 @@ function drawServerHistoryApplicationQPM(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
@@ -544,7 +544,7 @@ function drawServerHistoryApplicationQPM(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
@@ -559,7 +559,7 @@ function drawServerHistoryApplicationQPM(result){
 function drawServerHistoryApplicationAVGTimeCPUBound(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(value['dateCreated']), parseFloat(value['avgTimeCpuBound'])]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['avgTimeCpuBound'])]);
     });
 
     var data = new google.visualization.DataTable();
@@ -567,7 +567,7 @@ function drawServerHistoryApplicationAVGTimeCPUBound(result){
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
@@ -591,7 +591,7 @@ function drawServerHistoryApplicationAVGTimeCPUBound(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
@@ -616,18 +616,17 @@ function drawAvailability(availability, result, type) {
         if(value['status'] == 200) {
             status = 100;
         }
-        dataArray.push([new Date(value['dateCreated']), status]);
+        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), status]);
     });
     
     console.log(domains);
 
     var data = new google.visualization.DataTable();
     data.addColumn('datetime', '');
-    domains
     data.addColumn('number', '');
     data.addRows(dataArray);
     
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
@@ -673,7 +672,7 @@ function drawResponseTimes(responseTimes, result, type) {
 
     if(responseTimes['server']) {
         responseTimes['server'].forEach(function(value){
-            dataArray.push([new Date(value['dateCreated']), parseFloat(value['responseTime']) * 1000]);
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['responseTime']) * 1000]);
         });
     }
     
@@ -682,7 +681,7 @@ function drawResponseTimes(responseTimes, result, type) {
     data.addColumn('number', '');
     data.addRows(dataArray);
 
-    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
     dateFormatter.format(data, 0);
 
     var options = {
