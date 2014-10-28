@@ -242,12 +242,365 @@ function serverData(callback, availability, responseTimes) {
 function drawServerCharts(result, availability, responseTimes) {
     setTimeout(function(){
         drawAvailability(availability, result, 'server');
-    }, 0);
+    }, 0)
 
     setTimeout(function(){
         drawResponseTimes(responseTimes, result, 'server');
+    }, 0)
+
+    setTimeout(function(){
+        drawServerHistoryUsage(result);
     }, 0);
-    
+
+    setTimeout(function(){
+        drawServerHistoryIOWait(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryNetworkTraffic(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryApplicationRPM(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryTPS(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryApplicationResponseTime(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryApplicationQPM(result);
+    }, 0);
+
+    setTimeout(function(){
+        drawServerHistoryApplicationAVGTimeCPUBound(result);
+    }, 0);
+}
+
+function drawServerHistoryUsage(result) {
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['cpu']), parseFloat(value['mem']), parseFloat(value['ds'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', 'CPU');
+    data.addColumn('number', 'Memory');
+    data.addColumn('number', 'Storage');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
+    percentFormatter.format(data, 1);
+
+    var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
+    percentFormatter.format(data, 2);
+
+    var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
+    percentFormatter.format(data, 3);
+
+    var options = {
+        title: 'Server Usage',
+        curveType: 'function',
+        colors: generateChartColors(3),
+        vAxis: {
+            format: '#\'%\'',
+            minValue: 0.00,
+            maxValue:100.00,
+            baseline:0.00,
+        },
+        legend: {
+            position: 'top',
+            alignment: 'center',
+        },
+        explorer: {
+            keepInBounds: true,
+            maxZoomOut: 1
+        },
+    };
+
+    drawChart('serverHistoryUsage', options, data);
+}
+
+
+function drawServerHistoryIOWait(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['iow'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
+    percentFormatter.format(data, 1);
+
+    var options = {
+        title: 'Server IO Wait',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        legend: { position: 'none' },
+        vAxis: {
+            format: '#\'%\'',
+            minValue: 0.00,
+            maxValue:100.00,
+            baseline:0.00,
+        }
+    };
+
+    drawChart('serverHistoryIOWait', options, data);
+}
+
+function drawServerHistoryNetworkTraffic(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['net'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var options = {
+        title: 'Server Network Traffic (bps)',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        legend: { position: 'none' },
+        vAxis: {
+            format: '#.#B',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindow:
+            {
+                min:0.00
+            },
+        }
+    };
+
+    drawChart('serverHistoryNetworkTraffic', options, data);
+}
+
+function drawServerHistoryApplicationRPM(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['rpm'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var options = {
+        title: 'Application Requests Per Minute',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        legend: { position: 'none' },
+        vAxis: {
+            format: '#.#',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindow:
+            {
+                min:0.00
+            },
+        }
+    };
+
+    drawChart('serverHistoryApplicationRPM', options, data);
+}
+
+function drawServerHistoryTPS(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['tps'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var options = {
+        title: 'Server Storage IO (tps)',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        legend: { position: 'none' },
+        vAxis: {
+            format: '#.#',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindow:
+            {
+                min:0.00
+            },
+        }
+    };
+
+    drawChart('serverHistoryTPS', options, data);
+}
+
+function drawServerHistoryApplicationResponseTime(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['avgRespTime'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var options = {
+        title: 'Application Response Time',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        vAxis: {
+            format: '#.#ms',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindow:
+            {
+                min:0.00
+            },
+        },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true
+        },
+        legend: {
+            'position': 'none'
+        },
+        animation:{
+            duration: 1000,
+            easing: 'inAndOut',
+        },
+        explorer: {
+            axis: 'horizontal',
+            keepInBounds: true
+        }
+    };
+
+    drawChart('serverHistoryApplicationResponseTime', options, data);
+}
+
+function drawServerHistoryApplicationQPM(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['qpm'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var options = {
+        title: 'Application Queries Per Minute',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        vAxis: {
+            format: '#.#',
+            minValue: 0.00,
+            baseline:0.00,
+            viewWindow:
+            {
+                min:0.00
+            },
+        },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true
+        },
+        legend: {
+            'position': 'none'
+        },
+        animation:{
+            duration: 1000,
+            easing: 'inAndOut',
+        },
+        explorer: {
+            axis: 'horizontal',
+            keepInBounds: true
+        }
+    };
+
+    drawChart('serverHistoryApplicationQPM', options, data);
+}
+
+function drawServerHistoryApplicationAVGTimeCPUBound(result){
+    var dataArray = [];
+    result.forEach(function(value){
+        dataArray.push([new Date(value['dateCreated']), parseFloat(value['avgTimeCpuBound'])]);
+    });
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('datetime', '');
+    data.addColumn('number', '');
+    data.addRows(dataArray);
+
+    var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/mm/yyyy hh:mm:ss aa'});
+    dateFormatter.format(data, 0);
+
+    var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});
+    percentFormatter.format(data, 1);
+
+    var options = {
+        title: 'Application Time CPU Bound Per Minute',
+        curveType: 'function',
+        colors: generateChartColors(1),
+        vAxis: {
+            format: '#\'%\'',
+            minValue: 0.00,
+            maxValue:100.00,
+            baseline:0.00,
+        },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true
+        },
+        legend: {
+            'position': 'none'
+        },
+        animation:{
+            duration: 1000,
+            easing: 'inAndOut',
+        },
+        explorer: {
+            axis: 'horizontal',
+            keepInBounds: true
+        }
+    };
+
+    drawChart('serverHistoryApplicationAVGTimeCPUBound', options, data);
 }
 
 function drawAvailability(availability, result, type) {
