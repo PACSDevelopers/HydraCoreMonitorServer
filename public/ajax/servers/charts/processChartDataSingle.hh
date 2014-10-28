@@ -1,15 +1,15 @@
 <?hh
-namespace HCPublic\Ajax\Databases\Charts;
+namespace HCPublic\Ajax\Servers\Charts;
 
-class ProcessChartDataAjax extends \HC\Ajax {
+class ProcessChartDataSingleAjax extends \HC\Ajax {
     protected $settings = [];
 
     public function init($GET = [], $POST = []) {
         $response = [];
         
         $cache = new \HC\Cache();
-        
-        if(!$result = $cache->select('\HCPublic\Ajax\Databases\Charts\ProcessDayChartAjax')) {
+
+        if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessDayChartSingleAjax' . $POST['serverID'])) {
             $current = microtime(true);
             $current24 = $current - (86400*30);
             $dateTokens = explode('.', $current);
@@ -27,12 +27,12 @@ class ProcessChartDataAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, `DHO`.`dateCreated` as `dateCreated` FROM `database_history_overview` `DHO` WHERE `DHO`.`dateCreated` < ? AND `DHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
+            $result = $db->query('SELECT `SH`.`status`, `SH`.`domainID`, `SH`.`responseTime`, `SH`.`cpu`, `SH`.`mem`, `SH`.`iow`, `SH`.`ds`, `SH`.`ds`, `SH`.`net`, `SH`.`rpm`, `SH`.`tps`, `SH`.`qpm`, `SH`.`avgTimeCpuBound`, `SH`.`avgRespTime`, `SH`.`dateCreated` as `dateCreated` FROM `server_history` `SH` WHERE `SH`.`serverID` = ? AND `SH`.`dateCreated` < ? AND `SH`.`dateCreated` > ?;', [$POST['serverID'], $currentDate, $currentDate24]);
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessDayChartAjax', $result, 60);
+            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessDayChartSingleAjax' . $POST['serverID'], $result, 60);
         }
-        
-        $this->body = $result; 
+
+        $this->body = $result;
         return 1;
     }
 }

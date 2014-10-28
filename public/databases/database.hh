@@ -15,7 +15,9 @@ class DatabasePage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'databaseForm' => true
+									'databaseForm' => true,
+                                    'databaseTable' => true,
+                                    'databaseCharts' => true,
 							]
 					],
                     'body' => [
@@ -54,7 +56,7 @@ class DatabasePage extends \HC\Page {
                             <h1>Database Details</h1>
                             <div class="row">
                                     <form action="" class="form-horizontal" role="form"> 
-                                            <input type="hidden" name="databaseD" id="databaseID" value={$database->id} />
+                                            <input type="hidden" name="databaseID" id="databaseID" value={$database->id} />
                                             <div class="form-group">
                                                     <label class="col-sm-2 control-label" for="databaseTitle">Title</label>
     
@@ -74,6 +76,14 @@ class DatabasePage extends \HC\Page {
                                                                         required="required" value={long2ip($database->ip)} />
                                                     </div>
                                             </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="databaseStatus">Status</label>
+    
+                                                    <div class="col-sm-10">
+                                                            <span class="databaseStatusIcon glyphicons circle_question_mark pull-right" data-id={$database->id}></span>
+                                                    </div>
+                                            </div>
     
                                             <div class="form-group">
                                                     <div id="alertBox"></div>
@@ -83,6 +93,32 @@ class DatabasePage extends \HC\Page {
                                                     </div>
                                             </div>
                                     </form>
+                            </div>
+                        
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div id="historyAvailability" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="col-lg-6">
+                                    <div id="historyResponseTime" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="row col-lg-2 col-md-0 col-sm-0">

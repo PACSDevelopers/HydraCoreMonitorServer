@@ -14,6 +14,7 @@ class HomePage extends \HC\Page {
 					'main' => true,
 					'bootstrap-functions' => true,
 					'home' => true,
+                    'dashboard' => true
 				]
 			],
 			'body' => true,
@@ -27,6 +28,135 @@ class HomePage extends \HC\Page {
             <div class="row">
                 <h1>{SITE_NAME} - {$this->settings['views']['header']['pageName']}</h1>
             </div>
+            <div class="row">
+                        <div class="row">
+                            <div id="serverHistoryApplicationResponseTime" class="chart forceGPU noselect">
+                                <div class="spinner">
+                                  <div class="rect1"></div>
+                                  <div class="rect2"></div>
+                                  <div class="rect3"></div>
+                                  <div class="rect4"></div>
+                                  <div class="rect5"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="serverHistoryUsage" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div id="historyAvailability" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div id="historyResponseTime" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationRPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationQPM" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryApplicationAVGTimeCPUBound" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <div id="serverHistoryIOWait" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryTPS" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4">
+                                <div id="serverHistoryNetworkTraffic" class="chart forceGPU noselect">
+                                    <div class="spinner">
+                                      <div class="rect1"></div>
+                                      <div class="rect2"></div>
+                                      <div class="rect3"></div>
+                                      <div class="rect4"></div>
+                                      <div class="rect5"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
         </div>;
 
 		// Add the row to the container, and render the body

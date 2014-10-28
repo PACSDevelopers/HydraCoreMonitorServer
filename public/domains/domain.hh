@@ -15,7 +15,9 @@ class DomainPage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'domainForm' => true
+									'domainForm' => true,
+                                    'domainTable' => true,
+                                    'domainCharts' => true
 							]
 					],
                     'body' => [
@@ -54,7 +56,7 @@ class DomainPage extends \HC\Page {
                             <h1>Domain Details</h1>
                             <div class="row">
                                     <form action="" class="form-horizontal" role="form"> 
-                                            <input type="hidden" name="domainD" id="domainID" value={$domain->id} />
+                                            <input type="hidden" name="domainID" id="domainID" value={$domain->id} />
                                             <div class="form-group">
                                                     <label class="col-sm-2 control-label" for="domainTitle">Title</label>
     
@@ -75,7 +77,15 @@ class DomainPage extends \HC\Page {
                                                                         required="required" value={$domain->url} />
                                                     </div>
                                             </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="domainStatus">Status</label>
     
+                                                    <div class="col-sm-10">
+                                                            <span class="domainStatusIcon glyphicons circle_question_mark pull-right" data-id={$domain->id}></span>
+                                                    </div>
+                                            </div>
+        
                                             <div class="form-group">
                                                     <div id="alertBox"></div>
                                                     <div class="col-sm-2"></div>
@@ -84,6 +94,31 @@ class DomainPage extends \HC\Page {
                                                     </div>
                                             </div>
                                     </form>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <div id="historyAvailability" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="col-lg-6">
+                                    <div id="historyResponseTime" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="row col-lg-2 col-md-0 col-sm-0">

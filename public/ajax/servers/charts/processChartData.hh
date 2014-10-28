@@ -11,7 +11,7 @@ class ProcessChartDataAjax extends \HC\Ajax {
 
         if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessDayChartAjax')) {
             $current = microtime(true);
-            $current24 = $current - 2592000;
+            $current24 = $current - (86400*30);
             $dateTokens = explode('.', $current);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;

@@ -95,7 +95,7 @@
                   }
                   $overview['responseTime'][] = $after;
                   
-                  $db->write('domain_history', ['domainID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
+                  $db->write('domain_history', ['status' => $isValidConnection, 'domainID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
               }
 
               $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);
