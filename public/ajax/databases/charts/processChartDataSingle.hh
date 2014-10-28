@@ -1,7 +1,7 @@
 <?hh
 namespace HCPublic\Ajax\Databases\Charts;
 
-class ProcessChartDataAjax extends \HC\Ajax {
+class ProcessChartDataSingleAjax extends \HC\Ajax {
     protected $settings = [];
 
     public function init($GET = [], $POST = []) {
@@ -9,7 +9,7 @@ class ProcessChartDataAjax extends \HC\Ajax {
         
         $cache = new \HC\Cache();
         
-        if(!$result = $cache->select('\HCPublic\Ajax\Databases\Charts\ProcessDayChartAjax')) {
+        if(!$result = $cache->select('\HCPublic\Ajax\Databases\Charts\ProcessDayChartSingleAjax' . $POST['databaseID'])) {
             $current = microtime(true);
             $current24 = $current - (86400*30);
             $dateTokens = explode('.', $current);
@@ -27,9 +27,9 @@ class ProcessChartDataAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, `DHO`.`dateCreated` as `dateCreated` FROM `database_history_overview` `DHO` WHERE `DHO`.`dateCreated` < ? AND `DHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
+            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, `DH`.`dateCreated` as `dateCreated` FROM `database_history` `DH` WHERE `DH`.`databaseID` = ? AND `DH`.`dateCreated` < ? AND `DH`.`dateCreated` > ?;', [$POST['databaseID'], $currentDate, $currentDate24]);
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessDayChartAjax', $result, 60);
+            $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessDayChartSingleAjax' . $POST['databaseID'], $result, 60);
         }
         
         $this->body = $result; 

@@ -15,7 +15,9 @@ class ServerPage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'serverForm' => true
+									'serverForm' => true,
+                                    'serverTable' => true,
+                                    'serverCharts' => true
 							]
 					],
                     'body' => [
@@ -97,7 +99,7 @@ class ServerPage extends \HC\Page {
                                 <h1>Server Details</h1>
                                 <div class="row">
                                         <form action="" class="form-horizontal" role="form"> 
-                                                <input type="hidden" name="serverD" id="serverID" value={$server->id} />
+                                                <input type="hidden" name="serverID" id="serverID" value={$server->id} />
                                                 <div class="form-group">
                                                         <label class="col-sm-2 control-label" for="serverTitle">Title</label>
         
@@ -117,6 +119,14 @@ class ServerPage extends \HC\Page {
                                                                             required="required" value={long2ip($server->ip)} />
                                                         </div>
                                                 </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="domainStatus">Status</label>
+    
+                                                    <div class="col-sm-10">
+                                                            <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$server->id}></span>
+                                                    </div>
+                                            </div>
         
                                                 <div class="form-group">
                                                         <div id="alertBox"></div>
@@ -158,6 +168,31 @@ class ServerPage extends \HC\Page {
                             <div class="col-lg-2 col-md-0 col-sm-0">
                             </div>
                         </div>
+                        <div class="row">
+                                <div class="col-lg-6">
+                                    <div id="historyAvailability" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+    
+                                <div class="col-lg-6">
+                                    <div id="historyResponseTime" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                       </x:frag>;
         
 		return 1;
