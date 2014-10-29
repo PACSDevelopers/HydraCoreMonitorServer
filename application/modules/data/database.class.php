@@ -83,6 +83,20 @@ class Database extends \HC\Core
         return $response;
     }
 
+    public static function alertDown($databaseTitle, $databaseID, $after, $ip, $dateCreated){
+        $db = new \HC\DB();
+        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
+        if($users) {
+            $email = new \HC\Email();
+            $title = $databaseTitle . ' (' .  $databaseID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
+            $message = '<br>' . $title . ' ' . $ip;
+            foreach($users as $user) {
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+            }
+        }
+        return false;
+    }
+    
     public static function create($data){
         $db = new \HC\DB();
         $query = $db->write('databases', $data);

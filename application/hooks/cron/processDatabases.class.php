@@ -72,10 +72,11 @@
                   $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
                   if($isValidConnection) {
-                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                       $overview['up']++;
                   } else {
-                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      \HCMS\Database::alertDown($row['title'],  $row['id'], $after, $row['ip'], $dateCreated);
+                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
                   
