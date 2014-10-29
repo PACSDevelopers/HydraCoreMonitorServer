@@ -135,13 +135,13 @@ class Domain extends \HC\Core
 
     public static function alertDown($domainTitle, $domainID, $after, $url, $dateCreated){
         $db = new \HC\DB();
-        $users = $db->read('users', ['email'], ['notify' => 1]);
+        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
             $title = $domainTitle . ' (' .  $domainID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
             $message = '<br>' . $title . ' ' . $url;
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message);
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;

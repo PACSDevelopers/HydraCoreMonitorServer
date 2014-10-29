@@ -274,13 +274,13 @@ class Server extends \HC\Core
 
     public static function alertDown($serverTitle, $serverID, $domainTitle, $domainID, $after, $url, $ip, $dateCreated){
         $db = new \HC\DB();
-        $users = $db->read('users', ['email'], ['notify' => 1]);
+        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
             $title = $serverTitle . ' (' . $serverID . ') - ' . $domainTitle . ' (' .  $domainID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
             $message = '<br>' . $title . ' ' . $url . ' (' . $ip . ')';
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message);
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;

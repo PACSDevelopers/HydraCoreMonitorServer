@@ -109,7 +109,6 @@
 
 
             $message = wordwrap($message, 70, '\r\n');
-            $subject = substr($subject, 0, 70);
 
             if(!isset($additional['headers'])) {
                 $additional['headers'] = [];

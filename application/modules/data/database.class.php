@@ -85,13 +85,13 @@ class Database extends \HC\Core
 
     public static function alertDown($databaseTitle, $databaseID, $after, $ip, $dateCreated){
         $db = new \HC\DB();
-        $users = $db->read('users', ['email'], ['notify' => 1]);
+        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
             $title = $databaseTitle . ' (' .  $databaseID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
             $message = '<br>' . $title . ' ' . $ip;
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message);
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;
