@@ -272,6 +272,20 @@ class Server extends \HC\Core
         return false;
     }
 
+    public static function alertDown($serverTitle, $serverID, $domainTitle, $domainID, $after, $url, $ip, $dateCreated){
+        $db = new \HC\DB();
+        $users = $db->read('users', ['email'], ['notify' => 1]);
+        if($users) {
+            $email = new \HC\Email();
+            $title = $serverTitle . ' (' . $serverID . ') - ' . $domainTitle . ' (' .  $domainID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
+            $message = '<br>' . $title . ' ' . $url . ' (' . $ip . ')';
+            foreach($users as $user) {
+                $email->send($user['email'], $title, $message);
+            }
+        }
+        return false;
+    }
+    
     public static function create($data){
         $db = new \HC\DB();
         $query = $db->write('servers', $data);

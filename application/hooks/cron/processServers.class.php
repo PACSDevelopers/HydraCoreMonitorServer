@@ -100,9 +100,10 @@
 
                   if($isValidConnection === 200) {
                       $overview['up']++;
-                      echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Passed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   } else {
-                      echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      \HCMS\Server::alertDown($row['serverTitle'], $row['serverID'], $row['domainTitle'],  $row['domainID'], $after, $row['url'], long2ip($row['ip']), $dateCreated);
+                      echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
 
                   $overview['responseTime'][] = $after;

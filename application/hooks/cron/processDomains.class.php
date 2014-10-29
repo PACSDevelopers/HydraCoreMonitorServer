@@ -88,10 +88,11 @@
                   }
                   
                   if($isValidConnection === 200) {
-                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                       $overview['up']++;
                   } else {
-                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms ' . $dateCreated . PHP_EOL;
+                      \HCMS\Domain::alertDown($row['title'],  $row['id'], $after, $row['url'], $dateCreated);
+                      echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms  on' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
                   
