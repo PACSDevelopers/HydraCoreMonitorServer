@@ -107,9 +107,6 @@
 
 			$additional = $this->parseOptions($additional, $this->defaultMailOptions);
 
-
-            $message = wordwrap($message, 70, '\r\n');
-
             if(!isset($additional['headers'])) {
                 $additional['headers'] = [];
             }
@@ -184,7 +181,8 @@
             foreach($additional['headers'] as $key => $value) {
                 $headers .= $key . ': ' . $value . '\r\n';
             }
-            
+
+            $message = wordwrap($message, 70, '\r\n');
             $mail = mail($to, $subject, $message, $headers);
             
             if ($mail === true) {
