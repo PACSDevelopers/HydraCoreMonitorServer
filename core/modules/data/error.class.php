@@ -14,7 +14,10 @@
 
 
         // Setup class protected variables
-        protected $errorTitle = [
+        static public $errorTitle = [
+            0   => 'Failure',
+            1   => 'Success',
+            200 => 'Success',
             400 => 'Bad Request',
             401 => 'Unauthorized',
             403 => 'Forbidden',
@@ -675,7 +678,7 @@
         }
 
         public function generateErrorPage($code = 500, $error = '') {
-            if(!isset($this->errorTitle[$code])) {
+            if(!isset(self::$errorTitle[$code])) {
                 $code = 500;
             }
 
@@ -690,7 +693,7 @@
                 ];
 
                 $errorPage = new \HC\Ajax($pageSettings);
-                $errorPage->body = ['status' => $code, 'message' => $this->errorTitle[$code], 'errorDescription' => $this->errorDescription[$code], 'errorDetail' => $error];
+                $errorPage->body = ['status' => $code, 'message' => self::$errorTitle[$code], 'errorDescription' => $this->errorDescription[$code], 'errorDetail' => $error];
             } else {
                 $pageSettings = [
                     'views' => [
@@ -712,7 +715,7 @@
 
                 $errorPage->body = <div class="container">
                                         <div class="row">
-                                            <h1>Error - {$actualCode} - {$this->errorTitle[$code]}</h1>
+                                            <h1>Error - {$actualCode} - {self::$errorTitle[$code]}</h1>
                                             <div>
                                                     <p>{$this->errorDescription[$code]}</p>
                                                     <p>{POTENTIAL_XSS_HOLE($error)}</p>

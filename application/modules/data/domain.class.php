@@ -133,15 +133,38 @@ class Domain extends \HC\Core
         return false;
     }
 
-    public static function alertDown($domainTitle, $domainID, $after, $url, $dateCreated){
+    public static function alertDown($data){
+        $data = array_reverse($data, 1);
+
+        if(isset(\HC\Error::$errorTitle[$data['Code']])) {
+            $data['Code Message'] = \HC\Error::$errorTitle[$data['Code']];
+        } else {
+            $data['Code Message'] = curl_strerror($data['Code']);
+        }
+        
         $db = new \HC\DB();
         $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
-            $title = $domainTitle . ' (' .  $domainID . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated;
-            $message = '<br>' . $title . ' ' . $url;
+            $title = $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
+            $message = new \HC\Table(['style' => 'width: 100%;']);
+            $message->openHeader();
+            $message->openRow();
+            $message->column(['value' => 'Key']);
+            $message->column(['value' => 'Value']);
+            $message->closeRow();
+            $message->closeHeader();
+            $message->openBody();
+            foreach($data as $key => $value) {
+                $message->openRow();
+                $message->column(['value' => $key]);
+                $message->column(['value' => $value]);
+                $message->closeRow();
+            }
+            $message->closeBody();
+            
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                $email->send($user['email'], $title, $message->render(), ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;

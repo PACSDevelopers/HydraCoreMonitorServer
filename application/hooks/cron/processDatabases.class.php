@@ -75,7 +75,17 @@
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                       $overview['up']++;
                   } else {
-                      \HCMS\Database::alertDown($row['title'],  $row['id'], $after, $row['ip'], $dateCreated);
+                      $data = [
+                              'Code'                    => $isValidConnection,
+                              'Date'                    => $dateCreated,
+                              'Database Title'          => $row['title'],
+                              'Database ID'             => $row['id'],
+                              'Time Elapsed'            => $after,
+                              'IP Address'              => <a href={'http://' . long2ip($row['ip'])}>{long2ip($row['ip'])}</a>,
+                              'Date'                    => $dateCreated,
+                      ];
+                      
+                      \HCMS\Database::alertDown($data);
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
                   $overview['responseTime'][] = $after;
