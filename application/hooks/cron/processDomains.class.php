@@ -91,8 +91,18 @@
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                       $overview['up']++;
                   } else {
-                      \HCMS\Domain::alertDown($row['title'],  $row['id'], $after, $row['url'], $dateCreated);
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms  on' . $dateCreated . PHP_EOL;
+                      $data = [
+                              'Code'                    => $isValidConnection,
+                              'Date'                    => $dateCreated,
+                              'Domain Title'            => $row['title'],
+                              'Domain ID'               => $row['id'],
+                              'Time Elapsed'            => $after,
+                              'URL'                     => <a href={'http://' . $row['url']}>{$row['url']}</a>,
+                              'Date'                    => $dateCreated,
+                      ];
+                      
+                      \HCMS\Domain::alertDown($data);
                   }
                   $overview['responseTime'][] = $after;
                   

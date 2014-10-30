@@ -102,7 +102,6 @@
                       $overview['up']++;
                       echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   } else {
-                      \HCMS\Server::alertDown($row['serverTitle'], $row['serverID'], $row['domainTitle'],  $row['domainID'], $after, $row['url'], long2ip($row['ip']), $dateCreated);
                       echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
 
@@ -129,6 +128,33 @@
                           $overview['qpm'][]             = $currentClientData['qpm']             = $tempClientData['result']['qpm'];
                           $overview['avgTimeCpuBound'][] = $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
                       }
+                  }
+
+                  if($isValidConnection !== 200) {
+                      $data = [
+                          'Code'                    => $isValidConnection,
+                          'Date'                    => $dateCreated,
+                          'Server Title'            => $row['serverTitle'],
+                          'Server ID'               => $row['serverID'],
+                          'Domain Title'            => $row['domainTitle'],
+                          'Domain ID'               => $row['domainID'],
+                          'Time Elapsed'            => $after,
+                          'URL'                     => <a href={'http://' . $row['url']}>{$row['url']}</a>,
+                          'IP Address'              => <a href={'http://' . long2ip($row['ip'])}>{long2ip($row['ip'])}</a>,
+                          'Date'                    => $dateCreated,
+                          'CPU'                     => $currentClientData['cpu'],
+                          'Memory'                  => $currentClientData['mem'],
+                          'IO Wait'                 => $currentClientData['iow'],
+                          'Disk Space'              => $currentClientData['ds'],
+                          'Network Traffic'         => $currentClientData['net'],
+                          'Requests Per Minute'     => $currentClientData['rpm'],
+                          'Transactions Per Second' => $currentClientData['tps'],
+                          'Average Response Time'   => $currentClientData['avgRespTime'],
+                          'Queries Per Minute'      => $currentClientData['qpm'],
+                          'Average Time CPU Bound'  => $currentClientData['avgTimeCpuBound'],
+                      ];
+                      
+                      \HCMS\Server::alertDown($data);
                   }
                   
                   $db->write('server_history', $currentClientData);
