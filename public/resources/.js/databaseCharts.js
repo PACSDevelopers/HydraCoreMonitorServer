@@ -221,11 +221,11 @@ function showHideSeries (chart, data, series, columns, view, options) {
     }
 }
 
-function databaseData(callback, availability, responseTimes) {
+function databaseData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
         url: '/ajax/databases/charts/processChartDataSingle',
-        data: {databaseID: $('#databaseID').val()}
+        data: {scale: scale, databaseID: $('#databaseID').val()}
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
@@ -277,7 +277,7 @@ function drawAvailability(availability, result, type) {
     var options = {
         title: 'Availability',
         curveType: 'function',
-        colors: generateChartColors(3),
+        colors: generateChartColors(1),
         vAxis: {
             format: '#\'%\'',
             minValue: 0.00,
@@ -297,9 +297,8 @@ function drawAvailability(availability, result, type) {
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
-            keepInBounds: true
-        }
+            keepInBounds: true,
+        },
     };
 
     drawChart('historyAvailability', options, data);
@@ -328,7 +327,7 @@ function drawResponseTimes(responseTimes, result, type) {
     var options = {
         title: 'Response Time',
         curveType: 'function',
-        colors: generateChartColors(3),
+        colors: generateChartColors(1),
         vAxis: {
             format: '#.#ms',
             minValue: 0.00,
@@ -421,14 +420,23 @@ function makeChartResponsive(id, options, data, columns, series) {
     });
 }
 
-$(document).ready(function (){
+function drawChartsTrigger() {
     var availability = {};
     var responseTimes = {};
-    
+    var scale = $('#timeScale').val();
+    $('.chart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
+    setTimeout(function(){
+        databaseData(scale, drawDatabaseCharts, availability, responseTimes);
+    },0);
+}
+
+$(document).ready(function (){
     $(document).on('chartDraw', function(){
-        setTimeout(function(){
-            databaseData(drawDatabaseCharts, availability, responseTimes);
-        },0);
+        drawChartsTrigger();
+    });
+
+    $(document).on('change', '#timeScale', function(){
+        drawChartsTrigger();
     });
 
     if (screenfull.enabled) {
@@ -446,11 +454,11 @@ $(document).ready(function (){
             $(this).trigger('resizeEnd');
         });
     }
-    
+
     $(document).on('dblclick', '.chart', function(){
         if (screenfull.enabled) {
             screenfull.toggle(this);
         }
     });
-    
+
 });

@@ -6,12 +6,28 @@ class ProcessChartDataAjax extends \HC\Ajax {
 
     public function init($GET = [], $POST = []) {
         $response = [];
-
         $cache = new \HC\Cache();
 
-        if(!$result = $cache->select('\HCPublic\Ajax\Domains\Charts\ProcessDayChartAjax')) {
+        if(!$result = $cache->select('\HCPublic\Ajax\Domains\Charts\ProcessChartDataAjax' . $POST['scale'])) {
             $current = microtime(true);
-            $current24 = $current - (86400*30);
+
+            switch($POST['scale']) {
+                case 1:
+                    $current24 = $current - 86400;
+                    break;
+                case 2:
+                    $current24 = $current - 604800;
+                    break;
+
+                case 3:
+                    $current24 = $current - (86400*30);
+                    break;
+
+                default:
+                    $current24 = $current - 3600;
+                    break;
+            }
+            
             $dateTokens = explode('.', $current);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;
@@ -28,8 +44,13 @@ class ProcessChartDataAjax extends \HC\Ajax {
 
             $db = new \HC\DB();
             $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, UNIX_TIMESTAMP(`DHO`.`dateCreated`) as `dateCreated` FROM `domain_history_overview` `DHO` WHERE `DHO`.`dateCreated` < ? AND `DHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
+
+            if($result == false) {
+                $result = [];
+            }
+            
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Domains\Charts\ProcessDayChartAjax', $result, 60);
+            $cache->insert('\HCPublic\Ajax\Domains\Charts\ProcessChartDataAjax' . $POST['scale'], $result, 60);
         }
 
         $this->body = $result;
