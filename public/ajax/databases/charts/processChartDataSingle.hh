@@ -9,9 +9,26 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
         
         $cache = new \HC\Cache();
         
-        if(!$result = $cache->select('\HCPublic\Ajax\Databases\Charts\ProcessDayChartSingleAjax' . $POST['databaseID'])) {
+        if(!$result = $cache->select('\HCPublic\Ajax\Databases\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['databaseID'])) {
             $current = microtime(true);
-            $current24 = $current - (86400*30);
+
+            switch($POST['scale']) {
+                case 1:
+                    $current24 = $current - 86400;
+                    break;
+                case 2:
+                    $current24 = $current - 604800;
+                    break;
+
+                case 3:
+                    $current24 = $current - (86400*30);
+                    break;
+
+                default:
+                    $current24 = $current - 3600;
+                    break;
+            }
+
             $dateTokens = explode('.', $current);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;
@@ -28,8 +45,13 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
 
             $db = new \HC\DB();
             $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated` FROM `database_history` `DH` WHERE `DH`.`databaseID` = ? AND `DH`.`dateCreated` < ? AND `DH`.`dateCreated` > ?;', [$POST['databaseID'], $currentDate, $currentDate24]);
+
+            if($result == false) {
+                $result = [];
+            }
+
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessDayChartSingleAjax' . $POST['databaseID'], $result, 60);
+            $cache->insert('\HCPublic\Ajax\Databases\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['databaseID'], $result, 60);
         }
         
         $this->body = $result; 

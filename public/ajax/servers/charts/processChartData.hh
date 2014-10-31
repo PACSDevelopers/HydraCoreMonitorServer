@@ -9,9 +9,26 @@ class ProcessChartDataAjax extends \HC\Ajax {
         
         $cache = new \HC\Cache();
 
-        if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessDayChartAjax')) {
+        if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessChartDataAjax' . $POST['scale'])) {
             $current = microtime(true);
-            $current24 = $current - (86400*30);
+            
+            switch($POST['scale']) {
+                case 1:
+                    $current24 = $current - 86400;
+                    break;
+                case 2:
+                    $current24 = $current - 604800;
+                    break;
+                
+                case 3:
+                    $current24 = $current - (86400*30);
+                    break;
+                
+                default:
+                    $current24 = $current - 3600;
+                    break;
+            }
+            
             $dateTokens = explode('.', $current);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;
@@ -28,8 +45,13 @@ class ProcessChartDataAjax extends \HC\Ajax {
 
             $db = new \HC\DB();
             $result = $db->query('SELECT `SHO`.`percent`, `SHO`.`responseTime`, `SHO`.`cpu`, `SHO`.`mem`, `SHO`.`iow`, `SHO`.`ds`, `SHO`.`ds`, `SHO`.`net`, `SHO`.`rpm`, `SHO`.`tps`, `SHO`.`qpm`, `SHO`.`avgTimeCpuBound`, `SHO`.`avgRespTime`, UNIX_TIMESTAMP(`SHO`.`dateCreated`) as `dateCreated` FROM `server_history_overview` `SHO` WHERE `SHO`.`dateCreated` < ? AND `SHO`.`dateCreated` > ?;', [$currentDate, $currentDate24]);
+            
+            if($result == false) {
+                $result = [];
+            }
+
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessDayChartAjax', $result, 60);
+            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessChartDataAjax' . $POST['scale'], $result, 60);
         }
 
         $this->body = $result;

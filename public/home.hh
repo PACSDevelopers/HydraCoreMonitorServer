@@ -27,6 +27,12 @@ class HomePage extends \HC\Page {
 		$container = <div class="container">
             <div class="row">
                 <h1>{SITE_NAME} - {$this->settings['views']['header']['pageName']}</h1>
+                <select class="form-control" id="timeScale">
+                    <option value="0">Hour</option>
+                    <option value="1">Day</option>
+                    <option value="2">Week</option>
+                    <option value="3">Month</option>
+                </select>
             </div>
             <div class="row">
                         <div class="row">

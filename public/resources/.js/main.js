@@ -72,13 +72,17 @@ $(document).ready(function (){
 
 	// Enable the polyfills that are needed
     $.webshims.polyfill();
-
+    
+    window.lastWidth = window.innerWidth;
     $(window).resize(function() {
-        $(this).trigger('resizeStart');
-        if(this.resizeTO) clearTimeout(this.resizeTO);
-        this.resizeTO = setTimeout(function() {
-            $(this).trigger('resizeEnd');
-        }, 500);
+        if(window.lastWidth != window.innerWidth) {
+            window.lastWidth = window.innerWidth;
+            $(this).trigger('resizeStart');
+            if(this.resizeTO) clearTimeout(this.resizeTO);
+            this.resizeTO = setTimeout(function() {
+                $(this).trigger('resizeEnd');
+            }, 500);
+        }
     });
     
     $('.falseLink').on('click', function(e){

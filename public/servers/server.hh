@@ -164,6 +164,14 @@ class ServerPage extends \HC\Page {
                                     </div>
                                 </div>
                                 <div class="row">
+                                    <select class="form-control" id="timeScale">
+                                        <option value="0">Hour</option>
+                                        <option value="1">Day</option>
+                                        <option value="2">Week</option>
+                                        <option value="3">Month</option>
+                                    </select>
+                                </div>
+                                <div class="row">
                                     <div id="serverHistoryApplicationResponseTime" class="chart forceGPU noselect">
                                         <div class="spinner">
                                           <div class="rect1"></div>

@@ -31,6 +31,12 @@ class IndexPage extends \HC\Page {
                         <form class="form-signin" role="form" id="loginForm" autocomplete="on">
                                 <h2 class="form-signin-heading">{SITE_NAME} - Status <a class="btn btn-sm btn-primary pull-right" href="/login">Login</a></h2>
                                 <div class="clearfix"></div>
+                                <select class="form-control" id="timeScale">
+                                    <option value="0">Hour</option>
+                                    <option value="1">Day</option>
+                                    <option value="2">Week</option>
+                                    <option value="3">Month</option>
+                                </select>
                         </form>
                     </div>
                     <div class="row">

@@ -221,11 +221,11 @@ function showHideSeries (chart, data, series, columns, view, options) {
     }
 }
 
-function serverData(callback, availability, responseTimes) {
+function serverData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
         url: '/ajax/servers/charts/processChartDataSingle',
-        data: {serverID: $('#serverID').val()}
+        data: {scale: scale, serverID: $('#serverID').val()}
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
@@ -320,9 +320,12 @@ function drawServerHistoryUsage(result) {
             position: 'top',
             alignment: 'center',
         },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true,
+        },
         explorer: {
             keepInBounds: true,
-            maxZoomOut: 1
         },
     };
 
@@ -456,7 +459,18 @@ function drawServerHistoryTPS(result){
             {
                 min:0.00
             },
-        }
+        },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true
+        },
+        animation:{
+            duration: 250,
+            easing: 'inAndOut',
+        },
+        explorer: {
+            keepInBounds: true
+        },
     };
 
     drawChart('serverHistoryTPS', options, data);
@@ -501,9 +515,9 @@ function drawServerHistoryApplicationResponseTime(result){
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+
     };
 
     drawChart('serverHistoryApplicationResponseTime', options, data);
@@ -548,9 +562,9 @@ function drawServerHistoryApplicationQPM(result){
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+
     };
 
     drawChart('serverHistoryApplicationQPM', options, data);
@@ -595,9 +609,9 @@ function drawServerHistoryApplicationAVGTimeCPUBound(result){
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+
     };
 
     drawChart('serverHistoryApplicationAVGTimeCPUBound', options, data);
@@ -656,9 +670,8 @@ function drawAvailability(availability, result, type) {
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
-            keepInBounds: true
-        }
+            keepInBounds: true,
+        },
     };
 
     drawChart('historyAvailability', options, data);
@@ -780,14 +793,23 @@ function makeChartResponsive(id, options, data, columns, series) {
     });
 }
 
-$(document).ready(function (){
+function drawChartsTrigger() {
     var availability = {};
     var responseTimes = {};
-    
+    var scale = $('#timeScale').val();
+    $('.chart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
+    setTimeout(function(){
+        serverData(scale, drawServerCharts, availability, responseTimes);
+    },0);
+}
+
+$(document).ready(function (){
     $(document).on('chartDraw', function(){
-        setTimeout(function(){
-            serverData(drawServerCharts, availability, responseTimes);
-        },0);
+        drawChartsTrigger();
+    });
+
+    $(document).on('change', '#timeScale', function(){
+        drawChartsTrigger();
     });
 
     if (screenfull.enabled) {
@@ -805,11 +827,11 @@ $(document).ready(function (){
             $(this).trigger('resizeEnd');
         });
     }
-    
+
     $(document).on('dblclick', '.chart', function(){
         if (screenfull.enabled) {
             screenfull.toggle(this);
         }
     });
-    
+
 });

@@ -9,9 +9,26 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
         
         $cache = new \HC\Cache();
 
-        if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessDayChartSingleAjax' . $POST['serverID'])) {
+        if(!$result = $cache->select('\HCPublic\Ajax\Servers\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['serverID'])) {
             $current = microtime(true);
-            $current24 = $current - (86400*30);
+
+            switch($POST['scale']) {
+                case 1:
+                    $current24 = $current - 86400;
+                    break;
+                case 2:
+                    $current24 = $current - 604800;
+                    break;
+
+                case 3:
+                    $current24 = $current - (86400*30);
+                    break;
+
+                default:
+                    $current24 = $current - 3600;
+                    break;
+            }
+            
             $dateTokens = explode('.', $current);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;
@@ -28,8 +45,13 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
 
             $db = new \HC\DB();
             $result = $db->query('SELECT `SH`.`status`, `SH`.`domainID`, `SH`.`responseTime`, `SH`.`cpu`, `SH`.`mem`, `SH`.`iow`, `SH`.`ds`, `SH`.`ds`, `SH`.`net`, `SH`.`rpm`, `SH`.`tps`, `SH`.`qpm`, `SH`.`avgTimeCpuBound`, `SH`.`avgRespTime`, UNIX_TIMESTAMP(`SH`.`dateCreated`) as `dateCreated` FROM `server_history` `SH` WHERE `SH`.`serverID` = ? AND `SH`.`dateCreated` < ? AND `SH`.`dateCreated` > ?;', [$POST['serverID'], $currentDate, $currentDate24]);
+            
+            if($result == false) {
+                $result = [];
+            }
+            
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessDayChartSingleAjax' . $POST['serverID'], $result, 60);
+            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['serverID'], $result, 60);
         }
 
         $this->body = $result;

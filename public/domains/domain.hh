@@ -96,6 +96,14 @@ class DomainPage extends \HC\Page {
                                     </form>
                             </div>
                             <div class="row">
+                                <select class="form-control" id="timeScale">
+                                    <option value="0">Hour</option>
+                                    <option value="1">Day</option>
+                                    <option value="2">Week</option>
+                                    <option value="3">Month</option>
+                                </select>
+                            </div>
+                            <div class="row">
                                 <div class="col-lg-6">
                                     <div id="historyAvailability" class="chart forceGPU noselect">
                                         <div class="spinner">

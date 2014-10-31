@@ -222,10 +222,11 @@ function showHideSeries (chart, data, series, columns, view, options) {
 }
 
 
-function domainData(callback, availability, responseTimes) {
+function domainData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
         url: '/ajax/domains/charts/processChartData',
+        data: {scale: scale}
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
@@ -239,10 +240,11 @@ function domainData(callback, availability, responseTimes) {
         });
 }
 
-function databaseData(callback, availability, responseTimes) {
+function databaseData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
         url: '/ajax/databases/charts/processChartData',
+        data: {scale: scale}
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
@@ -256,10 +258,11 @@ function databaseData(callback, availability, responseTimes) {
         });
 }
 
-function serverData(callback, availability, responseTimes) {
+function serverData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
         url: '/ajax/servers/charts/processChartData',
+        data: {scale: scale}
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
@@ -376,9 +379,12 @@ function drawServerHistoryUsage(result) {
             position: 'top',
             alignment: 'center',
         },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true,
+        },
         explorer: {
             keepInBounds: true,
-            maxZoomOut: 1
         },
     };
 
@@ -512,7 +518,18 @@ function drawServerHistoryTPS(result){
             {
                 min:0.00
             },
-        }
+        },
+        hAxix: {
+            'slantedTextAngle': 45,
+            'slantedText': true
+        },
+        animation:{
+            duration: 250,
+            easing: 'inAndOut',
+        },
+        explorer: {
+            keepInBounds: true
+        },
     };
 
     drawChart('serverHistoryTPS', options, data);
@@ -553,13 +570,13 @@ function drawServerHistoryApplicationResponseTime(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+        
     };
 
     drawChart('serverHistoryApplicationResponseTime', options, data);
@@ -600,13 +617,13 @@ function drawServerHistoryApplicationQPM(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+        
     };
 
     drawChart('serverHistoryApplicationQPM', options, data);
@@ -647,13 +664,13 @@ function drawServerHistoryApplicationAVGTimeCPUBound(result){
             'position': 'none'
         },
         animation:{
-            duration: 1000,
+            duration: 250,
             easing: 'inAndOut',
         },
         explorer: {
-            axis: 'horizontal',
             keepInBounds: true
-        }
+        },
+        
     };
     
     drawChart('serverHistoryApplicationAVGTimeCPUBound', options, data);
@@ -676,7 +693,6 @@ function drawAvailability(availability, result, type) {
             dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), null, null, parseFloat(value['percent'])]);
         });
         
-        console.log(dataArray);
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', '');
         data.addColumn('number', 'Server');
@@ -721,9 +737,8 @@ function drawAvailability(availability, result, type) {
                 easing: 'inAndOut',
             },
             explorer: {
-                axis: 'horizontal',
-                keepInBounds: true
-            }
+                keepInBounds: true,
+            },
         };
 
         drawChart('historyAvailability', options, data);
@@ -762,7 +777,7 @@ function drawResponseTimes(responseTimes, result, type) {
         data.addColumn('number', 'Server');
         data.addColumn('number', 'Domain');
         data.addColumn('number', 'Database');
-        data.addRows(dataArray);        
+        data.addRows(dataArray);
 
         var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
         dateFormatter.format(data, 0);
@@ -833,12 +848,10 @@ function drawChart(id, options, data, columns, series) {
 
         options.series = series;
     }
-    
-
+        
     // create a view with the default columns
     var view = new google.visualization.DataView(data);
     view.setColumns(columns);
-
     google.visualization.events.addListener(chart, 'select', function(){
         showHideSeries(chart, data, series, columns, view, options);
     });
@@ -865,20 +878,29 @@ function makeChartResponsive(id, options, data, columns, series) {
     });
 }
 
-$(document).ready(function (){
+function drawChartsTrigger() {
     var availability = {};
     var responseTimes = {};
-    
+    var scale = $('#timeScale').val();
+    $('.chart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
+    setTimeout(function(){
+        domainData(scale, drawDomainCharts, availability, responseTimes);
+    },0);
+    setTimeout(function(){
+        databaseData(scale, drawDatabaseCharts, availability, responseTimes);
+    },0);
+    setTimeout(function(){
+        serverData(scale, drawServerCharts, availability, responseTimes);
+    },0);
+}
+
+$(document).ready(function (){
     $(document).on('chartDraw', function(){
-        setTimeout(function(){
-            domainData(drawDomainCharts, availability, responseTimes);
-        },0);
-        setTimeout(function(){
-            databaseData(drawDatabaseCharts, availability, responseTimes);
-        },0);
-        setTimeout(function(){
-            serverData(drawServerCharts, availability, responseTimes);
-        },0);
+        drawChartsTrigger();
+    });
+    
+    $(document).on('change', '#timeScale', function(){
+        drawChartsTrigger();
     });
 
     if (screenfull.enabled) {
