@@ -47,13 +47,13 @@
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessDomains' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessServers' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
         ]
     ];
