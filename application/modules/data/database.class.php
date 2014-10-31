@@ -129,14 +129,18 @@ class Database extends \HC\Core
         return false;
     }
     
-    public static function testMySQLPort($ip, $port = 3306) {
-        $ip = ip2long($ip);
+    public static function testMySQLPort($ip, $port = 3306, $attempts = 1) {
         if($ip) {
-            if($fp = @fsockopen(long2ip($ip), $port)){
+            if($fp = @fsockopen($ip, $port)){
                 fclose($fp);
                 return true;
             }
         }
+
+        if($attempts < 3) {
+            $attempts++;
+            return self::testMySQLPort($ip, $port, $attempts);
+        }        
         
         return false;
     }
