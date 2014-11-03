@@ -21,7 +21,11 @@ class ProcessNewDatabaseAjax extends \HC\Ajax {
 		if(count($response['errors']) == 0){
             $insertKeys = [
                 'databaseTitle' => 'title',
-                'databaseIP' => 'ip'
+                'databaseIP' => 'ip',
+                'databaseBackupType' => 'backupType',
+                'databaseBackupInterval' => 'backupInterval',
+                'databaseUsername' => 'username',
+                'databasePassword' => 'password'
             ];
 
             $isValid = true;
@@ -51,6 +55,19 @@ class ProcessNewDatabaseAjax extends \HC\Ajax {
 
             if(!isset($data['dateCreated'])) {
                 $data['dateCreated'] = time();
+            }
+
+            if(isset($data['username']) ||  isset($data['password'])) {
+                $encryption = new \HC\Encryption();
+            }
+
+
+            if(isset($data['username'])) {
+                $data['username'] = $encryption->encrypt($data['username'], 'HC_DB_U' . $data['dateCreated']);
+            }
+
+            if(isset($data['password'])) {
+                $data['password'] = $encryption->encrypt($data['password'], 'HC_DB_P' . $data['dateCreated']);
             }
             
             if($isValid) {

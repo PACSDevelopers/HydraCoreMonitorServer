@@ -58,6 +58,12 @@
                 case 'HCMS\Hooks\Cron\ProcessServers':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processServers.class.php');
                     break;
+                case 'HCMS\Hooks\Cron\ProcessBackups':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processBackups.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessManualBackups':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processManualBackups.class.php');
+                    break;
                 
                 /* System classes */
                 case 'HCMS\Session':

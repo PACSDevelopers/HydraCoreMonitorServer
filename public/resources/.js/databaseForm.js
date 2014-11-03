@@ -8,6 +8,10 @@ function submitForm() {
   var inputs = [
     'databaseTitle',
     'databaseIP',
+    'databaseUsername',
+    'databasePassword',
+    'databaseBackupType',
+    'databaseBackupInterval'
   ];
 
   var data = {};
@@ -65,6 +69,10 @@ function updateForm() {
   var inputs = [
       'databaseTitle',
       'databaseIP',
+      'databaseUsername',
+      'databasePassword',
+      'databaseBackupType',
+      'databaseBackupInterval'
   ];
 
   var data = {};
@@ -111,7 +119,7 @@ function deleteDatabase() {
     var $alertBox = $('#alertBox');
     $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for database deletion.')).slideDown();
     var data = {'databaseStatus': 0};
-    
+
     // Append database ID
     data['databaseID'] = $('#databaseID').val();
 
@@ -122,13 +130,52 @@ function deleteDatabase() {
             data: data
         }
     })
-    .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
-            $alertBox.html(bootstrapAlert('success', 'Database successfully deleted.')).slideDown();
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                $alertBox.html(bootstrapAlert('success', 'Database successfully deleted.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function backupDatabase() {
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for database backup.')).slideDown();
+    var data = {'databaseID': $('#databaseID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/processBackupDatabase',
+        data: {
+            data: data
         }
     })
-    .fail(function() {
-        // Tell user error
-        $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
-    });
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                switch(response.status) {
+                    case 1:
+                        $alertBox.html(bootstrapAlert('success', 'Database backup started.')).slideDown();
+                        break;
+                    
+                    case 2:
+                        $alertBox.html(bootstrapAlert('info', 'Database is already being backed up.')).slideDown();
+                        break;
+                    
+                    default:
+                        $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+                        break;
+                }
+                
+            } else {
+                // Tell user error
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
 }

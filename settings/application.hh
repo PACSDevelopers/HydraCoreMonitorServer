@@ -55,5 +55,11 @@
             'HCMS\Hooks\Cron\ProcessServers' => [
                 'microtime' => 300
             ],
+            'HCMS\Hooks\Cron\ProcessBackups' => [
+                'microtime' => 3600
+            ],
+            'HCMS\Hooks\Cron\ProcessManualBackups' => [
+                'microtime' => 60
+            ],
         ]
     ];

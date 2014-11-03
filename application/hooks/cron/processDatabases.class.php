@@ -29,6 +29,8 @@
       public function __construct($settings = [])
 
       {
+          $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+          
           if(is_array($settings)) {
               $this->settings = $settings;
           }
