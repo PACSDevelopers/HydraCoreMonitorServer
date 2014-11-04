@@ -19,7 +19,7 @@
        */
 
       protected $settings = [
-          'path' => '/data/archive'
+          'archive' => '/data/archive'
       ];
 
 
@@ -53,7 +53,7 @@
           echo 'Processing Manual Backups' . PHP_EOL;
           $encryption = new \HC\Encryption();
           $db = new \HC\DB();
-          $result = $db->query('SELECT `DB`.`id` as `backupID`, `D`.`id`, `D`.`title`, `D`.`ip`, `D`.`username`, `D`.`password`, `D`.`backupType`, `D`.`dateCreated` FROM `database_backups` `DB` LEFT JOIN `databases` `D` ON (`D`.`id` = `DB`.`databaseID`) WHERE `DB`.`status` = 1;');
+          $result = $db->query('SELECT `DB`.`id` as `backupID`, `DB`.`isAuto`, `DB`.`creatorID`, `D`.`id`, `D`.`title`, `D`.`ip`, `D`.`username`, `D`.`password`, `D`.`backupType`, `D`.`dateCreated` FROM `database_backups` `DB` LEFT JOIN `databases` `D` ON (`D`.`id` = `DB`.`databaseID`) WHERE `DB`.`status` = 1;');
           if($result) {
               foreach($result as $row) {
                   echo 'Processing Database Backup: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . PHP_EOL;
@@ -72,14 +72,24 @@
                           $row['username'] = $encryption->decrypt($row['username'], 'HC_DB_U' . $row['dateCreated']);
                           $row['password'] = $encryption->decrypt($row['password'], 'HC_DB_P' . $row['dateCreated']);
 
-                          $status = \HCMS\Database::runBackup($row['id'], long2ip($row['ip']), $this->settings['path'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
+                          $status = \HCMS\Database::runBackup($row['id'], long2ip($row['ip']), $this->settings['archive'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
                           
                           $after = microtime(true);
                           
                           if($status) {
                               echo 'Success: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ') in ' . ($after - $before) . 's' . PHP_EOL;
+                              if($row['isAuto'] == 0) {
+                                  $email = new \HC\Email();
+                                  $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
+                                  $email->send($user[0]['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' is complete.');
+                              }
                           } else {
                               echo 'Failure: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . ($after - $before) . 's' . PHP_EOL;
+                              if($row['isAuto'] == 0) {
+                                  $email = new \HC\Email();
+                                  $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
+                                  $email->send($user[0]['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' failed.');
+                              }
                           }
                       }
                   }

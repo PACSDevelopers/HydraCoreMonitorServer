@@ -39,7 +39,7 @@ class ProcessBackupDatabaseAjax extends \HC\Ajax {
 
                         $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
-                        $status = $db->write('database_backups', ['databaseID' => $POST['data']['databaseID'], 'status' => 1, 'isLocal' => 1, 'dateCreated' => $dateCreated]);
+                        $status = $db->write('database_backups', ['databaseID' => $POST['data']['databaseID'], 'status' => 1, 'creatorID' => $_SESSION['user']->getUserID(), 'isLocal' => 1, 'dateCreated' => $dateCreated]);
                         $response = ['status' => (int)$status];
                     }
                 } else {

@@ -54,6 +54,86 @@ class DatabasePage extends \HC\Page {
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
         
         $password = str_repeat('*', strlen($database->password));
+
+        $backupsTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover']);
+        
+        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'status', 'dateStarted']);
+        if($backups) {
+            $backupsTable->openHeader();
+            $backupsTable->column(['value' => 'ID']);
+            $backupsTable->column(['value' => 'Status']);
+            $backupsTable->column(['value' => 'Available']);
+            $backupsTable->column(['value' => 'Date']);
+            $backupsTable->column(['value' => 'Progress']);
+            $backupsTable->closeHeader();
+            
+            $backupsTable->openBody();
+
+            $backups = array_reverse($backups);
+            $statusArray = [
+                1 => 'Scheduled',
+                2 => 'Started',
+                3 => 'Complete',
+                4 => 'Failed'
+            ];
+            
+            foreach($backups as $backup) {
+                $backupsTable->openRow();
+                $backupsTable->column(['value' => <span>{$backup['id']}</span>]);
+                $backupsTable->column(['value' => <span>{$statusArray[$backup['status']]}</span>]);
+                
+                switch($backup['status']) {
+                    case 2:
+                        $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
+                        $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
+                                                        <span class="sr-only">$backup['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    case 3:
+                        if($backup['isLocal']) {
+                            $backupsTable->column(['value' => <span class="glyphicons circle_ok" style="color: #53A93F;"></span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span class="glyphicons circle_arrow_down" style="color: #158cba;"></span>]);
+                        }
+
+                        $backupsTable->column(['value' => <span><a href={'/downloads/backups/' . $backup['id']}>{$backup['dateStarted']}</a></span>]);
+                        
+                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
+                                                        <span class="sr-only">$backup['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    case 4:
+                        $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
+                        $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
+                                                        <span class="sr-only">$backup['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    default:
+                        $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
+                        $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                                                      <div class="progress-bar" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
+                                                        <span class="sr-only">$backup['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                }
+                
+                $backupsTable->closeRow();
+            }
+            
+            $backupsTable->closeBody();
+        }
+
+        
         
         $this->body = <x:frag>
                         <div class="row col-lg-2 col-md-0 col-sm-0">
@@ -90,8 +170,6 @@ class DatabasePage extends \HC\Page {
                                                             <select disabled={$isDisabled} class="form-control" id="databaseBackupType">
                                                                 <option value="0" selected={$database->backupType == 0}>None</option>
                                                                 <option value="1" selected={$database->backupType == 1}>MySQLDump (direct)</option>
-                                                                <option value="2" selected={$database->backupType == 2}>MySQLDump (client)</option>
-                                                                <option value="3" selected={$database->backupType == 3}>InnoBackupEx (client)</option>
                                                             </select>
                                                     </div>
                                             </div>
@@ -174,6 +252,11 @@ class DatabasePage extends \HC\Page {
                                           <div class="rect5"></div>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="table-responsive">
+                                    {$backupsTable}
                                 </div>
                             </div>
                         </div>

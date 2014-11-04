@@ -157,7 +157,7 @@ function backupDatabase() {
             if (typeof(response.status) != 'undefined') {
                 switch(response.status) {
                     case 1:
-                        $alertBox.html(bootstrapAlert('success', 'Database backup started.')).slideDown();
+                        $alertBox.html(bootstrapAlert('success', 'Database backup scheduled.')).slideDown();
                         break;
                     
                     case 2:

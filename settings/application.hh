@@ -24,6 +24,7 @@
             '@^/domains/(?<id>\d+)$@' => '/domains/domain.hh',
             '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
             '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
+            '@^/downloads/backups/(?<id>\d+)$@' => '/downloads/backups.hh',
         ]
     ];
 

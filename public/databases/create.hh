@@ -74,8 +74,6 @@ class CreatePage extends \HC\Page {
                                                 <select class="form-control" id="databaseBackupType" required="required">
                                                     <option value="0">None</option>
                                                     <option value="1">MySQLDump (direct)</option>
-                                                    <option value="2">MySQLDump (client)</option>
-                                                    <option value="3">InnoBackupEx (client)</option>
                                                 </select>
                                         </div>
                                 </div>

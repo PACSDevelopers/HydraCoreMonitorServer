@@ -255,7 +255,6 @@ class Database extends \HC\Core
             }
                         
             if(!empty($schemaList)) {
-                var_dump($path . '/' . $backupID);
                 if (!is_dir($path . '/' . $backupID)) {
                     mkdir($path . '/' . $backupID);
                 }
@@ -268,11 +267,9 @@ class Database extends \HC\Core
                 foreach($schemaList as $schema => $schemaSize) {
                     $pid = $process->start('backup-' . $backupID . '-' . $schema . $startTime, 'mysqldump ' . $schema . ' --disable-keys --extended-insert --single-transaction --quick --max_allowed_packet=1G --compress --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . '  > ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false);
                     if($pid) {
-                        var_dump('backup-' . $backupID . '-' . $schema . $startTime);
                         $schemaProcessMap['backup-' . $backupID . '-' . $schema . $startTime] = $schema;
                         $processList['backup-' . $backupID . '-' . $schema . $startTime] = false;
                     } else {
-                        var_dump('Shutdown', $pid);
                         
                         // Shutdown the backup
                         foreach($processList as $key => $value) {
@@ -287,7 +284,6 @@ class Database extends \HC\Core
                     }
                 }
 
-                var_dump($processList);
                 
                 $processCount = count($processList);
                 $done = 0;
@@ -295,12 +291,9 @@ class Database extends \HC\Core
                 
                 while($done != $dbSize) {
                     sleep(5);
-                    var_dump('Checking List ' . $done . ' ' . $dbSize);
                     foreach($processList as $key => $value) {
                         if($processList[$key] === false) {
-                            var_dump('Checking ' . $key);
                             if(!$process->isRunning($key)) {
-                                var_dump('Done: ' . $key);
                                 $process->stop($key);
                                 $processList[$key] = true;
                                 $curSize = $schemaList[$schemaProcessMap[$key]];
@@ -314,8 +307,6 @@ class Database extends \HC\Core
                 // Add an information file
                 $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'backupType' => 1];
                 file_put_contents($path . '/' . $backupID . '/info.json', json_encode($info));
-                
-                var_dump('Compacting');
                 
                 // Compact final directory
                 $command = 'cd ' . $path . '/' . $backupID . ' && tar cfk - * | pxz -1 -zfk - > ' . $path . '/' . $backupID . '.tar.xz';
