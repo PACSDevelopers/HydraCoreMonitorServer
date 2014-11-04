@@ -74,10 +74,12 @@
 
                           $status = \HCMS\Database::runBackup($row['id'], long2ip($row['ip']), $this->settings['path'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
                           
+                          $after = microtime(true);
+                          
                           if($status) {
-                              echo 'Success: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . PHP_EOL;
+                              echo 'Success: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ') in ' . ($after - $before) . 's' . PHP_EOL;
                           } else {
-                              echo 'Failure: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . PHP_EOL;
+                              echo 'Failure: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . ($after - $before) . 's' . PHP_EOL;
                           }
                       }
                   }

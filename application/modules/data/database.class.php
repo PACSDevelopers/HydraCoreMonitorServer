@@ -231,7 +231,7 @@ class Database extends \HC\Core
     }
     
     public static function runMySQLDumpDirectBackup($id, $ip, $path, $username, $password, $backupID = 0) {
-        if(is_file($path . '/' . $backupID . '.tar')) {
+        if(is_file($path . '/' . $backupID . '.tar.xz')) {
             return true;
         }
         
@@ -312,28 +312,22 @@ class Database extends \HC\Core
                 }
                 
                 // Add an information file
-                $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList)];
+                $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'backupType' => 1];
                 file_put_contents($path . '/' . $backupID . '/info.json', json_encode($info));
                 
                 var_dump('Compacting');
                 
-                // Compress final directory
-                $command = 'tar cvf ' . $path . '/' . $backupID . '.tar ' . $path . '/' . $backupID;
+                // Compact final directory
+                $command = 'cd ' . $path . '/' . $backupID . ' && tar cfk - * | pxz -1 -zfk - > ' . $path . '/' . $backupID . '.tar.xz';
+                                
                 $output = [];
                 exec($command, $output, $returnCode);
 
                 $directory = new \HC\Directory();
                 $directory->delete($path . '/' . $backupID);
                 
-                var_dump('Snappy Compression');
                 if($returnCode === 0) {
-                    $command = 'snzip -k ' . $path . '/' . $backupID . '.tar ' . $path . '/' . $backupID . '.tar.sz';
-                    $output = [];
-                    exec($command, $output, $returnCode);
-                    
-                    if($returnCode === 0) {
-                        return true;
-                    }
+                    return true;
                 } else {
                     return false;
                 }
@@ -352,12 +346,7 @@ class Database extends \HC\Core
     public static function runInnoBackupExClientBackup($id, $ip, $path, $backupID = 0) {
         return false;
     }
-
-    public static function compressBackupsFully($path) {
-        $process = new \HC\Process();
-        return $process->start('CompressBackupsFully', 'pxz -9 --extreme ' . $path . '/*.tar');
-    }
-    
+        
     public function __set($key, $value)
     {
         $this->data[$key] = $value;

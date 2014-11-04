@@ -60,8 +60,6 @@
                   var_dump($result);
               }
 
-              \HCMS\Database::compressBackupsFully($this->settings['path']);
-
               echo 'Processed Backups' . PHP_EOL;
               
               return true;
