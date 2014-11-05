@@ -67,7 +67,7 @@
 
                       $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                       
-                      $status = $db->update('database_backups', ['id' => $row['backupID'], 'status' => 1], ['status' => 2, 'dateEdited' => $dateEdited],);
+                      $status = $db->update('database_backups', ['id' => $row['backupID'], 'status' => 1], ['status' => 2, 'dateEdited' => $dateEdited]);
                       if($status) {
                           $row['username'] = $encryption->decrypt($row['username'], 'HC_DB_U' . $row['dateCreated']);
                           $row['password'] = $encryption->decrypt($row['password'], 'HC_DB_P' . $row['dateCreated']);
@@ -85,10 +85,17 @@
                               }
                           } else {
                               echo 'Failure: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . ($after - $before) . 's' . PHP_EOL;
+                              $email = new \HC\Email();
                               if($row['isAuto'] == 0) {
-                                  $email = new \HC\Email();
                                   $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
                                   $email->send($user[0]['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' failed.');
+                              } else {
+                                  $users = $db->read('users', ['email'], ['notify' => 1]);
+                                  if($users) {
+                                      foreach($users as $user) {
+                                          $email->send($user['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' failed.');
+                                      }
+                                  }
                               }
                           }
                       }

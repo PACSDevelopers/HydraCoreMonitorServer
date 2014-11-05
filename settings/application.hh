@@ -59,8 +59,17 @@
             'HCMS\Hooks\Cron\ProcessBackups' => [
                 'microtime' => 3600
             ],
+            'HCMS\Hooks\Cron\ProcessCleanup' => [
+                'microtime' => 60
+            ],
             'HCMS\Hooks\Cron\ProcessManualBackups' => [
                 'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessVault' => [
+                'microtime' => 120
+            ],
+            'HCMS\Hooks\Cron\ProcessVaultCleanup' => [
+                'microtime' => 3600
             ],
         ]
     ];

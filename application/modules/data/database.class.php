@@ -298,7 +298,16 @@ class Database extends \HC\Core
                                 $processList[$key] = true;
                                 $curSize = $schemaList[$schemaProcessMap[$key]];
                                 $done += $curSize;
-                                $db->update('database_backups', ['id' => $backupID], ['progress' => (100 - ($dbSize - $done) / $dbSize * 100)]);
+
+                                $before = microtime(true);
+                                $dateTokens = explode('.', $before);
+                                if(!isset($dateTokens[1])) {
+                                    $dateTokens[1] = 0;
+                                }
+
+                                $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
+                                
+                                $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => (100 - ($dbSize - $done) / $dbSize * 100)]);
                             }                            
                         }
                     }

@@ -57,12 +57,13 @@ class DatabasePage extends \HC\Page {
 
         $backupsTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover']);
         
-        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'status', 'dateStarted']);
+        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'hasJob', 'status', 'dateStarted'], ['databaseID' => $GET['id']]);
         if($backups) {
             $backupsTable->openHeader();
             $backupsTable->column(['value' => 'ID']);
             $backupsTable->column(['value' => 'Status']);
             $backupsTable->column(['value' => 'Available']);
+            $backupsTable->column(['value' => 'In Vault']);
             $backupsTable->column(['value' => 'Date']);
             $backupsTable->column(['value' => 'Progress']);
             $backupsTable->closeHeader();
@@ -85,6 +86,7 @@ class DatabasePage extends \HC\Page {
                 switch($backup['status']) {
                     case 2:
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
+                        $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
                         $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
@@ -96,18 +98,41 @@ class DatabasePage extends \HC\Page {
                         if($backup['isLocal']) {
                             $backupsTable->column(['value' => <span class="glyphicons circle_ok" style="color: #53A93F;"></span>]);
                         } else {
-                            $backupsTable->column(['value' => <span class="glyphicons circle_arrow_down" style="color: #158cba;"></span>]);
+                            if($backup['inVault']) {
+                                if($backup['hasJob'] == 0) {
+                                    $backupsTable->column(['value' => <button class="btn btn-default" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}><span class="glyphicons circle_arrow_down" style="color: #158cba;"></span></button>]);
+                                } else {
+                                    $backupsTable->column(['value' => <span class="glyphicons circle_arrow_down"></span>]);
+                                }
+                            } else {
+                                $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
+                            }
                         }
 
-                        $backupsTable->column(['value' => <span><a href={'/downloads/backups/' . $backup['id']}>{$backup['dateStarted']}</a></span>]);
+                        if($backup['inVault']) {
+                            $backupsTable->column(['value' => <span class="glyphicons circle_ok" style="color: #53A93F;"></span>]);
+                        } else {
+                            if($backup['isLocal']) {
+                                $backupsTable->column(['value' => <span class="glyphicons circle_arrow_top" style="color: #158cba;"></span>]);
+                            } else {
+                                $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
+                            }
+                        }
+
+                        if($backup['isLocal']) {
+                            $backupsTable->column(['value' => <span><a href={'/downloads/backups/' . $backup['id']}>{$backup['dateStarted']}</a></span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        }
                         
-                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                        $backupsTable->column(['style' => 'width: 60%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
                                                       </div>
                                                     </div>]);
                         break;
                     case 4:
+                        $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
                         $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
@@ -117,6 +142,7 @@ class DatabasePage extends \HC\Page {
                                                     </div>]);
                         break;
                     default:
+                        $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
                         $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
