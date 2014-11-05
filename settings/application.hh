@@ -24,6 +24,7 @@
             '@^/domains/(?<id>\d+)$@' => '/domains/domain.hh',
             '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
             '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
+            '@^/downloads/backups/(?<id>\d+)$@' => '/downloads/backups.hh',
         ]
     ];
 
@@ -47,13 +48,31 @@
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessDomains' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessServers' => [
+                'microtime' => 300
+            ],
+            'HCMS\Hooks\Cron\ProcessBackups' => [
+                'microtime' => 3600
+            ],
+            'HCMS\Hooks\Cron\ProcessCleanup' => [
                 'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessManualBackups' => [
+                'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessTransfers' => [
+                'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessVault' => [
+                'microtime' => 120
+            ],
+            'HCMS\Hooks\Cron\ProcessVaultCleanup' => [
+                'microtime' => 3600
             ],
         ]
     ];

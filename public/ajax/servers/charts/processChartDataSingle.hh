@@ -51,7 +51,7 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             }
             
             $result = json_encode(['status' => 1,  'result' => $result]);
-            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['serverID'], $result, 60);
+            $cache->insert('\HCPublic\Ajax\Servers\Charts\ProcessChartDataSingleAjax' . $POST['scale'] . $POST['serverID'], $result, 300);
         }
 
         $this->body = $result;

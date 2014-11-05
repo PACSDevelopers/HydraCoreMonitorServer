@@ -88,7 +88,7 @@ class Domain extends \HC\Core
         return false;
     }
     
-    public static function checkHTTP($url, $returnCode = false, &$extraData = []) {
+    public static function checkHTTP($url, $returnCode = false, &$extraData = [], $attempts = 1) {
         $url = (string)$url;
         
         if(gethostbyname($url) !== $url) {
@@ -109,6 +109,8 @@ class Domain extends \HC\Core
             curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+            curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
             $curlResponse = curl_exec($handle);
             if($curlResponse) {
@@ -123,11 +125,19 @@ class Domain extends \HC\Core
 
             curl_close($handle);
             
-            if($returnCode) {
+            if($httpCode !== 200 && $attempts < 3) {
+                $attempts++;
+                return self::checkHTTP($url, $returnCode, $extraData, $attempts);
+            } else if($returnCode) {
                 return $httpCode;
             } else if($httpCode === 200) {
                 return true;
             }
+        }
+        
+        if($attempts < 3) {
+            $attempts++;
+            return self::checkHTTP($url, $returnCode, $extraData, $attempts);
         }
         
         return false;

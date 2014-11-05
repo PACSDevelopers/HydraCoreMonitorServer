@@ -136,4 +136,10 @@ $(document).ready(function (){
         }
     });
     
+    $(document).on('keyup', '.input-force-lowercase', function(){
+        var val = $(this).val();
+        val = val.toLowerCase();
+        $(this).val(val);
+    });
+    
 });

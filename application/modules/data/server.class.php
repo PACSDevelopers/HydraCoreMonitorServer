@@ -84,7 +84,7 @@ class Server extends \HC\Core
         return $response;
     }
 
-    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0) {
+    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -112,6 +112,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
 
@@ -154,7 +156,7 @@ class Server extends \HC\Core
                             $location['path'] .= '?' . $location['query'];
                         }
 
-                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips);
+                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                         $extraData['redirect_count'] = $trips;
                         return $returnValue;
                     }
@@ -169,7 +171,10 @@ class Server extends \HC\Core
 
         curl_close($handle);
 
-        if($returnCode) {
+        if($httpCode !== 200 && $attempts < 3) {
+            $attempts++;
+            return self::checkHTTP($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips, $attempts);
+        } else if($returnCode) {
             return $httpCode;
         } else if($httpCode === 200) {
             return true;
@@ -178,7 +183,7 @@ class Server extends \HC\Core
         return false;
     }
 
-    public static function checkClient($ip, $url, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0) {
+    public static function checkClient($ip, $url, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -206,6 +211,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
         if($curlResponse) {
@@ -247,8 +254,7 @@ class Server extends \HC\Core
                             $queryArr = explode('?', $location['query']);
                             $location['path'] .= '?' . $queryArr[0];
                         }
-                        $returnValue = self::checkClient($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips);
-                        return $returnValue;
+                        return self::checkClient($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                     }
                 }
             }
@@ -267,6 +273,9 @@ class Server extends \HC\Core
         
         if($httpCode === 200) {
             return json_decode($body, true);
+        } else if($attempts < 3) {
+            $attempts++;
+            return self::checkClient($ip, $url, $prefix, $suffix, $cookies, $trips, $attempts);
         }
 
         return false;
