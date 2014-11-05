@@ -59,7 +59,7 @@
           $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
           
           $db = new \HC\DB();
-          $result = $db->query('SELECT `D`.`id`, `D`.`archiveID` FROM `database_backups` `D` WHERE `D`.`status` = 3 AND `D`.`inVault` = 1 AND `D`.`dateEdited` < ?;', [$dateEdited]);
+          $result = $db->query('SELECT `D`.`id`, `D`.`archiveID` FROM `database_backups` `D` WHERE `D`.`status` = 3 AND `D`.`inVault` = 1 AND `D`.`isLocal` = 0 AND `D`.`dateEdited` < ?;', [$dateEdited]);
           if($result) {
 
               $client = \Aws\Glacier\GlacierClient::factory([
@@ -75,14 +75,6 @@
                       'vaultName' => 'Backups',
                       'archiveId' => $row['archiveID']
                   ]);
-
-                  $before = microtime(true);
-                  $dateTokens = explode('.', $before);
-                  if(!isset($dateTokens[1])) {
-                      $dateTokens[1] = 0;
-                  }
-
-                  $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                   
                   $db->delete('database_backups', ['id' => $row['id']]);
               }

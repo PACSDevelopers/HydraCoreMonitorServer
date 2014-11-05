@@ -18,9 +18,9 @@ class ProcessArchiveRequestAjax extends \HC\Ajax {
 		if(count($response['errors']) == 0){
             if(isset($POST['data']['id'])) {
                 $db = new \HC\DB();
-                $backup = $db->read('database_backups', ['archiveID', 'hasJob'], ['id' => $POST['data']['id']]);
+                $backup = $db->read('database_backups', ['archiveID', 'inVault', 'isLocal', 'hasJob'], ['id' => $POST['data']['id']]);
                 if($backup) {
-                    if($backup[0]['hasJob'] == 0) {
+                    if($backup[0]['hasJob'] == 0 && $backup[0]['isLocal'] == 0 && $backup[0]['inVault'] == 1) {
                         $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
                         if(isset($globalSettings['backups'])) {
                             $client = \Aws\Glacier\GlacierClient::factory([
@@ -29,11 +29,11 @@ class ProcessArchiveRequestAjax extends \HC\Ajax {
                                 'region' => $globalSettings['backups']['glacier']['region']
                             ]);
     
-                            $result = $client->initiateJob(array(
+                            $result = $client->initiateJob([
                                 'vaultName'=> 'Backups',
                                 'Type'=> 'archive-retrieval',
                                 'ArchiveId'=> $backup[0]['archiveID']
-                            ));
+                            ]);
     
                             if($result) {
                                 $db->update('database_backups', ['id' => $POST['data']['id']], ['hasJob' => 1, 'jobID' => $result['jobId']]);

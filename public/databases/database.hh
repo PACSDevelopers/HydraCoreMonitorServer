@@ -66,6 +66,7 @@ class DatabasePage extends \HC\Page {
             $backupsTable->column(['value' => 'In Vault']);
             $backupsTable->column(['value' => 'Date']);
             $backupsTable->column(['value' => 'Progress']);
+            $backupsTable->column(['value' => 'Action']);
             $backupsTable->closeHeader();
             
             $backupsTable->openBody();
@@ -83,12 +84,13 @@ class DatabasePage extends \HC\Page {
                 $backupsTable->column(['value' => <span>{$backup['id']}</span>]);
                 $backupsTable->column(['value' => <span>{$statusArray[$backup['status']]}</span>]);
                 
+                // <button class="btn btn-default" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}></button>
                 switch($backup['status']) {
                     case 2:
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
-                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                        $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
                                                       </div>
@@ -100,9 +102,9 @@ class DatabasePage extends \HC\Page {
                         } else {
                             if($backup['inVault']) {
                                 if($backup['hasJob'] == 0) {
-                                    $backupsTable->column(['value' => <button class="btn btn-default" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}><span class="glyphicons circle_arrow_down" style="color: #158cba;"></span></button>]);
+                                    $backupsTable->column(['value' => <span class="glyphicons circle_arrow_down" style="color: #158cba;"></span>]);
                                 } else {
-                                    $backupsTable->column(['value' => <span class="glyphicons circle_arrow_down"></span>]);
+                                    $backupsTable->column(['value' => <span class="glyphicons circle_info"></span>]);
                                 }
                             } else {
                                 $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
@@ -119,13 +121,8 @@ class DatabasePage extends \HC\Page {
                             }
                         }
 
-                        if($backup['isLocal']) {
-                            $backupsTable->column(['value' => <span><a href={'/downloads/backups/' . $backup['id']}>{$backup['dateStarted']}</a></span>]);
-                        } else {
-                            $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
-                        }
-                        
-                        $backupsTable->column(['style' => 'width: 60%', 'value' => <div class="progress">
+                        $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
                                                       </div>
@@ -135,7 +132,7 @@ class DatabasePage extends \HC\Page {
                         $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
-                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                        $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
                                                       </div>
@@ -145,13 +142,51 @@ class DatabasePage extends \HC\Page {
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
-                        $backupsTable->column(['style' => 'width: 70%', 'value' => <div class="progress">
+                        $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
                                                       </div>
                                                     </div>]);
                         break;
                 }
+                
+                if($backup['status'] == 3) {
+                    $list = <ul class="dropdown-menu" role="menu" aria-labelledby={'actionDropDown' . $backup['id']}></ul>;
+                    $hasChildren = false;
+                    if($backup['isLocal']) {
+                        $hasChildren = true;
+                        $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href={'/downloads/backups/' . $backup['id']}>Download</a></li>);
+                        $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Transfer</a></li>);
+                        $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteBackup(' . $backup['id'] . ');'}>Delete</a></li>);
+                    }
+                    
+                    if($backup['inVault']) {
+                        if($hasChildren) {
+                            $list->appendChild(<li role="presentation" class="divider"></li>);
+                        } else {
+                            $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}>Request From Vault</a></li>);
+                        }
+                        $hasChildren = true;
+                        $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteArchiveFromVault(' . $backup['id'] . ');'}>Delete From Vault</a></li>);
+                    }
+                    
+                    if($hasChildren) {
+                        $backupsTable->column(['value' => <div class="dropdown">
+                                                          <button class="btn btn-default dropdown-toggle" type="button" id={'actionDropDown' . $backup['id']} data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                          </button>
+                                                            {$list}
+                                                        </div>]);
+                    } else {
+                        $backupsTable->column();
+                    }
+                } else {
+                    $backupsTable->column();
+                }
+                
+                
+                
+                
                 
                 $backupsTable->closeRow();
             }

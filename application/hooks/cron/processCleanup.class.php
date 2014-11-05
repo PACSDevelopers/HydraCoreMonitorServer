@@ -53,12 +53,14 @@
           $dt = disk_total_space($this->settings['archive']);
           $ds = 100 - ($df / $dt) * 100;
 
-          if($ds < 85) {
+          if($ds > 85) {
               echo 'Running Cleanup' . PHP_EOL;
               $db = new \HC\DB();
               $result = $db->query('SELECT `D`.`id` FROM `database_backups` `D` WHERE (`D`.`status` = 3 AND `D`.`inVault` = 1 AND `D`.`isLocal` = 1) ORDER BY `D`.`dateEdited` DESC LIMIT 0, 10;');
               if($result) {
                   foreach($result as $row) {
+                      echo 'Deleted: ' . $row['id'] . PHP_EOL;
+                      
                       if(is_file($this->settings['archive'] . '/' . $row['id'] . '.tar.xz')) {
                           unlink($this->settings['archive'] . '/' . $row['id'] . '.tar.xz');
                       }
@@ -71,7 +73,7 @@
 
                       $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                       
-                      $db->update('database_backups', ['id' => $row['id'], ['isLocal' => 1, 'dateEdited' => $dateEdited]]);
+                      $db->update('database_backups', ['id' => $row['id'], ['isLocal' => 0, 'dateEdited' => $dateEdited]]);
                   }
                   echo 'Processed Cleanup' . PHP_EOL;
                   return true;

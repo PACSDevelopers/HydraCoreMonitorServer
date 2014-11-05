@@ -182,7 +182,7 @@ function backupDatabase() {
 
 function getArchiveFromVault(id) {
     var $alertBox = $('#alertBox');
-    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for domain deletion.')).slideDown();
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for backup from vault.')).slideDown();
     var data = {'id': id};
 
     $.ajax({
@@ -198,6 +198,60 @@ function getArchiveFromVault(id) {
                     $alertBox.html(bootstrapAlert('success', 'Request sent to vault successfully.')).slideDown();
                 } else {
                     $alertBox.html(bootstrapAlert('info', 'Request already active.')).slideDown();
+                }
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function deleteBackup(id) {
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for backup deletion.')).slideDown();
+    var data = {'id': id};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/processDeleteRequest',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status == 1) {
+                    $alertBox.html(bootstrapAlert('success', 'Backup deleted successfully.')).slideDown();
+                }
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function deleteArchiveFromVault(id) {
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for backup deletion from vault.')).slideDown();
+    var data = {'id': id};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/processDeleteArchiveRequest',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status == 1) {
+                    $alertBox.html(bootstrapAlert('success', 'Request sent to vault successfully.')).slideDown();
                 }
             } else {
                 $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
