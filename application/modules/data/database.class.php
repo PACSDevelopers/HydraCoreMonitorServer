@@ -242,18 +242,25 @@ class Database extends \HC\Core
                                     FROM
                                         `information_schema`.`TABLES`
                                     GROUP BY table_schema;');
-        $backupDB = null;
+        
         if($schemas) {
             $schemaList = [];
+            $schemaCreateSyntaxs = [];
             $dbSize = 0;
             
             foreach($schemas as $row) {
                 if(!in_array($row['table_schema'], ['mysql', 'information_schema', 'performance_schema'])) {
-                    $dbSize += $row['size'];
-                    $schemaList[$row['table_schema']] = $row['size'];
+                    $create = $backupDB->query('SHOW CREATE DATABASE `' . $row['table_schema'] . '`');
+                    if($create) {
+                        $dbSize += $row['size'];
+                        $schemaList[$row['table_schema']] = $row['size'];
+                        $schemaCreateSyntaxs[$row['table_schema']] = $create[0]['Create Database'];
+                    }
                 }
             }
-                        
+
+            $backupDB = null;
+            
             if(!empty($schemaList)) {
                 if (!is_dir($path . '/' . $backupID)) {
                     mkdir($path . '/' . $backupID);
@@ -296,8 +303,7 @@ class Database extends \HC\Core
                             if(!$process->isRunning($key)) {
                                 $process->stop($key);
                                 $processList[$key] = true;
-                                $curSize = $schemaList[$schemaProcessMap[$key]];
-                                $done += $curSize;
+                                $done += $schemaList[$schemaProcessMap[$key]];
 
                                 $before = microtime(true);
                                 $dateTokens = explode('.', $before);
@@ -307,14 +313,14 @@ class Database extends \HC\Core
 
                                 $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                                 
-                                $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => (100 - ($dbSize - $done) / $dbSize * 100)]);
+                                $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
                             }                            
                         }
                     }
                 }
                 
                 // Add an information file
-                $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'backupType' => 1];
+                $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'schemaCreateSyntaxs' => $schemaCreateSyntaxs, 'backupType' => 1];
                 file_put_contents($path . '/' . $backupID . '/info.json', json_encode($info));
                 
                 // Compact final directory
@@ -339,6 +345,89 @@ class Database extends \HC\Core
         return true;
     }
 
+    public static function transferBackup($transferID, $path, $backupID, $ip, $username, $password) {
+        $db = new \HC\DB();
+        $transferDB = new \HC\DB(['databasename' => 'mysql', 'host' => $ip, 'username' => $username, 'password' => $password]);
+        
+        if(!is_dir($path . '/' . $backupID)) {
+            mkdir($path . '/' . $backupID);
+        } else {
+            $directory = new \HC\Directory();
+            $directory->delete($path . '/' . $backupID);
+            mkdir($path . '/' . $backupID);
+        }
+        
+        $command = 'cd ' . $path . '/' . $backupID . ' && tar -kxJf ' . $path . '/' . $backupID . '.tar.xz';
+
+        $output = [];
+        exec($command, $output, $returnCode);
+
+        $directory = new \HC\Directory();
+        if($returnCode === 0) {
+            $info = json_decode(file_get_contents($path . '/' . $backupID . '/info.json'), true);
+            
+            if($info) {
+                $schemaList = [];
+                $schemaCount = count($info['schemas']);
+                $schemasLeft = $schemaCount;
+                $dbSize = 0;
+                
+                $process = new \HC\Process();
+                $processList = [];
+                $schemaProcessMap = [];
+                
+                foreach($info['schemas'] as $schema) {
+                    $schemaList[$schema] = filesize($path . '/' . $backupID . '/' . $schema . '.sql');
+                    $dbSize += $schemaList[$schema];
+                    
+                    $transferDB->query('DROP DATABASE IF EXISTS `' . $schema . '`;', [], -1, true);
+                    $transferDB->query($info['schemaCreateSyntaxs'][$schema], [], -1, true);
+
+                    $pid = $process->start('transfer-' . $transferID . '-' . $schema, 'mysql --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . ' ' . $schema . ' < ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false);
+                    if($pid) {
+                        $schemaProcessMap['transfer-' . $transferID . '-' . $schema] = $schema;
+                        $processList['transfer-' . $transferID . '-' . $schema] = false;
+                    } else {
+
+                        // Shutdown the backup
+                        foreach($processList as $key => $value) {
+                            $process->stop($key);
+                        }
+
+                        // Clear up
+                        $directory = new \HC\Directory();
+                        $directory->delete($path . '/' . $backupID);
+
+                        return false;
+                    }
+                }
+                
+                $processCount = count($processList);
+                $done = 0;
+
+                while($done != $dbSize) {
+                    sleep(5);
+                    foreach($processList as $key => $value) {
+                        if($processList[$key] === false) {
+                            if(!$process->isRunning($key)) {
+                                $process->stop($key);
+                                $processList[$key] = true;
+                                $done += $schemaList[$schemaProcessMap[$key]];
+                                $db->update('database_transfers', ['id' => $transferID], ['progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                            }
+                        }
+                    }
+                }
+
+                $directory->delete($path . '/' . $backupID);
+                return true;
+            }
+        }
+        
+        $directory->delete($path . '/' . $backupID);
+        return false;
+    }
+    
     public static function runMySQLDumpClientBackup($id, $ip, $path, $backupID = 0) {
         return false;
     }

@@ -65,6 +65,9 @@
             'HCMS\Hooks\Cron\ProcessManualBackups' => [
                 'microtime' => 60
             ],
+            'HCMS\Hooks\Cron\ProcessTransfers' => [
+                'microtime' => 60
+            ],
             'HCMS\Hooks\Cron\ProcessVault' => [
                 'microtime' => 120
             ],

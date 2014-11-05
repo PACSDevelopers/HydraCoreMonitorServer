@@ -262,3 +262,94 @@ function deleteArchiveFromVault(id) {
             $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
         });
 }
+
+function transferBackup(id, id2) {
+    if(id2) {
+        console.log(id, id2);
+        $('#transferBackupModal').modal('hide');
+        $('#transferBackupModal, .modal-backdrop').remove();
+        
+        var $alertBox = $('#alertBox');
+        $alertBox.slideUp().html(bootstrapAlert('info', 'Sending transfer request.')).slideDown();
+        
+        $.ajax({
+            type: "POST",
+            url: '/ajax/databases/database/processBackupTransfer',
+            data: {
+                data: {id: id, id2: id2}
+            }
+        })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if (response.status == 1) {
+                    $alertBox.slideUp().html(bootstrapAlert('success', 'Transfer successfully scheduled.')).slideDown();
+                } else {
+                    $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+                }
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+        
+    } else {
+        console.log(id);
+        $.ajax({
+            type: "POST",
+            url: '/ajax/databases/database/processBackupTransfer',
+            data: {
+                data: {id: id}
+            }
+        })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status == 1) {
+                    var modal = '<div id="transferBackupModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Transfer Backup" aria-hidden="true">' +
+                        '<div class="modal-dialog">' +
+                        '<div class="modal-content">' +
+                        '<div class="modal-header">' +
+                        '<h4 class="modal-title">Transfer Backup</h4>' +
+                        '</div>' +
+                        '<div class="modal-body">' +
+                        '<p>This is a destructive action, if any matching schemas already exist they will be deleted, please make a backup first if required.</p>' +
+                        '<p>Please select the destination database:</p>' +
+                        '<select class="form-control" id="transferBackupModalSelect"></select>' +
+                        '</div>' +
+                        '<div class="modal-footer">' +
+                        '<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>' +
+                        '<button type="button" class="btn btn-primary" id="transferBackupModalSaveButton">Transfer</button>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>' +
+                        '</div>';
+
+                    $('body').append(modal);
+                    
+                    if(response.result) {
+                        response.result.forEach(function(row){
+                            $('#transferBackupModalSelect').append('<option value="' + row['id'] + '">' + row['title'] + ' (' + row['id'] + ')</option>');
+                        });
+                    }
+                    
+                    $('#transferBackupModalSaveButton').off('click');
+                    $('#transferBackupModalSaveButton').on('click', function(){
+                        transferBackup(id, $('#transferBackupModalSelect').val());
+                    });
+
+                    $('#transferBackupModal').modal('show');
+                } else {
+                    alert('Something went wrong, please try again.');
+                }
+            } else {
+                alert('Something went wrong, please try again.');
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            alert('Something went wrong, please try again.');
+        });
+    }
+}

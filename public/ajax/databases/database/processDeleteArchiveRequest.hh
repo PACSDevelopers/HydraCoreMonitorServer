@@ -42,7 +42,7 @@ class ProcessDeleteArchiveRequestAjax extends \HC\Ajax {
 
                             $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                             
-                            $db->update('database_backups', ['id' => $POST['data']['id']], ['inVault' => 0, 'dateEdited' => $dateEdited]);
+                            $db->update('database_backups', ['id' => $POST['data']['id']], ['inVault' => 0, 'archiveID' => '', 'dateEdited' => $dateEdited]);
                             $response = ['status' => 1];
                         } else {
                             $response['errors']['e5'] = true;

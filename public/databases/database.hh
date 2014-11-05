@@ -55,6 +55,13 @@ class DatabasePage extends \HC\Page {
         
         $password = str_repeat('*', strlen($database->password));
 
+        $statusArray = [
+            1 => 'Scheduled',
+            2 => 'In Progress',
+            3 => 'Complete',
+            4 => 'Failed'
+        ];
+        
         $backupsTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover']);
         
         $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'hasJob', 'status', 'dateStarted'], ['databaseID' => $GET['id']]);
@@ -72,19 +79,12 @@ class DatabasePage extends \HC\Page {
             $backupsTable->openBody();
 
             $backups = array_reverse($backups);
-            $statusArray = [
-                1 => 'Scheduled',
-                2 => 'Started',
-                3 => 'Complete',
-                4 => 'Failed'
-            ];
             
             foreach($backups as $backup) {
                 $backupsTable->openRow();
                 $backupsTable->column(['value' => <span>{$backup['id']}</span>]);
                 $backupsTable->column(['value' => <span>{$statusArray[$backup['status']]}</span>]);
                 
-                // <button class="btn btn-default" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}></button>
                 switch($backup['status']) {
                     case 2:
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
@@ -156,7 +156,7 @@ class DatabasePage extends \HC\Page {
                     if($backup['isLocal']) {
                         $hasChildren = true;
                         $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href={'/downloads/backups/' . $backup['id']}>Download</a></li>);
-                        $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href="#">Transfer</a></li>);
+                        $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'transferBackup(' . $backup['id'] . ');'}>Transfer</a></li>);
                         $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteBackup(' . $backup['id'] . ');'}>Delete</a></li>);
                     }
                     
@@ -164,7 +164,9 @@ class DatabasePage extends \HC\Page {
                         if($hasChildren) {
                             $list->appendChild(<li role="presentation" class="divider"></li>);
                         } else {
-                            $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}>Request From Vault</a></li>);
+                            if($backup['hasJob'] == 0) {
+                                $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}>Request From Vault</a></li>);
+                            }
                         }
                         $hasChildren = true;
                         $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteArchiveFromVault(' . $backup['id'] . ');'}>Delete From Vault</a></li>);
@@ -194,7 +196,69 @@ class DatabasePage extends \HC\Page {
             $backupsTable->closeBody();
         }
 
-        
+        $transfersTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover']);
+
+        $transfers = $db->read(
+            ['database_transfers' => 'DT', 'J.D.databases' => [
+                'D.id' => 'DT.database2ID'
+            ]], ['DT.id', 'DT.database2ID', 'D.title', 'DT.backupID', 'DT.status', 'DT.progress', 'DT.dateCreated'], ['DT.database1ID' => $GET['id']]);
+        if($transfers) {
+            $transfersTable->openHeader();
+            $transfersTable->column(['value' => 'ID']);
+            $transfersTable->column(['value' => 'To']);
+            $transfersTable->column(['value' => 'Backup']);
+            $transfersTable->column(['value' => 'Status']);
+            $transfersTable->column(['value' => 'Progress']);
+            $transfersTable->column(['value' => 'Date Created']);
+            $transfersTable->closeHeader();
+
+            $transfersTable->openBody();
+
+            $transfers = array_reverse($transfers);
+
+            foreach($transfers as $transfer) {
+                $transfersTable->openRow();
+                $transfersTable->column(['value' => <span>{$transfer['id']}</span>]);
+                $transfersTable->column(['value' => <span>{$transfer['title']}</span>]);
+                $transfersTable->column(['value' => <span>{$transfer['backupID']}</span>]);
+                $transfersTable->column(['value' => <span>{$statusArray[$transfer['status']]}</span>]);
+                switch($transfer['status']) {
+                    case 2:
+                        $transfersTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
+                                                        <span class="sr-only">$transfer['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    case 3:
+                        $transfersTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
+                                                        <span class="sr-only">$transfer['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    case 4:
+                        $transfersTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
+                                                      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
+                                                        <span class="sr-only">$transfer['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                    default:
+                        $transfersTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
+                                                      <div class="progress-bar" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
+                                                        <span class="sr-only">$transfer['progress']</span>
+                                                      </div>
+                                                    </div>]);
+                        break;
+                }
+                
+                $transfersTable->column(['value' => <span>{$transfer['dateCreated']}</span>]);
+                $transfersTable->closeRow();
+            }
+
+            $transfersTable->closeBody();
+        }
         
         $this->body = <x:frag>
                         <div class="row col-lg-2 col-md-0 col-sm-0">
@@ -316,8 +380,15 @@ class DatabasePage extends \HC\Page {
                                 </div>
                             </div>
                             <div class="row">
+                                <h1>Backups</h1>
                                 <div class="table-responsive">
                                     {$backupsTable}
+                                </div>
+                            </div>
+                            <div class="row">
+                                <h1>Transfers</h1>
+                                <div class="table-responsive">
+                                    {$transfersTable}
                                 </div>
                             </div>
                         </div>

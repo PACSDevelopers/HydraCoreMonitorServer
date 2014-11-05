@@ -73,6 +73,9 @@
                 case 'HCMS\Hooks\Cron\ProcessVaultCleanup':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processVaultCleanup.class.php');
                     break;
+                case 'HCMS\Hooks\Cron\ProcessTransfers':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processTransfers.class.php');
+                    break;
                 
                 /* System classes */
                 case 'HCMS\Session':
