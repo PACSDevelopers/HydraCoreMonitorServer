@@ -11,7 +11,6 @@ class BodyView extends \HC\View {
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/domains'}>Domains</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/servers'}>Servers</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/databases'}>Databases</a> </li>
-                            <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/settings'}>Settings</a> </li>
                             <li role="listitem"> <a href={PROTOCOL.'://'.SITE_DOMAIN . '/logout'}>Logout</a> </li>
                         </ul>;
               
