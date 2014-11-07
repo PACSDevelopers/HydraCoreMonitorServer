@@ -240,6 +240,8 @@ class Database extends \HC\Core
         if(is_file($path . '/' . $backupID . '.tar.xz')) {
             return true;
         }
+
+        $directory = new \HC\Directory();
         
         $backupDB = new \HC\DB(['databasename' => 'mysql', 'host' => $ip, 'username' => $username, 'password' => $password]);
         $schemas = $backupDB->query('SELECT 
@@ -278,7 +280,7 @@ class Database extends \HC\Core
                 $startTime = time();
                 
                 foreach($schemaList as $schema => $schemaSize) {
-                    $pid = $process->start('backup-' . $backupID . '-' . $schema . $startTime, 'mysqldump ' . $schema . ' --disable-keys --extended-insert --single-transaction --quick --max_allowed_packet=1G --compress --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . '  > ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false);
+                    $pid = $process->start('backup-' . $backupID . '-' . $schema . $startTime, 'mysqldump ' . $schema . ' --disable-keys --extended-insert --single-transaction --quick --max_allowed_packet=1G --compress --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . '  > ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false, false);
                     if($pid) {
                         $schemaProcessMap['backup-' . $backupID . '-' . $schema . $startTime] = $schema;
                         $processList['backup-' . $backupID . '-' . $schema . $startTime] = false;
@@ -290,7 +292,6 @@ class Database extends \HC\Core
                         }
                         
                         // Clear up
-                        $directory = new \HC\Directory();
                         $directory->delete($path . '/' . $backupID);
 
                         throw new \Exception('Unable to start process');
@@ -305,28 +306,43 @@ class Database extends \HC\Core
                 
                 while($done != $dbSize) {
                     sleep(5);
-                    foreach($processList as $key => $value) {
-                        if($processList[$key] === false) {
-                            if(!$process->isRunning($key)) {
+                    $tempRow = $db->read('database_backups', ['status'], ['id' => $backupID]);
+                    if($tempRow) {
+                        if($tempRow[0]['status'] != 2) {
+                            // Shutdown the transfer
+                            foreach($processList as $key => $value) {
                                 $process->stop($key);
-                                $processList[$key] = true;
-                                $done += $schemaList[$schemaProcessMap[$key]];
+                            }
+                            
+                            $directory->delete($path . '/' . $backupID);
+                            return false;
+                        } else {
+                            foreach($processList as $key => $value) {
+                                if($processList[$key] === false) {
+                                    if(!$process->isRunning($key)) {
+                                        $process->stop($key);
+                                        $processList[$key] = true;
+                                        $done += $schemaList[$schemaProcessMap[$key]];
 
-                                $before = microtime(true);
-                                $dateTokens = explode('.', $before);
-                                if(!isset($dateTokens[1])) {
-                                    $dateTokens[1] = 0;
-                                }
+                                        $before = microtime(true);
+                                        $dateTokens = explode('.', $before);
+                                        if(!isset($dateTokens[1])) {
+                                            $dateTokens[1] = 0;
+                                        }
 
-                                $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-                                
-                                $status = $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
-                                if(!$status) {
-                                    throw new \Exception('Unable to write to database');
+                                        $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
+
+                                        $status = $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                        if(!$status) {
+                                            $directory->delete($path . '/' . $backupID);
+                                            throw new \Exception('Unable to write to database');
+                                        }
+                                    }
                                 }
-                            }                            
+                            }
                         }
                     }
+                    
                 }
                 
                 // Add an information file
@@ -339,7 +355,6 @@ class Database extends \HC\Core
                 $output = [];
                 exec($command, $output, $returnCode);
 
-                $directory = new \HC\Directory();
                 $directory->delete($path . '/' . $backupID);
                 
                 if($returnCode === 0) {
@@ -363,11 +378,11 @@ class Database extends \HC\Core
     public static function transferBackup($transferID, $path, $backupID, $ip, $username, $password) {
         $db = new \HC\DB();
         $transferDB = new \HC\DB(['databasename' => 'mysql', 'host' => $ip, 'username' => $username, 'password' => $password]);
+        $directory = new \HC\Directory();
         
         if(!is_dir($path . '/' . $backupID)) {
             mkdir($path . '/' . $backupID);
         } else {
-            $directory = new \HC\Directory();
             $directory->delete($path . '/' . $backupID);
             mkdir($path . '/' . $backupID);
         }
@@ -377,7 +392,6 @@ class Database extends \HC\Core
         $output = [];
         exec($command, $output, $returnCode);
 
-        $directory = new \HC\Directory();
         if($returnCode === 0) {
             $info = json_decode(file_get_contents($path . '/' . $backupID . '/info.json'), true);
             
@@ -398,7 +412,7 @@ class Database extends \HC\Core
                     $transferDB->query('DROP DATABASE IF EXISTS `' . $schema . '`;', [], -1, true);
                     $transferDB->query($info['schemaCreateSyntaxs'][$schema], [], -1, true);
 
-                    $pid = $process->start('transfer-' . $transferID . '-' . $schema, 'mysql --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . ' ' . $schema . ' < ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false);
+                    $pid = $process->start('transfer-' . $transferID . '-' . $schema, 'mysql --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . ' ' . $schema . ' < ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false, false);
                     if($pid) {
                         $schemaProcessMap['transfer-' . $transferID . '-' . $schema] = $schema;
                         $processList['transfer-' . $transferID . '-' . $schema] = false;
@@ -410,7 +424,6 @@ class Database extends \HC\Core
                         }
 
                         // Clear up
-                        $directory = new \HC\Directory();
                         $directory->delete($path . '/' . $backupID);
 
                         throw new \Exception('Unable to start process');
@@ -423,30 +436,54 @@ class Database extends \HC\Core
 
                 while($done != $dbSize) {
                     sleep(5);
-                    foreach($processList as $key => $value) {
-                        if($processList[$key] === false) {
-                            if(!$process->isRunning($key)) {
+                    $tempRow = $db->read('database_transfers', ['status'], ['id' => $transferID]);
+                    if($tempRow) {
+                        if($tempRow[0]['status'] != 2) {
+                            // Shutdown the backup
+                            foreach($processList as $key => $value) {
                                 $process->stop($key);
-                                $processList[$key] = true;
-                                $done += $schemaList[$schemaProcessMap[$key]];
-                                $status = $db->update('database_transfers', ['id' => $transferID], ['progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
-                                if(!$status) {
-                                    // Shutdown the backup
-                                    foreach($processList as $key => $value) {
+                            }
+
+                            // Clear up
+                            $directory->delete($path . '/' . $backupID);
+                            
+                            return false;
+                        } else {
+                            foreach($processList as $key => $value) {
+                                if($processList[$key] === false) {
+                                    if(!$process->isRunning($key)) {
                                         $process->stop($key);
+                                        $processList[$key] = true;
+                                        $done += $schemaList[$schemaProcessMap[$key]];
+                                        $status = $db->update('database_transfers', ['id' => $transferID], ['progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                        if(!$status) {
+                                            // Shutdown the backup
+                                            foreach($processList as $key => $value) {
+                                                $process->stop($key);
+                                            }
+
+                                            // Clear up
+                                            $directory->delete($path . '/' . $backupID);
+
+                                            throw new \Exception('Unable to write to database');
+
+                                            return false;
+                                        }
                                     }
-
-                                    // Clear up
-                                    $directory = new \HC\Directory();
-                                    $directory->delete($path . '/' . $backupID);
-
-                                    throw new \Exception('Unable to write to database');
-                                    
-                                    return false;
                                 }
                             }
                         }
-                    }
+                    } else {
+                        // Shutdown the backup
+                        foreach($processList as $key => $value) {
+                            $process->stop($key);
+                        }
+
+                        // Clear up
+                        $directory->delete($path . '/' . $backupID);
+
+                        return false;
+                    }                    
                 }
 
                 $directory->delete($path . '/' . $backupID);

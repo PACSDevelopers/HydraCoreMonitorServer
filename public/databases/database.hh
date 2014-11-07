@@ -182,6 +182,15 @@ class DatabasePage extends \HC\Page {
                     } else {
                         $backupsTable->column();
                     }
+                } else if($backup['status'] == 2) {
+                    $backupsTable->column(['value' => <div class="dropdown">
+                                                          <button class="btn btn-default dropdown-toggle" type="button" id={'actionDropDown' . $backup['id']} data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                          </button>
+                                                          <ul class="dropdown-menu" role="menu" aria-labelledby={'actionDropDown' . $backup['id']}>
+                                                            <li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'stopBackup(' . $backup['id'] . ');'}>Stop</a></li>
+                                                          </ul>
+                                                        </div>]);
                 } else {
                     $backupsTable->column();
                 }
@@ -208,8 +217,9 @@ class DatabasePage extends \HC\Page {
             $transfersTable->column(['value' => 'To']);
             $transfersTable->column(['value' => 'Backup']);
             $transfersTable->column(['value' => 'Status']);
-            $transfersTable->column(['value' => 'Progress']);
             $transfersTable->column(['value' => 'Date Created']);
+            $transfersTable->column(['value' => 'Progress']);
+            $transfersTable->column(['value' => 'Action']);
             $transfersTable->closeHeader();
 
             $transfersTable->openBody();
@@ -222,6 +232,8 @@ class DatabasePage extends \HC\Page {
                 $transfersTable->column(['value' => <span>{$transfer['title']}</span>]);
                 $transfersTable->column(['value' => <span>{$transfer['backupID']}</span>]);
                 $transfersTable->column(['value' => <span>{$statusArray[$transfer['status']]}</span>]);
+                $transfersTable->column(['value' => <span>{$transfer['dateCreated']}</span>]);
+                
                 switch($transfer['status']) {
                     case 2:
                         $transfersTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
@@ -253,7 +265,19 @@ class DatabasePage extends \HC\Page {
                         break;
                 }
                 
-                $transfersTable->column(['value' => <span>{$transfer['dateCreated']}</span>]);
+                if($transfer['status'] == 2) {
+                    $transfersTable->column(['value' => <div class="dropdown">
+                                                          <button class="btn btn-default dropdown-toggle" type="button" id={'actionDropDownTransfer' . $transfer['id']} data-toggle="dropdown">
+                                                            <span class="caret"></span>
+                                                          </button>
+                                                          <ul class="dropdown-menu" role="menu" aria-labelledby={'actionDropDownTransfer' . $transfer['id']}>
+                                                            <li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'stopTransfer(' . $transfer['id'] . ');'}>Stop</a></li>
+                                                          </ul>
+                                                        </div>]);
+                } else {
+                    $transfersTable->column();
+                }
+                
                 $transfersTable->closeRow();
             }
 
