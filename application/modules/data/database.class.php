@@ -188,12 +188,12 @@ class Database extends \HC\Core
                 if($status) {
                     $backupID = $db->getLastID();
                 } else {
-                    return false;
+                    throw new \Exception('Unable to write to database');
                 }
             } else {
                 $status = $db->update('database_backups', ['id' => $backupID], ['status' => 2, 'dateStarted' => $dateEdited, 'dateEdited' => $dateEdited]);
                 if(!$status) {
-                    return false;
+                    throw new \Exception('Unable to write to database');
                 }
             }
 
@@ -222,9 +222,15 @@ class Database extends \HC\Core
         $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
         if($response) {
-            $db->update('database_backups', ['id' => $backupID], ['status' => 3, 'dateEnded' => $dateEdited, 'dateEdited' => $dateEdited]);
+            $status = $db->update('database_backups', ['id' => $backupID], ['status' => 3, 'dateEnded' => $dateEdited, 'dateEdited' => $dateEdited]);
+            if(!$status) {
+                throw new \Exception('Unable to write to database');
+            }
         } else {
-            $db->update('database_backups', ['id' => $backupID], ['status' => 4, 'dateEnded' => $dateEdited, 'dateEdited' => $dateEdited]);
+            $status = $db->update('database_backups', ['id' => $backupID], ['status' => 4, 'dateEnded' => $dateEdited, 'dateEdited' => $dateEdited]);
+            if(!$status) {
+                throw new \Exception('Unable to write to database');
+            }
         }
         
         return $response;
@@ -286,7 +292,8 @@ class Database extends \HC\Core
                         // Clear up
                         $directory = new \HC\Directory();
                         $directory->delete($path . '/' . $backupID);
-                        
+
+                        throw new \Exception('Unable to start process');
                         return false;
                     }
                 }
@@ -313,7 +320,10 @@ class Database extends \HC\Core
 
                                 $dateEdited = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
                                 
-                                $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                $status = $db->update('database_backups', ['id' => $backupID], ['dateEdited' => $dateEdited, 'progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                if(!$status) {
+                                    throw new \Exception('Unable to write to database');
+                                }
                             }                            
                         }
                     }
@@ -335,14 +345,19 @@ class Database extends \HC\Core
                 if($returnCode === 0) {
                     return true;
                 } else {
+                    throw new \Exception('Unable to compress file');
                     return false;
                 }
+            } else {
+                return true;
             }
+        } else {
+            return true;
         }
-        
-        
-        
-        return true;
+
+
+        throw new \Exception('Unknown Error');
+        return false;
     }
 
     public static function transferBackup($transferID, $path, $backupID, $ip, $username, $password) {
@@ -398,6 +413,7 @@ class Database extends \HC\Core
                         $directory = new \HC\Directory();
                         $directory->delete($path . '/' . $backupID);
 
+                        throw new \Exception('Unable to start process');
                         return false;
                     }
                 }
@@ -413,7 +429,21 @@ class Database extends \HC\Core
                                 $process->stop($key);
                                 $processList[$key] = true;
                                 $done += $schemaList[$schemaProcessMap[$key]];
-                                $db->update('database_transfers', ['id' => $transferID], ['progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                $status = $db->update('database_transfers', ['id' => $transferID], ['progress' => floor(100 - ($dbSize - $done) / $dbSize * 100)]);
+                                if(!$status) {
+                                    // Shutdown the backup
+                                    foreach($processList as $key => $value) {
+                                        $process->stop($key);
+                                    }
+
+                                    // Clear up
+                                    $directory = new \HC\Directory();
+                                    $directory->delete($path . '/' . $backupID);
+
+                                    throw new \Exception('Unable to write to database');
+                                    
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -421,10 +451,15 @@ class Database extends \HC\Core
 
                 $directory->delete($path . '/' . $backupID);
                 return true;
+            } else {
+                throw new \Exception('Unable to find info');
             }
+        } else {
+            throw new \Exception('Unable to start process');
         }
         
         $directory->delete($path . '/' . $backupID);
+        throw new \Exception('Unknown error');
         return false;
     }
     
