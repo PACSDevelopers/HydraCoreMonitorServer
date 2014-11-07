@@ -68,7 +68,12 @@
                       
                       $status = $db->write('database_backups', ['databaseID' =>  $row['id'], 'status' => 1, 'isLocal' => 1, 'isAuto' => 1, 'progress' => 0, 'dateCreated' => $dateCreated, 'dateEdited' => $dateCreated]);
                       if($status) {
-                          $db->update('databases', ['id' => $row['id']], ['lastBackUp' => time()]);
+                          $status = $db->update('databases', ['id' => $row['id']], ['lastBackUp' => time()]);
+                          if(!$status) {
+                              throw new \Exception('Unable to write to database');
+                          }
+                      } else {
+                          throw new \Exception('Unable to write to database');
                       }
                   } else {
                       echo 'Skipped: ' . $row['title'] . PHP_EOL;

@@ -78,16 +78,22 @@
                               $transfer = \HCMS\Database::transferBackup($row['id'], $this->settings['archive'], $row['backupID'], long2ip($row['ip']), $row['username'], $row['password']);
                               if($transfer) {
                                   echo 'Success: ' . $row['id'] . PHP_EOL;
-                                  $db->update('database_transfers', ['id' => $row['id']], ['status' => 3]);
-
+                                  $status = $db->update('database_transfers', ['id' => $row['id']], ['status' => 3]);
+                                  if(!$status) {
+                                      throw new \Exception('Unable to write to database');
+                                  }
+                                  
                                   $email = new \HC\Email();
                                   $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
                                   $email->send($user[0]['email'], 'Transfer: ' . $row['id'], 'Your transfer of backup ' . $row['backupID'] . ' to database ' . $row['title'] . ' (' . $row['databaseID'] . ') is complete.');
                                   
                               } else {
                                   echo 'Failure: ' . $row['id'] . PHP_EOL;
-                                  $db->update('database_transfers', ['id' => $row['id']], ['status' => 4]);
-
+                                  $status = $db->update('database_transfers', ['id' => $row['id']], ['status' => 4]);
+                                  if(!$status) {
+                                    throw new \Exception('Unable to write to database');
+                                  }
+                                  
                                   $email = new \HC\Email();
                                   $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
                                   $email->send($user[0]['email'], 'Transfer: ' . $row['id'], 'Your transfer of backup ' . $row['backupID'] . ' to database ' . $row['title'] . ' (' . $row['databaseID'] . ') failed.');
