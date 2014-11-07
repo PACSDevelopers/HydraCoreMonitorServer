@@ -6,8 +6,9 @@ function submitForm() {
 
   var submitThis = true;
   var inputs = [
-    'databaseTitle',
-    'databaseIP',
+    'databaseTitle', 
+    'databaseExtIP',
+    'databaseIntIP',
     'databaseUsername',
     'databasePassword',
     'databaseBackupType',
@@ -68,7 +69,8 @@ function updateForm() {
   var submitThis = false;
   var inputs = [
       'databaseTitle',
-      'databaseIP',
+      'databaseExtIP',
+      'databaseIntIP',
       'databaseUsername',
       'databasePassword',
       'databaseBackupType',

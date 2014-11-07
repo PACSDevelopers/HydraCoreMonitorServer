@@ -52,7 +52,7 @@
       {
           echo 'Processing Backups' . PHP_EOL;
           $db = new \HC\DB();
-          $result = $db->query('SELECT `D`.`id`,`D`.`title`, `D`.`ip`, `D`.`backupType`, `D`.`backupInterval`, `D`.`lastBackUp` FROM `databases` `D` WHERE `D`.`status` = 1 AND `D`.`backupType` != 0 AND `D`.`backupInterval` > 0');
+          $result = $db->query('SELECT `D`.`id`,`D`.`title`, `D`.`backupType`, `D`.`backupInterval`, `D`.`lastBackUp` FROM `databases` `D` WHERE `D`.`status` = 1 AND `D`.`backupType` != 0 AND `D`.`backupInterval` > 0');
           if($result) {
               foreach($result as $row) {
                   $checkTime = (time() - ($row['backupInterval'] * 3600));

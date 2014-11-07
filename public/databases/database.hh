@@ -64,7 +64,7 @@ class DatabasePage extends \HC\Page {
         
         $backupsTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover']);
         
-        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'hasJob', 'status', 'dateStarted'], ['databaseID' => $GET['id']]);
+        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'isAuto', 'hasJob', 'status', 'dateStarted'], ['databaseID' => $GET['id']]);
         if($backups) {
             $backupsTable->openHeader();
             $backupsTable->column(['value' => 'ID']);
@@ -72,6 +72,7 @@ class DatabasePage extends \HC\Page {
             $backupsTable->column(['value' => 'Available']);
             $backupsTable->column(['value' => 'In Vault']);
             $backupsTable->column(['value' => 'Date']);
+            $backupsTable->column(['value' => 'Type']);
             $backupsTable->column(['value' => 'Progress']);
             $backupsTable->column(['value' => 'Action']);
             $backupsTable->closeHeader();
@@ -90,6 +91,11 @@ class DatabasePage extends \HC\Page {
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        if($backup['isAuto']) {
+                            $backupsTable->column(['value' => <span>Auto</span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span>Manual</span>]);
+                        }
                         $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -122,6 +128,13 @@ class DatabasePage extends \HC\Page {
                         }
 
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        
+                        if($backup['isAuto']) {
+                            $backupsTable->column(['value' => <span>Auto</span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span>Manual</span>]);
+                        }
+                        
                         $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -132,6 +145,11 @@ class DatabasePage extends \HC\Page {
                         $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        if($backup['isAuto']) {
+                            $backupsTable->column(['value' => <span>Auto</span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span>Manual</span>]);
+                        }
                         $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -142,6 +160,11 @@ class DatabasePage extends \HC\Page {
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span class="glyphicons circle_question_mark"></span>]);
                         $backupsTable->column(['value' => <span>{$backup['dateStarted']}</span>]);
+                        if($backup['isAuto']) {
+                            $backupsTable->column(['value' => <span>Auto</span>]);
+                        } else {
+                            $backupsTable->column(['value' => <span>Manual</span>]);
+                        }
                         $backupsTable->column(['style' => 'width: 50%', 'value' => <div class="progress">
                                                       <div class="progress-bar" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -303,12 +326,42 @@ class DatabasePage extends \HC\Page {
                                             </div>
     
                                             <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="databaseIP">IP</label>
+                                                    <label class="col-sm-2 control-label" for="databaseExtIP">External IP</label>
     
                                                     <div class="col-sm-10">
-                                                            <input type="text" disabled={$isDisabled} class="form-control" placeholder="IP" id="databaseIP"
-                                                                        data-orgval={long2ip($database->ip)}
-                                                                        required="required" value={long2ip($database->ip)} />
+                                                            <input type="text" disabled={$isDisabled} class="form-control" placeholder="External IP" id="databaseExtIP"
+                                                                        data-orgval={long2ip($database->extIP)}
+                                                                        required="required" value={long2ip($database->extIP)} />
+                                                    </div>
+                                            </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="databaseIntIP">Internal IP</label>
+    
+                                                    <div class="col-sm-10">
+                                                            <input type="text" disabled={$isDisabled} class="form-control" placeholder="Internal IP" id="databaseIntIP"
+                                                                        data-orgval={long2ip($database->intIP)}
+                                                                        required="required" value={long2ip($database->intIP)} />
+                                                    </div>
+                                            </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="databaseUsername">Username</label>
+    
+                                                    <div class="col-sm-10">
+                                                            <input type="text" disabled={$isDisabled} class="form-control input-force-lowercase" placeholder="Username" id="databaseUsername"
+                                                                        data-orgval={$database->username}
+                                                                        required="required" value={$database->username} />
+                                                    </div>
+                                            </div>
+        
+                                            <div class="form-group">
+                                                    <label class="col-sm-2 control-label" for="databasePassword">Password</label>
+    
+                                                    <div class="col-sm-10">
+                                                            <input type="password" disabled={$isDisabled} class="form-control" placeholder={$password} id="databasePassword"
+                                                                        data-orgval=""
+                                                                        required="required" value="" />
                                                     </div>
                                             </div>
         
@@ -330,26 +383,6 @@ class DatabasePage extends \HC\Page {
                                                             <input type="number" disabled={$isDisabled} class="form-control" placeholder="Backup Interval" id="databaseBackupInterval"
                                                                         data-orgval={$database->backupInterval}
                                                                         required="required" value={$database->backupInterval} min="0" />
-                                                    </div>
-                                            </div>
-        
-                                            <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="databaseUsername">Username</label>
-    
-                                                    <div class="col-sm-10">
-                                                            <input type="text" disabled={$isDisabled} class="form-control input-force-lowercase" placeholder="Username" id="databaseUsername"
-                                                                        data-orgval={$database->username}
-                                                                        required="required" value={$database->username} />
-                                                    </div>
-                                            </div>
-        
-                                            <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="databasePassword">Password</label>
-    
-                                                    <div class="col-sm-10">
-                                                            <input type="password" disabled={$isDisabled} class="form-control" placeholder={$password} id="databasePassword"
-                                                                        data-orgval=""
-                                                                        required="required" value="" />
                                                     </div>
                                             </div>
         

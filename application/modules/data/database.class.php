@@ -38,7 +38,8 @@ class Database extends \HC\Core
 
         $updateKeys = [
             'databaseTitle' => 'title',
-            'databaseIP' => 'ip',
+            'databaseExtIP' => 'extIP',
+            'databaseIntIP' => 'intIP',
             'databaseBackupType' => 'backupType',
             'databaseBackupInterval' => 'backupInterval',
             'databaseStatus' => 'status',
@@ -58,13 +59,26 @@ class Database extends \HC\Core
             }
         }
 
-        if(isset($data['ip'])) {
-            $isIPValid = self::testMySQLPort($data['ip']);
-            
+        $isIPValid = true;
+        if(isset($data['extIP'])) {
+            $isIPValid = self::testMySQLPort($data['extIP']);
+
             if(!$isIPValid) {
                 $isValid = false;
             } else {
-                $data['ip'] = ip2long($data['ip']);
+                $data['extIP'] = ip2long($data['extIP']);
+            }
+        }
+        
+        if($isIPValid) {
+            if(isset($data['intIP'])) {
+                $isIPValid = self::testMySQLPort($data['intIP']);
+
+                if(!$isIPValid) {
+                    $isValid = false;
+                } else {
+                    $data['intIP'] = ip2long($data['intIP']);
+                }
             }
         }
 
@@ -346,7 +360,7 @@ class Database extends \HC\Core
                 }
                 
                 // Add an information file
-                $info = ['id' => $backupID, 'ip' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'schemaCreateSyntaxs' => $schemaCreateSyntaxs, 'backupType' => 1];
+                $info = ['id' => $backupID, 'extIP' => $ip, 'dbSize' => $dbSize, 'schemas' => array_keys($schemaList), 'schemaCreateSyntaxs' => $schemaCreateSyntaxs, 'backupType' => 1];
                 file_put_contents($path . '/' . $backupID . '/info.json', json_encode($info));
                 
                 // Compact final directory

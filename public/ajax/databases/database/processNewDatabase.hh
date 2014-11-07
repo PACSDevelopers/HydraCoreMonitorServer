@@ -21,7 +21,8 @@ class ProcessNewDatabaseAjax extends \HC\Ajax {
 		if(count($response['errors']) == 0){
             $insertKeys = [
                 'databaseTitle' => 'title',
-                'databaseIP' => 'ip',
+                'databaseExtIP' => 'extIP',
+                'databaseIntIP' => 'intIP',
                 'databaseBackupType' => 'backupType',
                 'databaseBackupInterval' => 'backupInterval',
                 'databaseUsername' => 'username',
@@ -40,12 +41,21 @@ class ProcessNewDatabaseAjax extends \HC\Ajax {
                 }
             }
 
-            if(isset($data['ip'])) {
-                $isIPValid = \HCMS\Database::testMySQLPort($data['ip']);
+            if(isset($data['extIP'])) {
+                $isIPValid = \HCMS\Database::testMySQLPort($data['extIP']);
                 if(!$isIPValid) {
                     $isValid = false;
                 } else {
-                    $data['ip'] = ip2long($data['ip']);
+                    $data['extIP'] = ip2long($data['extIP']);
+                }
+            }
+
+            if(isset($data['intIP'])) {
+                $isIPValid = \HCMS\Database::testMySQLPort($data['intIP']);
+                if(!$isIPValid) {
+                    $isValid = false;
+                } else {
+                    $data['intIP'] = ip2long($data['intIP']);
                 }
             }
             

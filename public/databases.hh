@@ -33,7 +33,7 @@ class DatabasesPage extends \HC\Page {
 		
 		$db = new \HC\DB();
         
-		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip'];
+		$columns = ['ID' => 'id', 'Title' => 'title', 'External IP' => 'extIP', 'Internal IP' => 'intIP'];
 		$databasesTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover', 'name' => 'databasesTable']);
 		$databasesTable->openHeader();
 		$databasesTable->openRow();
@@ -55,7 +55,7 @@ class DatabasesPage extends \HC\Page {
                         $databasesTable->column(['value' => <a href={'/databases/' . $row['id']}>{$value}</a> ]);
                     } else if($key2 === 'url') {
                         $databasesTable->column(['value' => <a href={$value}>{$value}</a>]);
-                    } else if($key2 === 'ip') {
+                    } else if($key2 === 'extIP' || $key2 === 'intIP') {
                         $databasesTable->column(['value' => long2ip($value)]);
                     } else {
                         $databasesTable->column(['value' => $value]);
