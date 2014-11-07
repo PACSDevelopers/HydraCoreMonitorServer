@@ -12,6 +12,10 @@ if(!defined('SITE_NAME')) {
     define('SITE_NAME', 'HydraCore');
 }
 
+if(!defined('APP_VERSION')) {
+    define('APP_VERSION', '0.0.1');
+}
+
 if(!defined('ENVIRONMENT')) {
     define('ENVIRONMENT', 'DEV');
 }

@@ -431,7 +431,7 @@
             $errorDesc .= $errline . ' of ' . $errfile;
             $output .= $errorDesc;
 
-            $output .= $endLine . $endLine . 'Timestamp: ' . time() . $endLine . 'Hash: ' . crc32(var_export(func_get_args(), true)) . $endLine . 'URL: ' . PROTOCOL . '://' . SITE_DOMAIN . $_SERVER['REQUEST_URI'] . $endLine . 'HydraCore Version: ' . HC_VERSION . $endLine . 'PHP Version: ' . $phpVersion . $endLine . 'OS: ' . $operatingSystem . $endLine;
+            $output .= $endLine . $endLine . 'Timestamp: ' . time() . $endLine . 'Hash: ' . crc32(var_export(func_get_args(), true)) . $endLine . 'URL: ' . PROTOCOL . '://' . SITE_DOMAIN . $_SERVER['REQUEST_URI'] . $endLine . 'HydraCore Version: ' . HC_VERSION . $endLine . 'Application Version: ' . APP_VERSION . $endLine . 'PHP Version: ' . $phpVersion . $endLine . 'OS: ' . $operatingSystem . $endLine;
 
 
             // Define default trace
