@@ -238,7 +238,7 @@ class DatabasePage extends \HC\Page {
             $transfersTable->openHeader();
             $transfersTable->column(['value' => 'ID']);
             $transfersTable->column(['value' => 'To']);
-            $transfersTable->column(['value' => 'Backup']);
+            $transfersTable->column(['value' => 'Content']);
             $transfersTable->column(['value' => 'Status']);
             $transfersTable->column(['value' => 'Date Created']);
             $transfersTable->column(['value' => 'Progress']);
@@ -253,7 +253,11 @@ class DatabasePage extends \HC\Page {
                 $transfersTable->openRow();
                 $transfersTable->column(['value' => <span>{$transfer['id']}</span>]);
                 $transfersTable->column(['value' => <span>{$transfer['title']}</span>]);
-                $transfersTable->column(['value' => <span>{$transfer['backupID']}</span>]);
+                if($transfer['backupID']) {
+                    $transfersTable->column(['value' => <span>Backup {$transfer['backupID']}</span>]);
+                } else {
+                    $transfersTable->column(['value' => <span>Direct</span>]);
+                }
                 $transfersTable->column(['value' => <span>{$statusArray[$transfer['status']]}</span>]);
                 $transfersTable->column(['value' => <span>{$transfer['dateCreated']}</span>]);
                 

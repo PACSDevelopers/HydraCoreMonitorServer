@@ -32,6 +32,10 @@ if(!defined('ERROR_LOGGING')) {
     define('ERROR_LOGGING', 'ALL');
 }
 
+if(!defined('ALLOW_ERRORS')) {
+    define('ALLOW_ERRORS', false);
+}
+
 if(!defined('REGISTER_SHUTDOWN')) {
     define('REGISTER_SHUTDOWN', true);
 }
