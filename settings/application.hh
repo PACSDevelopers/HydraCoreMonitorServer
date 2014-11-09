@@ -6,7 +6,7 @@
     const SITE_NAME = 'HydraCore Monitor Server';
     const APP_VERSION = '0.0.1';
     const AUTHOR = 'Ryan Howell';
-    const REGISTER_SHUTDOWN = true;
+    const REGISTER_SHUTDOWN = false;
     const MODE = 'MVC';
 
     /**

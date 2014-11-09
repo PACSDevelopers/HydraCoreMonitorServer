@@ -34,46 +34,46 @@ class ServersPage extends \HC\Page {
 		$db = new \HC\DB();
         
 		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip'];
-		$serversTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover', 'name' => 'serversTable']);
-		$serversTable->openHeader();
-		$serversTable->openRow();
+        $serversHeader = <tr></tr>;
 		foreach($columns as $key => $column) {
-            $serversTable->column(['value' => $key]);
-        }
-        $serversTable->column(['value' => 'Status']);
-		$serversTable->closeRow();
-		$serversTable->closeHeader();
+            $serversHeader->appendChild(<th>{$key}</th>);
+		}
+        $serversHeader->appendChild(<th>Status</th>);
+        
+        $serversBody = <tbody></tbody>;
         
         $result = $db->read('servers', array_values($columns), ['status' => 1]);
-        $serversTable->openBody();
         if($result) {
             $result = array_reverse($result);
             foreach($result as $key => $row) {
-                $serversTable->openRow();
+                $serversRow = <tr></tr>;
                 foreach($row as $key2 => $value) {
                     if($key2 === 'title') {
-                        $serversTable->column(['value' => <a href={'/servers/' . $row['id']}>{$value}</a> ]);
+                        $serversRow->appendChild(<td><a href={'/servers/' . $row['id']}>{$value}</a></td>);
                     } else if($key2 === 'url') {
-                        $serversTable->column(['value' => <a href={$value}>{$value}</a>]);
+                        $serversRow->appendChild(<td><a href={'http://' . $value}>{$value}</a></td>);
                     } else if($key2 === 'ip') {
-                        $serversTable->column(['value' => long2ip($value)]);
+                        $serversRow->appendChild(<td>{long2ip($value)}</td>);
                     } else {
-                        $serversTable->column(['value' => $value]);
+                        $serversRow->appendChild(<td>{$value}</td>);
                     }
                 }
-                $serversTable->column(['value' => <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span>]);
-                $serversTable->closeRow();
+                $serversRow->appendChild(<td><span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span></td>);
+                $serversBody->appendChild($serversRow);
             }
         }
-        
-        $serversTable->closeBody();
 
 		$this->body = <x:frag>
             <div class="container">
                 <div class="row">
                     <h1>Severs</h1>
                     <div class="table-responsive">
-                        {$serversTable}
+                        <table class="table table-bordered table-striped table-hover" id="serversTable">
+                            <thead>
+                                {$serversHeader}
+                            </thead>
+                            {$serversBody}
+                        </table>
                     </div>
                 </div>
             </div>

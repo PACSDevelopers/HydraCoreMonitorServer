@@ -34,44 +34,46 @@ class DomainsPage extends \HC\Page {
 		$db = new \HC\DB();
         
 		$columns = ['ID' => 'id', 'Title' => 'title', 'URL' => 'url'];
-		$domainsTable = new \HC\Table(['class' => 'table table-bordered table-striped table-hover', 'name' => 'domainsTable']);
-		$domainsTable->openHeader();
-		$domainsTable->openRow();
+        
+        $domainsHeader = <tr></tr>;
 		foreach($columns as $key => $column) {
-				$domainsTable->column(['value' => $key]);
+            $domainsHeader->appendChild(<th>{$key}</th>);
 		}
-        $domainsTable->column(['value' => 'Status']);
-		$domainsTable->closeRow();
-		$domainsTable->closeHeader();
+        $domainsHeader->appendChild(<th>Status</th>);
         
         $result = $db->read('domains', array_values($columns), ['status' => 1]);
-        $domainsTable->openBody();
+        
+        $domainsBody = <tbody></tbody>;
         if($result) {
             $result = array_reverse($result);
             foreach($result as $key => $row) {
-                $domainsTable->openRow();
+                $domainsRow = <tr></tr>;
                 foreach($row as $key2 => $value) {
                     if($key2 === 'title') {
-                        $domainsTable->column(['value' => <a href={'/domains/' . $row['id']}>{$value}</a> ]);
+                        $domainsRow->appendChild(<td><a href={'/domains/' . $row['id']}>{$value}</a></td>);
                     } else if($key2 === 'url') {
-                        $domainsTable->column(['value' => <a href={'http://' . $value}>{$value}</a>]);
+                        $domainsRow->appendChild(<td><a href={'http://' . $value}>{$value}</a></td>);
                     } else {
-                        $domainsTable->column(['value' => $value]);
+                        $domainsRow->appendChild(<td>{$value}</td>);
                     }
                 }
-                $domainsTable->column(['value' => <span class="domainStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span>]);
-                $domainsTable->closeRow();
+                $domainsRow->appendChild(<td><span class="domainStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span></td>);
+                $domainsBody->appendChild($domainsRow);
             }
         }
         
-        $domainsTable->closeBody();
 
 		$this->body = <x:frag>
             <div class="container">
                 <div class="row">
                     <h1>Domains</h1>
                     <div class="table-responsive">
-                        {$domainsTable}
+                        <table class="table table-bordered table-striped table-hover" id="domainsTable">
+                            <thead>
+                                {$domainsHeader}
+                            </thead>
+                            {$domainsBody}
+                        </table>
                     </div>
                 </div>
             </div>

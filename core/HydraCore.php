@@ -60,10 +60,6 @@
 
 		}
 
-        if(is_file(HC_LOCATION . '/vendor/xhp/init.hh')) {
-			require_once HC_LOCATION . '/vendor/xhp/init.hh';
-		}
-
 		if(is_file(HC_LOCATION . '/vendor/autoload.php')) {
 				require_once HC_LOCATION . '/vendor/autoload.php';
 		}
