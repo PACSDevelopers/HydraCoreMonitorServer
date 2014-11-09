@@ -397,11 +397,17 @@
 
 					break;
 
-				case 'HC\Hooks\PostReceive\Unlock':
+                case 'HC\Hooks\PostReceive\Unlock':
 
-					require_once(HC_CORE_LOCATION . '/hooks/postReceive/unlock.class.php');
+                    require_once(HC_CORE_LOCATION . '/hooks/postReceive/unlock.class.php');
 
-					break;
+                    break;
+
+                case 'HC\Hooks\PostReceive\GenerateErrorPages':
+
+                    require_once(HC_CORE_LOCATION . '/hooks/postReceive/generateErrorPages.class.php');
+
+                    break;
 
 				case 'HC\Hooks\PreReceive':
 

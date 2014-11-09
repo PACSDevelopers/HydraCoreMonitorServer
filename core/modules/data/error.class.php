@@ -431,7 +431,16 @@
             $errorDesc .= $errline . ' of ' . $errfile;
             $output .= $errorDesc;
 
-            $output .= $endLine . $endLine . 'Timestamp: ' . time() . $endLine . 'Hash: ' . crc32(var_export(func_get_args(), true)) . $endLine . 'URL: ' . PROTOCOL . '://' . SITE_DOMAIN . $_SERVER['REQUEST_URI'] . $endLine . 'HydraCore Version: ' . HC_VERSION . $endLine . 'Application Version: ' . APP_VERSION . $endLine . 'PHP Version: ' . $phpVersion . $endLine . 'OS: ' . $operatingSystem . $endLine;
+            $hash = crc32(var_export(func_get_args(), true));
+            
+            if(isset($_SERVER['REQUEST_URI'])) {
+                $urlDetail = 'URL: ' . PROTOCOL . '://' . SITE_DOMAIN . $_SERVER['REQUEST_URI'] . $endLine;
+            } else {
+                $urlDetail = 'URL: ' . PROTOCOL . '://' . SITE_DOMAIN . $endLine;
+            }
+            
+            
+            $output .= $endLine . $endLine . 'Timestamp: ' . time() . $endLine . 'Hash: ' . $hash . $endLine . $urlDetail . 'HydraCore Version: ' . HC_VERSION . $endLine . 'Application Version: ' . APP_VERSION . $endLine . 'PHP Version: ' . $phpVersion . $endLine . 'OS: ' . $operatingSystem . $endLine;
 
 
             // Define default trace
@@ -478,7 +487,7 @@
                         $data = chunk_split($data, 50, $endLine);
 
                         // Add it to output
-                        $output = 'Error, information below: ' . $endLine . $endLine . $data;
+                        $output = 'Error ID: ' . $hash . $endLine . $endLine . $data;
 
                     }
 
@@ -506,6 +515,10 @@
                 }
             } else {
                 echo $output;
+            }
+            
+            if(!ALLOW_ERRORS) {
+                exit(0);
             }
 
             return true;
@@ -660,7 +673,7 @@
 
         }
 
-        public function generateErrorPage($code = 500, $error = '', $errorDescription = '') {
+        public function generateErrorPage($code = 500, $error = '', $errorDescription = '', $skips = true, $return = false) {
             if(!isset(self::$errorTitle[$code])) {
                 $code = 500;
             }
@@ -701,13 +714,17 @@
 
                 $errorPage = new \HC\Page($pageSettings);
 
+                $devInfo = '';
+                if($error != '') {
+                    $devInfo = <x:frag><h2>Error Details</h2><p>{POTENTIAL_XSS_HOLE($error)}</p></x:frag>;
+                }
+                
                 $errorPage->body = <div class="container">
                                         <div class="row">
                                             <h1>Error - {$actualCode} - {self::$errorTitle[$code]}</h1>
                                             <div>
                                                     <p>{str_replace('<br>', ' ', $errorDescription)}</p>
-                                                    <h2>Error Details</h2>
-                                                    <p>{POTENTIAL_XSS_HOLE($error)}</p>
+                                                    {$devInfo}
                                             </div>
                                         </div>
                                     </div>;
@@ -719,17 +736,25 @@
             if (ob_get_length()) {
                 ob_clean();
             }
-
-            $GLOBALS['skipShutdown'] = true;
-
+            
+            if($skips) {
+                $GLOBALS['skipShutdown'] = true;
+            }
+            
             try {
-                echo $errorPage->render();
+                if($return) {
+                    return $errorPage;
+                } else {
+                    echo $errorPage->render();
+                }
             } catch (\Exception $exception) {
                 Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
             }
-
-            $GLOBALS['skipRender'] = true;
-
+            
+            if($skips) {
+                $GLOBALS['skipRender'] = true;
+            }
+            
             if(PHP_SAPI !== 'cli') {
                 http_response_code($actualCode);
                 if(isset($this->errorHeaders[$actualCode])) {

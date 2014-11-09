@@ -182,8 +182,6 @@
 		// Initialize the application
 		require_once(HC_APPLICATION_LOCATION . '/application.php');
 
-
-
 		return true;
 
 	}

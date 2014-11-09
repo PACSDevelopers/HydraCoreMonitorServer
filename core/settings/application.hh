@@ -15,6 +15,7 @@
                 ],
                 'path' => '/resources/'
             ],
-            'HC\Hooks\PostReceive\Unlock' => true
+            'HC\Hooks\PostReceive\Unlock' => true,
+            'HC\Hooks\PostReceive\GenerateErrorPages' => true
         ]
     ];

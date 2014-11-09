@@ -285,8 +285,7 @@
          */
 
         public static function shutDown() {
-
-
+            
             if (isset($GLOBALS['skipShutdown'])) {
 
                 if ($GLOBALS['skipShutdown']) {
