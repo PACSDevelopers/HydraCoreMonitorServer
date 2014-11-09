@@ -173,26 +173,36 @@ class DatabasePage extends \HC\Page {
                         break;
                 }
                 
-                if($backup['status'] == 3) {
+                if($backup['status'] == 3 && $_SESSION['user']->hasPermission('Backup')) {
                     $list = <ul class="dropdown-menu" role="menu" aria-labelledby={'actionDropDown' . $backup['id']}></ul>;
                     $hasChildren = false;
                     if($backup['isLocal']) {
                         $hasChildren = true;
-                        $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href={'/downloads/backups/' . $backup['id']}>Download</a></li>);
-                        $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'transferBackup(' . $backup['id'] . ');'}>Transfer</a></li>);
+                        if($_SESSION['user']->hasPermission('Download Backup')) {
+                            $list->appendChild(<li role="presentation"><a role="menuitem" tabindex="-1" href={'/downloads/backups/' . $backup['id']}>Download</a></li>);
+                        }
+                        
+                        if($_SESSION['user']->hasPermission('Transfer Backup')) {
+                            $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'transferBackup(' . $backup['id'] . ');'}>Transfer</a></li>);
+                        }
+                        
                         $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteBackup(' . $backup['id'] . ');'}>Delete</a></li>);
                     }
                     
-                    if($backup['inVault']) {
+                    if($backup['inVault'] && ($_SESSION['user']->hasPermission('Vault Download') || $_SESSION['user']->hasPermission('Vault Delete'))) {
                         if($hasChildren) {
                             $list->appendChild(<li role="presentation" class="divider"></li>);
-                        } else {
-                            if($backup['hasJob'] == 0) {
-                                $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}>Request From Vault</a></li>);
-                            }
                         }
-                        $hasChildren = true;
-                        $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteArchiveFromVault(' . $backup['id'] . ');'}>Delete From Vault</a></li>);
+
+                        if($backup['hasJob'] == 0 && $_SESSION['user']->hasPermission('Vault Download')) {
+                            $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'getArchiveFromVault(' . $backup['id'] . ');'}>Request From Vault</a></li>);
+                            $hasChildren = true;
+                        }
+                        
+                        if($_SESSION['user']->hasPermission('Vault Delete')) {
+                            $list->appendChild(<li role="presentation"><a class="falseLink" role="menuitem" tabindex="-1" href="#" onclick={'deleteArchiveFromVault(' . $backup['id'] . ');'}>Delete From Vault</a></li>);
+                            $hasChildren = true;
+                        }
                     }
                     
                     if($hasChildren) {
@@ -205,7 +215,7 @@ class DatabasePage extends \HC\Page {
                     } else {
                         $backupsTable->column();
                     }
-                } else if($backup['status'] == 2) {
+                } else if($backup['status'] == 2 && $_SESSION['user']->hasPermission('Backup')) {
                     $backupsTable->column(['value' => <div class="dropdown">
                                                           <button class="btn btn-default dropdown-toggle" type="button" id={'actionDropDown' . $backup['id']} data-toggle="dropdown">
                                                             <span class="caret"></span>
@@ -312,9 +322,7 @@ class DatabasePage extends \HC\Page {
         }
         
         $this->body = <x:frag>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
-                        </div>
-                        <div class="row col-lg-8 col-md-12 col-sm-12">
+                        <div class="container">
                             <h1>Database Details</h1>
                             <div class="row">
                                     <form action="" class="form-horizontal" role="form"> 
@@ -452,8 +460,6 @@ class DatabasePage extends \HC\Page {
                                     {$transfersTable}
                                 </div>
                             </div>
-                        </div>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
                         </div>
                       </x:frag>;
         

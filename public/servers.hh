@@ -69,17 +69,13 @@ class ServersPage extends \HC\Page {
         $serversTable->closeBody();
 
 		$this->body = <x:frag>
-            <div class="row col-lg-2 col-md-0 col-sm-0">
-            </div>
-            <div class="row col-lg-8 col-md-12 col-sm-12">
+            <div class="container">
                 <div class="row">
                     <h1>Severs</h1>
                     <div class="table-responsive">
                         {$serversTable}
                     </div>
                 </div>
-            </div>
-            <div class="row col-lg-2 col-md-0 col-sm-0">
             </div>
         </x:frag>;
         

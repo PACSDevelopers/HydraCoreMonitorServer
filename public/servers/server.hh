@@ -93,9 +93,7 @@ class ServerPage extends \HC\Page {
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
-                            <div class="col-lg-8 col-md-12 col-sm-12">
+                            <div class="container">
                                 <h1>Server Details</h1>
                                 <div class="row">
                                         <form action="" class="form-horizontal" role="form"> 
@@ -138,14 +136,9 @@ class ServerPage extends \HC\Page {
                                         </form>
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
-        
-                            <div class="col-lg-8 col-md-12 col-sm-12">
+                        <div class="row">        
+                            <div class="container">
                                 <h2>Domains</h2>
                                 <div class="row">
                                     <div class="table-responsive">
@@ -296,9 +289,6 @@ class ServerPage extends \HC\Page {
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="col-lg-2 col-md-0 col-sm-0">
                             </div>
                         </div>
                         

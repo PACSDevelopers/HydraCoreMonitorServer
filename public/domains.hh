@@ -67,17 +67,13 @@ class DomainsPage extends \HC\Page {
         $domainsTable->closeBody();
 
 		$this->body = <x:frag>
-            <div class="row col-lg-2 col-md-0 col-sm-0">
-            </div>
-            <div class="row col-lg-8 col-md-12 col-sm-12">
+            <div class="container">
                 <div class="row">
                     <h1>Domains</h1>
                     <div class="table-responsive">
                         {$domainsTable}
                     </div>
                 </div>
-            </div>
-            <div class="row col-lg-2 col-md-0 col-sm-0">
             </div>
         </x:frag>;
         

@@ -50,9 +50,7 @@ class DomainPage extends \HC\Page {
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
         
         $this->body = <x:frag>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
-                        </div>
-                        <div class="row col-lg-8 col-md-12 col-sm-12">
+                        <div class="container">
                             <h1>Domain Details</h1>
                             <div class="row">
                                     <form action="" class="form-horizontal" role="form"> 
@@ -128,8 +126,6 @@ class DomainPage extends \HC\Page {
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="row col-lg-2 col-md-0 col-sm-0">
                         </div>
                       </x:frag>;
         
