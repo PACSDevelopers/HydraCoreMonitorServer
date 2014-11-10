@@ -84,7 +84,7 @@ class Server extends \HC\Core
         return $response;
     }
 
-    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
+    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], &$errorDetails = [], $key = false, $auth = false, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -108,7 +108,12 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($handle, CURLOPT_HEADER, true);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1']);
+        $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
+        if($key && $auth) {
+            $headers['X-Hc-Auth-Code'] = $auth->getCode($key);
+        }
+        
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
@@ -116,7 +121,7 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
-
+        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
@@ -156,7 +161,7 @@ class Server extends \HC\Core
                             $location['path'] .= '?' . $location['query'];
                         }
 
-                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
+                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $errorDetails, $key, $auth, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                         $extraData['redirect_count'] = $trips;
                         return $returnValue;
                     }
@@ -169,11 +174,23 @@ class Server extends \HC\Core
             $httpCode = $curlErrorCode;
         }
 
-        curl_close($handle);
+        
 
+        if($httpCode !== 200) {
+            $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+            $header = substr($curlResponse, 0, $header_size);
+            $body = substr($curlResponse, $header_size);
+            $json = json_decode($body, true);
+            if($json) {
+                $errorDetails = $json;
+            }
+        }
+
+        curl_close($handle);
+        
         if($httpCode !== 200 && $attempts < 3) {
             $attempts++;
-            return self::checkHTTP($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips, $attempts);
+            return self::checkHTTP($ip, $url, $returnCode, $extraData, $errorDetails, $key, $auth, $prefix , $suffix, $cookies, $trips, $attempts);
         } else if($returnCode) {
             return $httpCode;
         } else if($httpCode === 200) {

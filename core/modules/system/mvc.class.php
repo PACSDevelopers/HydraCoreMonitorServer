@@ -80,7 +80,7 @@
 
 					chdir(dirname($path));
 
-                    if(ENVIRONMENT !== 'PRODUCTION') {
+                    if(ENVIRONMENT === 'DEV') {
                         if(!\HC\Error::checkPHPSyntax($path)) {
                             return false;
                         }

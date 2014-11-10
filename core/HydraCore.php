@@ -74,31 +74,43 @@
 
 		if (!defined('HC_SKIP_LOCK_CHECK')) {
 
-			if (is_file(HC_LOCATION . '/lock.pid')) {
+			if (is_file(HC_LOCATION . '/lock.json')) {
 
-				$contents = file_get_contents(HC_LOCATION . '/lock.pid');
+				$contents = json_decode(file_get_contents(HC_LOCATION . '/lock.json'), true);
+                
+                if($contents) {
+                    if ($contents['Status'] === 'Unlocked') {
 
-				if (trim($contents) === 'Unlock') {
+                        $cache = new Cache();
 
-					$cache = new Cache();
+                        $cache->deleteAll();
 
-					$cache->deleteAll();
+                        unlink(HC_LOCATION . '/lock.json');
 
-					unlink(HC_LOCATION . '/lock.pid');
+                    } else {
 
-				} else {
+                        if (PHP_SAPI === 'cli') {
 
-					if (PHP_SAPI === 'cli') {
+                            echo 'Application Locked.' . PHP_EOL;
 
-						echo 'Application Locked.' . PHP_EOL;
+                        } else {
+                            
+                            
+                            if(!\HC\Site::checkProductionAccess()) {
+                                $excludedKeys = ['To Message', 'From Message', 'From User', 'From Commit'];
+                                foreach($excludedKeys as $value) {
+                                    if(isset($contents[$value])) {
+                                        unset($contents[$value]);
+                                    }
+                                }
+                            }
+                            $error = new \HC\Error();
+                            $error->generateErrorPage('503-2', $contents);
+                            exit(0);
+                        }
 
-					} else {
-
-						$error = new \HC\Error();
-						$error->generateErrorPage('503-2');
-					}
-
-				}
+                    }
+                }
 
 			}
 

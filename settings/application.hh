@@ -37,6 +37,8 @@
             'HC\Hooks\PreReceive\Lock' => true,
         ],
         'postReceive' => [
+            'HC\Hooks\PreReceive\Lock' => true,
+            'HC\Hooks\PostReceive\UpdateComposer' => true,
             'HC\Hooks\PostReceive\CompileResources' => [
                 'languages' => [
                     'js' => true,

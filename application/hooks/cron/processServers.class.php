@@ -88,8 +88,18 @@
                       'redirect_count' => 0,
                   ];
 
+                  $key = false;
+                  $auth = false;
+
+                  if(isset($settings['domain']) && isset($settings['key'])) {
+                      $key = $settings['key'];
+                      $auth = $authenticator;
+                  }
+
+                  $errorDetails = [];
+                  
                   $before = microtime(true);
-                  $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData);
+                  $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
 
                   $dateTokens = explode('.', $before);
@@ -153,6 +163,23 @@
                           'Queries Per Minute'      => $currentClientData['qpm'],
                           'Average Time CPU Bound'  => $currentClientData['avgTimeCpuBound'],
                       ];
+                      
+                      if(isset($errorDetails['status'])) {
+                          $data['Error Status'] = $errorDetails['status'];
+                          $data['Error Message'] = $errorDetails['message'];
+                          $data['Error Description'] = $errorDetails['errorDescription'];
+                          foreach($errorDetails['errorDetails'] as $key => $value) {
+                              if(is_array($value)) {
+                                  foreach($value as $key2 => $value2) {
+                                      $data['Error Details ' . $key . ' ' . $key2] = $value2;
+                                  }
+                              } else {
+                                  $data['Error Details ' . $key] = $value;
+                              }
+                          }
+                      }
+                      
+                      var_dump($data);
                       
                       \HCMS\Server::alertDown($data);
                   }

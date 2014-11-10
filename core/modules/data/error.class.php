@@ -418,7 +418,7 @@
                 file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
             }
 
-            if (ENVIRONMENT === 'PRODUCTION') {
+            if (!\HC\Site::checkProductionAccess()) {
 
                 // Encrypt the output
                 $encryption = new Encryption();
@@ -537,7 +537,7 @@
             if($type & E_STRICT) // 2048 //
                 return E_STRICT;
             if($type & E_RECOVERABLE_ERROR) // 4096 //
-                return HC_Recoverable_Error;
+                return E_RECOVERABLE_ERROR;
             if($type & E_DEPRECATED) // 8192 //
                 return E_DEPRECATED;
             if($type & E_USER_DEPRECATED) // 16384 //
