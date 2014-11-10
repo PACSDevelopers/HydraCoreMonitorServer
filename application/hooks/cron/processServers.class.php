@@ -165,23 +165,26 @@
                       ];
                       
                       if(isset($errorDetails['status'])) {
-                          $data['Error Status'] = $errorDetails['status'];
-                          $data['Error Message'] = $errorDetails['message'];
-                          $data['Error Description'] = $errorDetails['errorDescription'];
-                          foreach($errorDetails['errorDetails'] as $key => $value) {
-                              if(is_array($value)) {
-                                  foreach($value as $key2 => $value2) {
-                                      $data['Error Details ' . $key . ' ' . $key2] = $value2;
+                          // Only send notifications if it's not a deployment
+                          if($errorDetails['status'] !== '503-2') {
+                              $data['Error Status'] = $errorDetails['status'];
+                              $data['Error Message'] = $errorDetails['message'];
+                              $data['Error Description'] = $errorDetails['errorDescription'];
+                              foreach($errorDetails['errorDetails'] as $key => $value) {
+                                  if(is_array($value)) {
+                                      foreach($value as $key2 => $value2) {
+                                          $data['Error Details ' . $key . ' ' . $key2] = $value2;
+                                      }
+                                  } else {
+                                      $data['Error Details ' . $key] = $value;
                                   }
-                              } else {
-                                  $data['Error Details ' . $key] = $value;
                               }
+                              
+                              \HCMS\Server::alertDown($data);
                           }
+                      } else {
+                          \HCMS\Server::alertDown($data);
                       }
-                      
-                      var_dump($data);
-                      
-                      \HCMS\Server::alertDown($data);
                   }
                   
                   $db->write('server_history', $currentClientData);
