@@ -88,7 +88,7 @@ class Domain extends \HC\Core
         return false;
     }
     
-    public static function checkHTTP($url, $returnCode = false, &$extraData = [], $attempts = 1) {
+    public static function checkHTTP($url, $returnCode = false, &$extraData = [], &$errorDetails = [], $key = false, $auth = false, $attempts = 1) {
         $url = (string)$url;
         
         if(gethostbyname($url) !== $url) {
@@ -104,7 +104,12 @@ class Domain extends \HC\Core
                 touch($tempCookiesFile);
             }
 
-            curl_setopt($handle, CURLOPT_HTTPHEADER, ['X-Hc-Skip-App-Stats: 1']);
+            $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
+            if($key && $auth) {
+                $headers['X-Hc-Auth-Code'] = $auth->getCode($key);
+            }
+
+            curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
@@ -123,11 +128,18 @@ class Domain extends \HC\Core
                 $httpCode = $curlErrorCode;
             }
 
+            if($httpCode !== 200) {
+                $json = json_decode($curlResponse, true);
+                if($json) {
+                    $errorDetails = $json;
+                }
+            }
+
             curl_close($handle);
             
             if($httpCode !== 200 && $attempts < 3) {
                 $attempts++;
-                return self::checkHTTP($url, $returnCode, $extraData, $attempts);
+                return self::checkHTTP($url, $returnCode, $extraData, $errorDetails, $key, $auth, $attempts);
             } else if($returnCode) {
                 return $httpCode;
             } else if($httpCode === 200) {
