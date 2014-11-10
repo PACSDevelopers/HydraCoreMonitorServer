@@ -66,76 +66,7 @@
 
 
 		require_once 'core.class.php';
-
-
-
-		// No autoloading in cli mode
-		if (PHP_SAPI === 'cli') {
-
-            require_once(HC_CORE_LOCATION . '/modules/data/view.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/page.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/table.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/form.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/button.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/textarea.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/checkbox.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/input.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/render/forms/select.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/db.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/db2.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/user.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/email.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/encryption.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/cache.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/error.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/upload.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/log.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/directory.class.php');
-
-			require_once(HC_CORE_LOCATION . '/modules/data/file.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/process.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/compression.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/authenticator.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/data/text.class.php');
-
-            require_once(HC_CORE_LOCATION . '/modules/system/mvc.class.php');
-
-			require_once(HC_CORE_LOCATION . '/hooks/postReceive.class.php');
-
-			require_once(HC_CORE_LOCATION . '/hooks/postReceive/compileResources.class.php');
-
-			require_once(HC_CORE_LOCATION . '/hooks/postReceive/unlock.class.php');
-
-			require_once(HC_CORE_LOCATION . '/hooks/preReceive.class.php');
-
-			require_once(HC_CORE_LOCATION . '/hooks/preReceive/lock.class.php');
-
-            require_once(HC_CORE_LOCATION . '/hooks/cron.class.php');
-
-		}
-
+        
 		// Create the core object
 		$GLOBALS['HC_CORE'] = new Core($hydraCoreSettings);
 

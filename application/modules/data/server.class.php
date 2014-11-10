@@ -296,24 +296,29 @@ class Server extends \HC\Core
         if($users) {
             $email = new \HC\Email();
             $title = $data['Server Title'] . ' - ' . $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
-            $message = new \HC\Table(['style' => 'width: 100%;']);
-            $message->openHeader();
-            $message->openRow();
-            $message->column(['value' => 'Key']);
-            $message->column(['value' => 'Value']);
-            $message->closeRow();
-            $message->closeHeader();
-            $message->openBody();
+            $tableBody = <tbody></tbody>;
+            
             foreach($data as $key => $value) {
-                $message->openRow();
-                $message->column(['value' => $key]);
-                $message->column(['value' => $value]);
-                $message->closeRow();
+                $tableBody->appendChild(<tr>
+                    <td>{$key}</td>
+                    <td>{$value}</td>
+                </tr>);
             }
-            $message->closeBody();
+            
+            $message = <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            {$tableBody}
+                        </table>;
+            
+            $message = $message->__toString();
             
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message->render(), ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;
