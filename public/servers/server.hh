@@ -44,9 +44,23 @@ class ServerPage extends \HC\Page {
 		$db = new \HC\DB();
 
         if($_SESSION['user']->hasPermission('Delete')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<button class="btn btn-primary" onclick="deleteServer();">Delete Server</button>];
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="deleteServer();">Delete Server</button>;
         }
 
+        if($_SESSION['user']->hasPermission('Restart Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="restartServer();">Restart Server</button>;
+        }
+
+        if($_SESSION['user']->hasPermission('Reboot Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="rebootServer();">Reboot Server</button>;
+        }
+
+        if($_SESSION['user']->hasPermission('Update Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="updateServer();">Update Server</button>;
+        }
+
+        
+        
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
 
         $results = $db->read([
@@ -118,13 +132,38 @@ class ServerPage extends \HC\Page {
                                                         </div>
                                                 </div>
         
-                                            <div class="form-group">
-                                                    <label class="col-sm-2 control-label" for="domainStatus">Status</label>
-    
-                                                    <div class="col-sm-10">
-                                                            <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$server->id}></span>
-                                                    </div>
-                                            </div>
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverStatus">Status</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$server->id}></span>
+                                                        </div>
+                                                </div>
+                                                
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverUpdates">Updates</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="number" disabled="disabled" class="form-control" placeholder="Updates" id="serverUpdates" value={$server->updates} />
+                                                        </div>
+                                                </div>
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverSecurityUpdates">Security Updates</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="number" disabled="disabled" class="form-control" placeholder="Updates" id="serverSecurityUpdates" value={$server->securityUpdates} />
+                                                        </div>
+                                                </div>
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverRebootRequired">Reboot Required</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <span class="pull-right">{$server->rebootRequired ? 'Yes' : 'No'}</span>
+                                                        </div>
+                                                </div>
         
                                                 <div class="form-group">
                                                         <div id="alertBox"></div>

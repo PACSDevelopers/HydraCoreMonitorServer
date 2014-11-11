@@ -125,8 +125,12 @@
                       $before2 = microtime(true);
                       $tempClientData = \HCMS\Server::checkClient($ip, $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
                       $after2 = microtime(true) - $before2;
-                      
                       if($tempClientData && isset($tempClientData['result'])) {
+                          
+                          if(isset($tempClientData['result']['updates']) && isset($tempClientData['result']['securityUpdates']) && isset($tempClientData['result']['rebootRequired'])) {
+                              $db->update('servers', ['id' => $row['serverID']], ['updates' => $tempClientData['result']['updates'], 'securityUpdates' => $tempClientData['result']['securityUpdates'], 'rebootRequired' => $tempClientData['result']['rebootRequired']]);
+                          }
+                          
                           $overview['cpu'][]             = $currentClientData['cpu']             = $tempClientData['result']['cpu'];
                           $overview['mem'][]             = $currentClientData['mem']             = $tempClientData['result']['mem'];
                           $overview['iow'][]             = $currentClientData['iow']             = $tempClientData['result']['iow'];

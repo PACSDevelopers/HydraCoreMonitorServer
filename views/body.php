@@ -55,10 +55,10 @@ class BodyView extends \HC\View {
                 <section id="page">
                     <div class="row col-lg-12">
                         <div class="headerButtons">
-                            <div class="pull-left col-sm-3">
+                            <div class="col-sm-6">
                               {$headerButtonsLeft}
                             </div>
-                            <div class="pull-right col-sm-3">
+                            <div class="col-sm-6">
                               {$headerButtonsRight}
                             </div>
                             <div class="clearfix"></div>

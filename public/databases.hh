@@ -28,7 +28,7 @@ class DatabasesPage extends \HC\Page {
 
 	public function init() {
         if($_SESSION['user']->hasPermission('Create')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/databases/create">Create Database</a>];
+            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary pull-right" href="/databases/create">Create Database</a>];
         }
 		
 		$db = new \HC\DB();

@@ -44,11 +44,11 @@ class DatabasePage extends \HC\Page {
 		$db = new \HC\DB();
 
         if($_SESSION['user']->hasPermission('Backup')) {
-            $this->settings['views']['body']['headerButtonsRight'][] = [<button class="btn btn-primary" onclick="backupDatabase();">Backup Database</button>];
+            $this->settings['views']['body']['headerButtonsRight'][] = [<button class="btn btn-primary pull-right" onclick="backupDatabase();">Backup Database</button>];
         }
 
         if($_SESSION['user']->hasPermission('Delete')) {
-            $this->settings['views']['body']['headerButtonsRight'][] = [<button class="btn btn-primary" onclick="deleteDatabase();">Delete Database</button>];
+            $this->settings['views']['body']['headerButtonsRight'][] = [<button class="btn btn-primary pull-right" onclick="deleteDatabase();">Delete Database</button>];
         }
 
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
