@@ -87,12 +87,10 @@
 
              
               foreach($result as $row) {
-                  $isUniuqeServer = true;
+                  $isUniqueServer = true;
                   
-                  if(isset($servers[$ip])) {
-                      $isUniuqeServer = false;
-                  } else {
-                      $servers[$ip] = true;
+                  if(isset($servers[$row['serverID']])) {
+                      $isUniqueServer = false;
                   }
                   
                   $extraData = [
@@ -130,7 +128,7 @@
 
                   $currentClientData = ['status' => $isValidConnection, 'serverID' => $row['serverID'], 'domainID' => $row['domainID'], 'responseTime' => $after, 'dateCreated' => $dateCreated, 'cpu' => 0, 'mem' => 0, 'iow' => 0, 'ds' => 0, 'net' => 0, 'rpm' => 0, 'tps' => 0, 'avgRespTime' => 0, 'qpm' => 0, 'avgTimeCpuBound' => 0];
                   
-                  if(isset($settings['domain']) && isset($settings['key']) && $isUniuqeServer) {
+                  if(isset($settings['domain']) && isset($settings['key']) && $isUniqueServer) {
                       $ip = long2ip($row['ip']);
                       
                       $before2 = microtime(true);
@@ -155,6 +153,9 @@
                       }
                       
                       $db->write('server_history', $currentClientData);
+                      $servers[$row['serverID']] = $currentClientData;
+                  } else {
+                      $currentClientData = $servers[$row['serverID']];
                   }
 
                   if($isValidConnection !== 200) {
