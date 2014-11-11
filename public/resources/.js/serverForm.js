@@ -108,6 +108,11 @@ function updateForm() {
 }
 
 function deleteServer() {
+    var confirmation = confirm('Are you sure you want to remove this server?');
+    if(!confirmation) {
+        return;
+    }
+
     var $alertBox = $('#alertBox');
     $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for server deletion.')).slideDown();
     var data = {'serverStatus': 0};
@@ -122,15 +127,111 @@ function deleteServer() {
             data: data
         }
     })
-    .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
-            $alertBox.html(bootstrapAlert('success', 'Server successfully deleted.')).slideDown();
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                $alertBox.html(bootstrapAlert('success', 'Server successfully deleted.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function updateServer() {
+    var confirmation = confirm('Are you sure you want to update this server? This may cause a short period of downtime.');
+    if(!confirmation) {
+        return;
+    }
+
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for server update.')).slideDown();
+    var data = {'serverID': $('#serverID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/servers/server/processRequestServerUpdate',
+        data: {
+            data: data
         }
     })
-    .fail(function() {
-        // Tell user error
-        $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
-    });
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status) {
+                    $alertBox.html(bootstrapAlert('success', 'Server update requested successfully.')).slideDown();
+                } else {
+                    $alertBox.html(bootstrapAlert('danger', 'Server update request failed.')).slideDown();
+                }
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function rebootServer() {
+    var confirmation = confirm('Are you sure you want to reboot this server? This will cause a few minutes downtime.');
+    if(!confirmation) {
+        return;
+    }
+
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for server reboot.')).slideDown();
+    var data = {'serverID': $('#serverID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/servers/server/processRequestServerReboot',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status) {
+                    $alertBox.html(bootstrapAlert('success', 'Server reboot requested successfully.')).slideDown();
+                } else {
+                    $alertBox.html(bootstrapAlert('danger', 'Server reboot request failed.')).slideDown();
+                }
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function restartServer() {
+    var confirmation = confirm('Are you sure you want to restart this server? This will cause a few seconds downtime.');
+    if(!confirmation) {
+        return;
+    }
+
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for server restart.')).slideDown();
+    var data = {'serverID': $('#serverID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/servers/server/processRequestServerRestart',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status) {
+                    $alertBox.html(bootstrapAlert('success', 'Server restart requested successfully.')).slideDown();
+                } else {
+                    $alertBox.html(bootstrapAlert('danger', 'Server restart request failed.')).slideDown();
+                }
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
 }
 
 
@@ -203,6 +304,11 @@ function addDomain($this) {
 }
 
 function removeDomain($this) {
+    var confirmation = confirm('Are you sure you want to remove this domain from this server?');
+    if(!confirmation) {
+        return;
+    }
+    
     var data = {'domainID': $this.attr('data-id'), 'serverID':  $('#serverID').val()};
 
     $.ajax({

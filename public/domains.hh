@@ -28,7 +28,7 @@ class DomainsPage extends \HC\Page {
 
 	public function init() {
         if($_SESSION['user']->hasPermission('Create')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/domains/create">Create Domain</a>];
+            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary pull-right" href="/domains/create">Create Domain</a>];
         }
         
 		$db = new \HC\DB();

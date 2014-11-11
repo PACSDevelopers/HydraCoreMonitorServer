@@ -349,6 +349,54 @@ class Server extends \HC\Core
         }
         return false;
     }
+    
+    public function requestUpdate() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/update/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public function requestRestart() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/restart/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public function requestReboot() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/reboot/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
 
     public function __set($key, $value)
     {

@@ -44,7 +44,7 @@ class DomainPage extends \HC\Page {
 		$db = new \HC\DB();
         
         if($_SESSION['user']->hasPermission('Delete')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<button class="btn btn-primary" onclick="deleteDomain();">Delete Domain</button>];
+            $this->settings['views']['body']['headerButtonsRight'] = [<button class="btn btn-primary pull-right" onclick="deleteDomain();">Delete Domain</button>];
         }
 
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');

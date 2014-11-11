@@ -28,12 +28,12 @@ class ServersPage extends \HC\Page {
 
 	public function init() {
         if($_SESSION['user']->hasPermission('Create')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary" href="/servers/create">Create Server</a>];
+            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary pull-right" href="/servers/create">Create Server</a>];
         }
 		
 		$db = new \HC\DB();
         
-		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip'];
+		$columns = ['ID' => 'id', 'Title' => 'title', 'IP' => 'ip', 'Updates' => 'updates', 'Security Updates' => 'securityUpdates', 'Reboot Required' => 'rebootRequired'];
         $serversHeader = <tr></tr>;
 		foreach($columns as $key => $column) {
             $serversHeader->appendChild(<th>{$key}</th>);
@@ -54,6 +54,8 @@ class ServersPage extends \HC\Page {
                         $serversRow->appendChild(<td><a href={'http://' . $value}>{$value}</a></td>);
                     } else if($key2 === 'ip') {
                         $serversRow->appendChild(<td>{long2ip($value)}</td>);
+                    } else if($key2 === 'rebootRequired') {
+                        $serversRow->appendChild(<td>{$value ? 'Yes' : 'No'}</td>);
                     } else {
                         $serversRow->appendChild(<td>{$value}</td>);
                     }
