@@ -236,7 +236,7 @@
                     // Figure out how many arguments we have
                     $count = count($value['args']);
                     
-                    $redactedValues = ['Salt', 'salt', 'pass', 'Pass', 'key', 'Key'];
+                    $redactedValues = ['Salt', 'salt', 'pass', 'Pass', 'password', 'Password', 'key', 'Key'];
                     
                     // Loop through each argument
                     foreach ($value['args'] as $argKey => $argValue) {
@@ -296,7 +296,25 @@
             return $trace;
 
         }
-
+        
+        protected static function protectArray($array) {
+            $redactedKeys = ['Salt', 'salt', 'pass', 'Pass', 'password', 'Password', 'key', 'Key'];
+            
+            foreach($array as $key => $value) {
+                foreach($redactedKeys as $redactedKey) {
+                    if(mb_strpos($key, $redactedKey) !== false) {
+                        $array[$key] = '*REDACTED*';
+                        break;
+                    }
+                }
+                
+                if(is_array($value)) {
+                    $array[$key] = $value = self::protectArray($value);
+                }
+            }
+            return $array;
+        }
+        
         protected static function isErrorOfErrorSystem($trace) {
             foreach($trace as $key => $row) {
                 if(isset($row['file'])) {
@@ -408,6 +426,18 @@
                 $traceFirstLine = self::getErrorLine($errfile, $errline);
                 array_unshift($errorDetails['Trace'], $traceFirstLine);
             }
+            
+            if(isset($_SESSION)) {
+                $safeSession = self::protectArray($_SESSION);
+                
+                foreach($safeSession as $key => $value) {
+                    if(is_array($value)) {
+                        $safeSession[$key] = json_encode($value, JSON_PRETTY_PRINT);
+                    }
+                }
+                
+                $errorDetails['Session'] = $safeSession;
+            }
 
             if((ERROR_LOGGING === 'ALL') || (ERROR_LOGGING === 'FATAL' && ($errorTypeInteger === E_ERROR || $errorTypeInteger === E_PARSE))) {
                 $logFile = ini_get('hhvm.log.file');
@@ -422,6 +452,48 @@
                 } else {
                     file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
                 }
+            }
+            
+            if(ENVIRONMENT !== 'DEV' && ERROR_ALERTS && ERROR_ADDRESS) {
+                $data = [];
+                $data['Error Status'] = 500;
+                $data['Error Message'] = 'Internal Server Error';
+                $data['Error Description'] = 'A generic error message, given when no more specific message is suitable.';
+                foreach($errorDetails as $key => $value) {
+                    if(is_array($value)) {
+                        $tempVal = <small></small>;
+                        foreach($value as $key2 => $value2) {
+                            $tempVal->appendChild(<x:frag>[{$key2}]{$value2}<br /></x:frag>);
+                        }
+                        $data['Error Details ' . $key] = $tempVal;
+                    } else {
+                        $data['Error Details ' . $key] = $value;
+                    }
+                }
+
+                $tableBody = <tbody></tbody>;
+            
+                foreach($data as $key => $value) {
+                    $tableBody->appendChild(<tr>
+                        <td>{$key}</td>
+                        <td>{$value}</td>
+                    </tr>);
+                }
+                
+                $message = <table style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                {$tableBody}
+                            </table>;
+                
+                $message = $message->__toString();
+                          
+                $mail = new \HC\Email();
+                $mail->send(ERROR_ADDRESS, SITE_DOMAIN . ': ' . 'Failed (500 - Internal Server Error)', $message);
             }
 
             if (!\HC\Site::checkProductionAccess()) {
