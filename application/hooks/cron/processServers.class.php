@@ -121,7 +121,8 @@
 
                   $currentClientData = ['status' => $isValidConnection, 'serverID' => $row['serverID'], 'domainID' => $row['domainID'], 'responseTime' => $after, 'dateCreated' => $dateCreated, 'cpu' => 0, 'mem' => 0, 'iow' => 0, 'ds' => 0, 'net' => 0, 'rpm' => 0, 'tps' => 0, 'avgRespTime' => 0, 'qpm' => 0, 'avgTimeCpuBound' => 0];
                   
-                  if(isset($settings['domain']) && isset($settings['key'])) {
+                  if(isset($settings['domain']) && isset($settings['key']) && !isset($servers[$ip])) {
+                      $servers[$ip] = true;
                       $ip = long2ip($row['ip']);
                       
                       $before2 = microtime(true);
