@@ -48,6 +48,12 @@
           $db = new \HC\DB();
           $result = $db->read('domains', ['id', 'title', 'url'], ['status' => 1]);
           if($result) {
+              $settings = [];
+              $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+              if(isset($globalSettings['monitor-server'])) {
+                  $settings = $globalSettings['monitor-server'];
+              }
+              
               $before = microtime(true);
               $dateTokens = explode('.', $before);
               if(!isset($dateTokens[1])) {
@@ -55,8 +61,13 @@
               }
 
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-
+              
               $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => []];
+
+              if(isset($settings['domain']) && isset($settings['key'])) {
+                  $authenticator = new \HC\Authenticator();
+                  $authenticator->setCodeLength(9);
+              }
               
               $db->beginTransaction();
 
@@ -66,9 +77,19 @@
                       'redirect_time' => 0,
                       'ssl_verify_result' => 999999,
                   ];
+
+
+                  $key = false;
+                  $auth = false;
+                  if(isset($settings['domain']) && isset($settings['key'])) {
+                      $key = $settings['key'];
+                      $auth = $authenticator;
+                  }
+                  
+                  $errorDetails = [];
                   
                   $before = microtime(true);
-                  $isValidConnection = \HCMS\Domain::checkHTTP($row['url'], true, $extraData);
+                  $isValidConnection = \HCMS\Domain::checkHTTP($row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
                   
                   $dateTokens = explode('.', $before);
@@ -102,7 +123,29 @@
                               'Date'                    => $dateCreated,
                       ];
                       
-                      \HCMS\Domain::alertDown($data);
+                      if(isset($errorDetails['status'])) {
+                          // Only send notifications if it's not a deployment
+                          if($errorDetails['status'] !== '503-2') {
+                              $data['Error Status'] = $errorDetails['status'];
+                              $data['Error Message'] = $errorDetails['message'];
+                              $data['Error Description'] = $errorDetails['errorDescription'];
+                              foreach($errorDetails['errorDetails'] as $key => $value) {
+                                  if(is_array($value)) {
+                                      $tempVal = <small></small>;
+                                      foreach($value as $key2 => $value2) {
+                                          $tempVal->appendChild(<x:frag>[{$key2}]{$value2}<br /></x:frag>);
+                                      }
+                                      $data['Error Details ' . $key] = $tempVal;
+                                  } else {
+                                      $data['Error Details ' . $key] = $value;
+                                  }
+                              }
+
+                              \HCMS\Domain::alertDown($data);
+                          }
+                      } else {
+                          \HCMS\Domain::alertDown($data);
+                      }
                   }
                   $overview['responseTime'][] = $after;
                   

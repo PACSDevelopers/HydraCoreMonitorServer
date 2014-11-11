@@ -43,9 +43,16 @@ class CreatePage extends \HC\Page {
                                 </div>
 
                                 <div class="form-group">
-                                        <label class="col-sm-2 control-label" for="databaseIP">IP</label>
+                                        <label class="col-sm-2 control-label" for="databaseExtIP">External IP</label>
                                         <div class="col-sm-10">
-                                                <input type="text" class="form-control" placeholder="IP" id="databaseIP" required="required" />
+                                                <input type="text" class="form-control" placeholder="External IP" id="databaseExtIP" required="required" />
+                                        </div>
+                                </div>
+        
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databaseIntIP">Internal IP</label>
+                                        <div class="col-sm-10">
+                                                <input type="text" class="form-control" placeholder="Internal IP" id="databaseIntIP" required="required" />
                                         </div>
                                 </div>
         

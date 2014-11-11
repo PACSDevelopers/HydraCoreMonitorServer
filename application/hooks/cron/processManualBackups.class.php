@@ -53,7 +53,7 @@
           echo 'Processing Manual Backups' . PHP_EOL;
           $encryption = new \HC\Encryption();
           $db = new \HC\DB();
-          $result = $db->query('SELECT `DB`.`id` as `backupID`, `DB`.`isAuto`, `DB`.`creatorID`, `D`.`id`, `D`.`title`, `D`.`ip`, `D`.`username`, `D`.`password`, `D`.`backupType`, `D`.`dateCreated` FROM `database_backups` `DB` LEFT JOIN `databases` `D` ON (`D`.`id` = `DB`.`databaseID`) WHERE `DB`.`status` = 1;');
+          $result = $db->query('SELECT `DB`.`id` as `backupID`, `DB`.`isAuto`, `DB`.`creatorID`, `D`.`id`, `D`.`title`, `D`.`intIP`, `D`.`extIP`, `D`.`username`, `D`.`password`, `D`.`backupType`, `D`.`dateCreated` FROM `database_backups` `DB` LEFT JOIN `databases` `D` ON (`D`.`id` = `DB`.`databaseID`) WHERE `DB`.`status` = 1;');
           if($result) {
               foreach($result as $row) {
                   echo 'Processing Database Backup: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . PHP_EOL;
@@ -72,7 +72,13 @@
                           $row['username'] = $encryption->decrypt($row['username'], 'HC_DB_U' . $row['dateCreated']);
                           $row['password'] = $encryption->decrypt($row['password'], 'HC_DB_P' . $row['dateCreated']);
 
-                          $status = \HCMS\Database::runBackup($row['id'], long2ip($row['ip']), $this->settings['archive'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
+                          $ipKey = 'extIP';
+                          $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['intIP']));
+                          if($isValidConnection) {
+                              $ipKey = 'intIP';
+                          }
+                          
+                          $status = \HCMS\Database::runBackup($row['id'], long2ip($row[$ipKey]), $this->settings['archive'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
                           
                           $after = microtime(true);
                           

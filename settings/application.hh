@@ -4,6 +4,7 @@
      * Constants
      */
     const SITE_NAME = 'PACS Tools Monitor';
+    const APP_VERSION = '0.0.1';
     const AUTHOR = 'PACS Tools';
     const REGISTER_SHUTDOWN = true;
     const MODE = 'MVC';
@@ -36,6 +37,8 @@
             'HC\Hooks\PreReceive\Lock' => true,
         ],
         'postReceive' => [
+            'HC\Hooks\PreReceive\Lock' => true,
+            'HC\Hooks\PostReceive\UpdateComposer' => true,
             'HC\Hooks\PostReceive\CompileResources' => [
                 'languages' => [
                     'js' => true,
@@ -44,7 +47,8 @@
                 ],
                 'path' => '/resources/'
             ],
-            'HC\Hooks\PostReceive\Unlock' => true
+            'HC\Hooks\PostReceive\Unlock' => true,
+            'HC\Hooks\PostReceive\GenerateErrorPages' => true
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [

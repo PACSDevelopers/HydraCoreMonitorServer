@@ -88,8 +88,18 @@
                       'redirect_count' => 0,
                   ];
 
+                  $key = false;
+                  $auth = false;
+
+                  if(isset($settings['domain']) && isset($settings['key'])) {
+                      $key = $settings['key'];
+                      $auth = $authenticator;
+                  }
+
+                  $errorDetails = [];
+                  
                   $before = microtime(true);
-                  $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData);
+                  $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
 
                   $dateTokens = explode('.', $before);
@@ -154,7 +164,29 @@
                           'Average Time CPU Bound'  => $currentClientData['avgTimeCpuBound'],
                       ];
                       
-                      \HCMS\Server::alertDown($data);
+                      if(isset($errorDetails['status'])) {
+                          // Only send notifications if it's not a deployment
+                          if($errorDetails['status'] !== '503-2') {
+                              $data['Error Status'] = $errorDetails['status'];
+                              $data['Error Message'] = $errorDetails['message'];
+                              $data['Error Description'] = $errorDetails['errorDescription'];
+                              foreach($errorDetails['errorDetails'] as $key => $value) {
+                                  if(is_array($value)) {
+                                      $tempVal = <small></small>;
+                                      foreach($value as $key2 => $value2) {
+                                          $tempVal->appendChild(<x:frag>[{$key2}]{$value2}<br /></x:frag>);
+                                      }
+                                      $data['Error Details ' . $key] = $tempVal;
+                                  } else {
+                                      $data['Error Details ' . $key] = $value;
+                                  }
+                              }
+                              
+                              \HCMS\Server::alertDown($data);
+                          }
+                      } else {
+                          \HCMS\Server::alertDown($data);
+                      }
                   }
                   
                   $db->write('server_history', $currentClientData);

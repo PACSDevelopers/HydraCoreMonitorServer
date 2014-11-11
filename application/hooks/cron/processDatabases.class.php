@@ -48,7 +48,7 @@
           echo 'Processing Databases' . PHP_EOL;
           
           $db = new \HC\DB();
-          $result = $db->read('databases', ['id', 'title', 'ip'], ['status' => 1]);
+          $result = $db->read('databases', ['id', 'title', 'extIP'], ['status' => 1]);
           if($result) {
               $before = microtime(true);
               $dateTokens = explode('.', $before);
@@ -64,7 +64,7 @@
               
               foreach($result as $row) {
                   $before = microtime(true);
-                  $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['ip']));
+                  $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['extIP']));
                   $after = microtime(true) - $before;
                   
                   $dateTokens = explode('.', $before);
@@ -83,7 +83,7 @@
                               'Database Title'          => $row['title'],
                               'Database ID'             => $row['id'],
                               'Time Elapsed'            => $after,
-                              'IP Address'              => <a href={'http://' . long2ip($row['ip'])}>{long2ip($row['ip'])}</a>,
+                              'IP Address'              => <a href={'http://' . long2ip($row['extIP'])}>{long2ip($row['extIP'])}</a>,
                               'Date'                    => $dateCreated,
                       ];
                       

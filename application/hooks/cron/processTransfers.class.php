@@ -60,7 +60,7 @@
               'J.D.databases' => [
                   'D.id' => 'DT.database2ID'
               ]
-          ], ['DT.id', 'DT.creatorID', 'DT.backupID', 'DB.isLocal', 'D.title', 'D.id' => 'databaseID', 'D.ip', 'D.username', 'D.password', 'D.dateCreated'], ['DT.status' => 1]);
+          ], ['DT.id', 'DT.creatorID', 'DT.backupID', 'DB.isLocal', 'D.title', 'D.id' => 'databaseID', 'D.intIP', 'D.extIP', 'D.username', 'D.password', 'D.dateCreated'], ['DT.status' => 1]);
           
           if($result) {
               $encryption = new \HC\Encryption();
@@ -75,7 +75,13 @@
                               $row['username'] = $encryption->decrypt($row['username'], 'HC_DB_U' . $row['dateCreated']);
                               $row['password'] = $encryption->decrypt($row['password'], 'HC_DB_P' . $row['dateCreated']);
 
-                              $transfer = \HCMS\Database::transferBackup($row['id'], $this->settings['archive'], $row['backupID'], long2ip($row['ip']), $row['username'], $row['password']);
+                              $ipKey = 'extIP';
+                              $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['intIP']));
+                              if($isValidConnection) {
+                                  $ipKey = 'intIP';
+                              }
+                              
+                              $transfer = \HCMS\Database::transferBackup($row['id'], $this->settings['archive'], $row['backupID'], long2ip($row[$ipKey]), $row['username'], $row['password']);
                               if($transfer) {
                                   echo 'Success: ' . $row['id'] . PHP_EOL;
                                   $status = $db->update('database_transfers', ['id' => $row['id']], ['status' => 3]);

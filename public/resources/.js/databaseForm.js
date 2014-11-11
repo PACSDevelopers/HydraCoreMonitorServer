@@ -6,8 +6,9 @@ function submitForm() {
 
   var submitThis = true;
   var inputs = [
-    'databaseTitle',
-    'databaseIP',
+    'databaseTitle', 
+    'databaseExtIP',
+    'databaseIntIP',
     'databaseUsername',
     'databasePassword',
     'databaseBackupType',
@@ -68,7 +69,8 @@ function updateForm() {
   var submitThis = false;
   var inputs = [
       'databaseTitle',
-      'databaseIP',
+      'databaseExtIP',
+      'databaseIntIP',
       'databaseUsername',
       'databasePassword',
       'databaseBackupType',
@@ -352,4 +354,59 @@ function transferBackup(id, id2) {
             alert('Something went wrong, please try again.');
         });
     }
+}
+
+
+function stopBackup(id) {
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for backup stop.')).slideDown();
+    var data = {'backupID': id};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/processStopBackupDatabase',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status == 1) {
+                    $alertBox.html(bootstrapAlert('success', 'Backup stop request sent successfully.')).slideDown();
+                }
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function stopTransfer(id) {
+    var $alertBox = $('#alertBox');
+    $alertBox.slideUp().html(bootstrapAlert('info', 'Sending request for transfer stop.')).slideDown();
+    var data = {'transferID': id};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/processStopBackupTransfer',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                if(response.status == 1) {
+                    $alertBox.html(bootstrapAlert('success', 'Transfer stop request sent successfully.')).slideDown();
+                }
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
 }

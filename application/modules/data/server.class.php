@@ -84,7 +84,7 @@ class Server extends \HC\Core
         return $response;
     }
 
-    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
+    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], &$errorDetails = [], $key = false, $auth = false, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -108,7 +108,12 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($handle, CURLOPT_HEADER, true);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1']);
+        $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
+        if($key && $auth) {
+            $headers[] = 'X-Hc-Auth-Code: ' . $auth->getCode($key);
+        }
+        
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
@@ -116,7 +121,7 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
-
+        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
@@ -156,7 +161,7 @@ class Server extends \HC\Core
                             $location['path'] .= '?' . $location['query'];
                         }
 
-                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
+                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $errorDetails, $key, $auth, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                         $extraData['redirect_count'] = $trips;
                         return $returnValue;
                     }
@@ -169,11 +174,23 @@ class Server extends \HC\Core
             $httpCode = $curlErrorCode;
         }
 
-        curl_close($handle);
+        
 
+        if($httpCode !== 200) {
+            $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+            $header = substr($curlResponse, 0, $header_size);
+            $body = substr($curlResponse, $header_size);
+            $json = json_decode($body, true);
+            if($json) {
+                $errorDetails = $json;
+            }
+        }
+
+        curl_close($handle);
+        
         if($httpCode !== 200 && $attempts < 3) {
             $attempts++;
-            return self::checkHTTP($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips, $attempts);
+            return self::checkHTTP($ip, $url, $returnCode, $extraData, $errorDetails, $key, $auth, $prefix , $suffix, $cookies, $trips, $attempts);
         } else if($returnCode) {
             return $httpCode;
         } else if($httpCode === 200) {
@@ -296,24 +313,29 @@ class Server extends \HC\Core
         if($users) {
             $email = new \HC\Email();
             $title = $data['Server Title'] . ' - ' . $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
-            $message = new \HC\Table(['style' => 'width: 100%;']);
-            $message->openHeader();
-            $message->openRow();
-            $message->column(['value' => 'Key']);
-            $message->column(['value' => 'Value']);
-            $message->closeRow();
-            $message->closeHeader();
-            $message->openBody();
+            $tableBody = <tbody></tbody>;
+            
             foreach($data as $key => $value) {
-                $message->openRow();
-                $message->column(['value' => $key]);
-                $message->column(['value' => $value]);
-                $message->closeRow();
+                $tableBody->appendChild(<tr>
+                    <td>{$key}</td>
+                    <td>{$value}</td>
+                </tr>);
             }
-            $message->closeBody();
+            
+            $message = <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            {$tableBody}
+                        </table>;
+            
+            $message = $message->__toString();
             
             foreach($users as $user) {
-                $email->send($user['email'], $title, $message->render(), ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
             }
         }
         return false;

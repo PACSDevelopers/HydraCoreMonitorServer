@@ -54,10 +54,8 @@ class HeaderView extends \HC\View {
                             {'google.load(\'visualization\', \'1.0\', {\'packages\':[\'corechart\']}); google.setOnLoadCallback(function(){$(document).trigger(\'chartDraw\');});'}
                         </script>
                         <script type="text/javascript">{'window.onload = function(){' . $onLoad . '};'}</script>
-                        
-                        {POTENTIAL_XSS_HOLE(HC\Page::generateResources($settings))}
+                        {HC\Page::generateResources($settings)}
                     </x:frag>;
-        
         return $header;
 
     }

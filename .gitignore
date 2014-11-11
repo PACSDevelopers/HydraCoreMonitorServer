@@ -36,4 +36,3 @@ tmp/processes/*
 *.log
 translations/*.res
 /vendor/*
-!/vendor/xhp/
