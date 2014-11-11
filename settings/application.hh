@@ -47,8 +47,8 @@
                 ],
                 'path' => '/resources/'
             ],
+            'HC\Hooks\PostReceive\GenerateErrorPages' => true,
             'HC\Hooks\PostReceive\Unlock' => true,
-            'HC\Hooks\PostReceive\GenerateErrorPages' => true
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [
