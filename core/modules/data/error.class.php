@@ -415,7 +415,13 @@
                     $logFile = '/var/log/hhvm/error.log';
                 }
 
-                file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
+                if(is_file($logFile)) {
+                    if(is_writable($logFile)) {
+                        file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
+                    }
+                } else {
+                    file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
+                }
             }
 
             if (!\HC\Site::checkProductionAccess()) {
