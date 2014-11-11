@@ -414,10 +414,8 @@
                 if(!$logFile || $logFile == '') {
                     $logFile = '/var/log/hhvm/error.log';
                 }
-                
-                if(is_writable($logFile)) {
-                    file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
-                }                
+
+                file_put_contents($logFile, json_encode($errorDetails) . PHP_EOL, \FILE_APPEND);
             }
 
             if (!\HC\Site::checkProductionAccess()) {
