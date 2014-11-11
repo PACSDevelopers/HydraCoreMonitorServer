@@ -85,7 +85,16 @@
               
               $db->beginTransaction();
 
+             
               foreach($result as $row) {
+                  $isUniuqeServer = true;
+                  
+                  if(isset($servers[$ip])) {
+                      $isUniuqeServer = false;
+                  } else {
+                      $servers[$ip] = true;
+                  }
+                  
                   $extraData = [
                       'redirect_count' => 0,
                   ];
@@ -121,8 +130,7 @@
 
                   $currentClientData = ['status' => $isValidConnection, 'serverID' => $row['serverID'], 'domainID' => $row['domainID'], 'responseTime' => $after, 'dateCreated' => $dateCreated, 'cpu' => 0, 'mem' => 0, 'iow' => 0, 'ds' => 0, 'net' => 0, 'rpm' => 0, 'tps' => 0, 'avgRespTime' => 0, 'qpm' => 0, 'avgTimeCpuBound' => 0];
                   
-                  if(isset($settings['domain']) && isset($settings['key']) && !isset($servers[$ip])) {
-                      $servers[$ip] = true;
+                  if(isset($settings['domain']) && isset($settings['key']) && $isUniuqeServer)) {
                       $ip = long2ip($row['ip']);
                       
                       $before2 = microtime(true);
@@ -145,6 +153,8 @@
                           $overview['qpm'][]             = $currentClientData['qpm']             = $tempClientData['result']['qpm'];
                           $overview['avgTimeCpuBound'][] = $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
                       }
+                      
+                      $db->write('server_history', $currentClientData);
                   }
 
                   if($isValidConnection !== 200) {
@@ -195,8 +205,6 @@
                           \HCMS\Server::alertDown($data);
                       }
                   }
-                  
-                  $db->write('server_history', $currentClientData);
               }
             
               $serverCount = count($result);
