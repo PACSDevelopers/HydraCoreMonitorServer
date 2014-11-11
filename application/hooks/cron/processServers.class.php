@@ -52,6 +52,8 @@
           }
           
           $db = new \HC\DB();
+          $db->query('SET SESSION innodb_lock_wait_timeout = 300;');
+          
           $result = $db->read([
               'servers' => 'S',
               'J.SM.server_mapping' => [
