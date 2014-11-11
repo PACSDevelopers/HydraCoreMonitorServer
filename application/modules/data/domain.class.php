@@ -106,7 +106,7 @@ class Domain extends \HC\Core
 
             $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
             if($key && $auth) {
-                $headers['X-Hc-Auth-Code'] = $auth->getCode($key);
+                $headers[] = 'X-Hc-Auth-Code: ' . $auth->getCode($key);
             }
 
             curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);

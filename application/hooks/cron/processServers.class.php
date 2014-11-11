@@ -172,9 +172,11 @@
                               $data['Error Description'] = $errorDetails['errorDescription'];
                               foreach($errorDetails['errorDetails'] as $key => $value) {
                                   if(is_array($value)) {
+                                      $tempVal = <small></small>;
                                       foreach($value as $key2 => $value2) {
-                                          $data['Error Details ' . $key . ' ' . $key2] = $value2;
+                                          $tempVal->appendChild(<x:frag>[{$key2}]{$value2}<br /></x:frag>);
                                       }
+                                      $data['Error Details ' . $key] = $tempVal;
                                   } else {
                                       $data['Error Details ' . $key] = $value;
                                   }
