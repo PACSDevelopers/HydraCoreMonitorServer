@@ -36,3 +36,4 @@ tmp/processes/*
 *.log
 translations/*.res
 /vendor/*
+settings/server.hh

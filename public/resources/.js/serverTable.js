@@ -21,7 +21,10 @@ function updateStatus($value) {
                 $value.removeClass('circle_question_mark').addClass('circle_exclamation_mark').css('color', '#E04A3F');
             }
         })
-        .fail(function() {
+        .fail(function(xhr) {
+            if(!xhr.getAllResponseHeaders()) {
+                return;
+            }
             // Tell user error
             $value.removeClass('circle_question_mark').addClass('circle_exclamation_mark').css('color', '#E04A3F');
         });
