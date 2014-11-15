@@ -5,7 +5,7 @@ namespace HCMS;
 class Session extends \HC\Core implements \SessionHandlerInterface
 {
     protected $connection = null;
-    static protected $lifetime = 3600;
+    static public $lifetime = 3600;
 
     function open($savePath, $sessionName)
     {

@@ -246,7 +246,7 @@
                                                                 </html>
                                                         </x:doctype>;
 											}	catch (\Exception $exception) {
-												Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 2, $exception->getTrace(), true);
+                                                Error::exceptionHandler($exception);
 												return true;
 											}
 										}

@@ -152,7 +152,7 @@ class DB extends Core
                 if($this->settings['throwExceptions']) {
                     throw $exception;
                 } else {
-                    Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                    Error::exceptionHandler($exception);
                 }                
             }
 
@@ -214,7 +214,7 @@ class DB extends Core
             if($this->settings['throwExceptions']) {
                 throw $exception;
             } else {
-                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                Error::exceptionHandler($exception);
             }
         }
 
@@ -410,7 +410,7 @@ class DB extends Core
             if($this->settings['throwExceptions']) {
                 throw $exception;
             } else {
-                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                Error::exceptionHandler($exception);
             }
         }
 
