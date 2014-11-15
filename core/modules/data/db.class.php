@@ -99,7 +99,7 @@ class DB extends Core
         $settings = $this->parseOptions($settings, $globalSettings['database']);
 
         // Parse default options
-        $settings = $this->parseOptions($settings, ['name' => false, 'timeout' => 60, 'useCache' => false, 'persistant' => false]);
+        $settings = $this->parseOptions($settings, ['name' => false, 'timeout' => 60, 'useCache' => false, 'persistant' => false, 'throwExceptions' => true]);
         $this->settings = $settings;
         
         $serializedSettings = json_encode($settings);
@@ -149,8 +149,11 @@ class DB extends Core
                 $this->connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, $this->defaultFetchType);
                 $this->connection->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, 'SET NAMES ' . DB_ENCODING);
             } catch (\PDOException $exception) {
-                // Trigger the error handler, based on exception details
-                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace());
+                if($this->settings['throwExceptions']) {
+                    throw $exception;
+                } else {
+                    Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                }                
             }
 
             return true;
@@ -208,8 +211,11 @@ class DB extends Core
             $success = $query->execute($values);
             $this->nonCPUBoundTime += (microtime(true) - $timeBefore);
         } catch (\PDOException $exception) {
-            // Trigger the error handler, based on exception details
-            Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace());
+            if($this->settings['throwExceptions']) {
+                throw $exception;
+            } else {
+                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+            }
         }
 
         // If we have any table modifications, run them
@@ -401,8 +407,11 @@ class DB extends Core
         try {
             $this->connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, $this->defaultFetchType);
         } catch (\PDOException $exception) {
-            // Trigger the error handler, based on exception details
-            Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace());
+            if($this->settings['throwExceptions']) {
+                throw $exception;
+            } else {
+                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+            }
         }
 
         return true;

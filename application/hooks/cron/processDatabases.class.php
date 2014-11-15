@@ -60,8 +60,6 @@
 
               $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => []];
               
-              $db->beginTransaction();
-              
               foreach($result as $row) {
                   $before = microtime(true);
                   $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['extIP']));
@@ -113,8 +111,6 @@
 
               $db->query('DELETE FROM `database_history` WHERE `dateCreated` < ?;', [$dateCreated]);
               $db->query('DELETE FROM `database_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
-              
-              $db->commit();
 
               echo 'Processed Databases' . PHP_EOL;
               

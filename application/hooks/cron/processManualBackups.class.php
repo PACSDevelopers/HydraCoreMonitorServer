@@ -78,7 +78,12 @@
                               $ipKey = 'intIP';
                           }
                           
-                          $status = \HCMS\Database::runBackup($row['id'], long2ip($row[$ipKey]), $this->settings['archive'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
+                          try {
+                              $status = \HCMS\Database::runBackup($row['id'], long2ip($row[$ipKey]), $this->settings['archive'], $row['username'], $row['password'], $row['backupType'], $row['backupID']);
+                          } catch (\Exception $e) {
+                              $status = false;
+                          }
+                          
                           
                           $after = microtime(true);
                           

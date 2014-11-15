@@ -81,7 +81,12 @@
                                   $ipKey = 'intIP';
                               }
                               
-                              $transfer = \HCMS\Database::transferBackup($row['id'], $this->settings['archive'], $row['backupID'], long2ip($row[$ipKey]), $row['username'], $row['password']);
+                              try {
+                                  $transfer = \HCMS\Database::transferBackup($row['id'], $this->settings['archive'], $row['backupID'], long2ip($row[$ipKey]), $row['username'], $row['password']);
+                              } catch(\Exception $e) {
+                                  $transfer = false;
+                              }
+                              
                               if($transfer) {
                                   echo 'Success: ' . $row['id'] . PHP_EOL;
                                   $status = $db->update('database_transfers', ['id' => $row['id']], ['status' => 3]);
