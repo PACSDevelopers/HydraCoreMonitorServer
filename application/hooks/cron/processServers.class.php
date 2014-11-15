@@ -82,9 +82,6 @@
               }
               
               $servers = [];
-              
-              $db->beginTransaction();
-
              
               foreach($result as $row) {
                   $isUniqueServer = true;
@@ -256,7 +253,6 @@
               
               $db->query('DELETE FROM `server_history` WHERE `dateCreated` < ?;', [$dateCreated]);
               $db->query('DELETE FROM `server_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
-              $db->commit();
 
               echo 'Processed Servers' . PHP_EOL;
 

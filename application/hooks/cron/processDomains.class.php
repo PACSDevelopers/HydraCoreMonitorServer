@@ -46,7 +46,16 @@
           echo 'Processing Domains' . PHP_EOL;
 
           $db = new \HC\DB();
-          $result = $db->read('domains', ['id', 'title', 'url'], ['status' => 1]);
+          $result = $db->query('SELECT 
+                                    `D`.`id`, `D`.`title`, `D`.`url`
+                                FROM
+                                    `domains` `D`
+                                LEFT JOIN `server_mapping` `SM` ON (`SM`.`domainID` = `D`.`id`)
+                                LEFT JOIN `servers` `S` ON (`S`.`id` = `SM`.`serverID`)
+                                WHERE
+                                    `D`.`status` = 1
+                                AND
+                                    (`SM`.`serverID` IS NULL || `S`.`status` = 0);');
           if($result) {
               $settings = [];
               $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
@@ -68,8 +77,6 @@
                   $authenticator = new \HC\Authenticator();
                   $authenticator->setCodeLength(9);
               }
-              
-              $db->beginTransaction();
 
               foreach($result as $row) {
                   $extraData = [
@@ -169,8 +176,6 @@
 
               $db->query('DELETE FROM `domain_history` WHERE `dateCreated` < ?;', [$dateCreated]);
               $db->query('DELETE FROM `domain_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
-              
-              $db->commit();
 
               echo 'Processed Domains' . PHP_EOL;
 

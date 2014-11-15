@@ -29,13 +29,6 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
                     break;
             }
 
-            $dateTokens = explode('.', $current);
-            if(!isset($dateTokens[1])) {
-                $dateTokens[1] = 0;
-            }
-
-            $currentDate = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-
             $dateTokens = explode('.', $current24);
             if(!isset($dateTokens[1])) {
                 $dateTokens[1] = 0;
@@ -44,7 +37,7 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated` FROM `domain_history` `DH` WHERE `DH`.`domainID` = ? AND `DH`.`dateCreated` < ? AND `DH`.`dateCreated` > ?;', [$POST['domainID'], $currentDate, $currentDate24]);
+            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated` FROM `domain_history` `DH` WHERE `DH`.`domainID` = ? AND `DH`.`dateCreated` > ?;', [$POST['domainID'], $currentDate24]);
 
             if($result == false) {
                 $result = [];
