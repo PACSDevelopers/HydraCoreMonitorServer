@@ -68,6 +68,27 @@ function drawHCStats() {
     resourcesElement.innerHTML = 'Resources: ' + (numberOfScripts + numberOfStylesheets + numberOfImages) + ' (' + numberOfScripts + ', ' + numberOfStylesheets + ', ' + numberOfImages + ')';
 }
 
+$.xhrPool = [];
+$.xhrPool.abortAll = function() {
+    $(this).each(function(idx, jqXHR) {
+        jqXHR.abort();
+    });
+    $.xhrPool = [];
+};
+
+$.ajaxSetup({
+    beforeSend: function(jqXHR) {
+        $.xhrPool.push(jqXHR);
+    },
+    complete: function(jqXHR) {
+        var index = $.inArray(jqXHR, $.xhrPool);
+        if (index > -1) {
+            $.xhrPool.splice(index, 1);
+        }
+    }
+});
+
+
 $(document).ready(function (){
 
 	// Enable the polyfills that are needed
@@ -140,6 +161,10 @@ $(document).ready(function (){
         var val = $(this).val();
         val = val.toLowerCase();
         $(this).val(val);
+    });
+
+    $(window).bind('beforeunload', function () {
+        $.xhrPool.abortAll();
     });
     
 });

@@ -18,16 +18,19 @@
 
             spl_autoload_register('\HCMS\Core::autoLoader');
 
-            if(PROTOCOL === 'https') {
-                ini_set('session.use_only_cookies', 1);
-                ini_set('session.cookie_secure', 1);
+            if(PHP_SAPI !== 'cli') {
+                if(PROTOCOL === 'https') {
+                    ini_set('session.use_only_cookies', 1);
+                    ini_set('session.cookie_secure', 1);
+                }
+                
+                $handler = new Session();
+                session_set_save_handler($handler, true);
+                \HC\User::startSession();
+                $db = new \HC\DB();
+                $db->update('sessions', ['hash' => session_id()], ['lifeTime' => time() + Session::$lifetime]);
             }
-
-            // Bind Session Handler
-            $handler = new Session();
-            session_set_save_handler($handler, true);
-            \HC\User::startSession();
-
+            
             return true;
         }
 

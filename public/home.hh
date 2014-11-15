@@ -13,7 +13,6 @@ class HomePage extends \HC\Page {
 					'extenders' => true,
 					'main' => true,
 					'bootstrap-functions' => true,
-					'home' => true,
                     'dashboard' => true
 				]
 			],

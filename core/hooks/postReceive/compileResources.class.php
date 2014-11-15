@@ -52,6 +52,10 @@
 		public function run()
 
 		{
+            
+            if(ENVIRONMENT === 'DEV') {
+                return true;
+            }
 
 			// Get the resource path
 			if (isset($this->settings)) {

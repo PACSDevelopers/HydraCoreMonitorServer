@@ -379,18 +379,20 @@
             }
             
             $errorDesc = self::friendlyErrorType($errno);
-            
-            if($customError) {
-                $errorDesc .= '[' . $errno . '] ' . $customError . ', ' . $errstr . ' on line ';
-            } else {
-                if ($isException) {
-                    $errorDesc .= 'Uncaught Exception with message "' . $errstr . '" on line ';
 
+            if ($isException) {
+                if($customError) {
+                    $errorDesc .= '[' . $errno . '] Uncaught Exception "' . $customError . '" with message "' . $errstr . '" on line ';
+                } else {
+                    $errorDesc .= '[' . $errno . '] Uncaught Exception with message "' . $errstr . '" on line ';
+                }
+            } else {
+                if($customError) {
+                    $errorDesc .= '[' . $errno . '] ' . $customError . ', ' . $errstr . ' on line ';
                 } else {
                     $errorDesc .= '[' . $errno . '] ' . $errstr . ' on line ';
                 }
             }
-
 
             $errorDesc .= $errline . ' of ' . $errfile;
 
@@ -541,7 +543,7 @@
                     $error = new \HC\Error();
                     $error->generateErrorPage(500, $errorDetails);
                 } catch (\Exception $exception) {
-                    Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                    Error::exceptionHandler($exception);
                 }
             }
 
@@ -638,10 +640,8 @@
         public static function exceptionHandler($exception, $skipTrace = 0)
 
         {
-
             // Trigger the error handler, based on exception details
-            Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), $skipTrace, $exception->getTrace(), true);
-
+            Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), $skipTrace, $exception->getTrace(), true, get_class($exception));
             return true;
 
         }
@@ -791,7 +791,7 @@
                     echo $errorPage->render();
                 }
             } catch (\Exception $exception) {
-                Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                Error::exceptionHandler($exception);
             }
             
             if($skips) {
