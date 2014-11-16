@@ -234,6 +234,9 @@
 					// Loop through each file
 					foreach ($result as $row => $value) {
 
+                        if(substr(basename($value), 0, 1) === '_') {
+                            continue;
+                        }
 
 
 						// Define where the new compiled file is going
@@ -248,7 +251,7 @@
 						$newTruePath = $realDirectoyPath . '/' . $newPath;
                         
 
-						if (!$this->checkFileChanged($oldTruePath)) {
+						if (file_exists($newTruePath) && !$this->checkFileChanged($oldTruePath)) {
 
 							continue;
 
@@ -321,8 +324,10 @@
 					// Loop through each file
 					foreach ($result as $row => $value) {
 
-
-
+                        if(substr(basename($value), 0, 1) === '_') {
+                            continue;
+                        }
+                        
 						// Define where the new compiled file is going
 						$oldPath = '.scss/' . $value;
 
@@ -333,7 +338,7 @@
 						$newTruePath = $realDirectoyPath . '/' . $newPath;
 
 
-                        if (!$this->checkFileChanged($oldTruePath)) {
+                        if (file_exists($newTruePath) && !$this->checkFileChanged($oldTruePath)) {
 
                             continue;
 
@@ -416,6 +421,10 @@
 					// Loop through each file
 					foreach ($result as $row => $value) {
 
+                        if(substr(basename($value), 0, 1) === '_') {
+                            continue;
+                        }
+
 
 
 						// Define where the new compiled file is going
@@ -431,7 +440,7 @@
 
 
 
-                        if (!$this->checkFileChanged($oldTruePath)) {
+                        if (file_exists($newTruePath) && !$this->checkFileChanged($oldTruePath)) {
 
                             continue;
 
@@ -516,9 +525,7 @@
 
 			// Run the command
 			exec($command, $output, $returnCode);
-
-
-
+            
 			// Return if the command failed
 			if ($returnCode !== 0) {
 
