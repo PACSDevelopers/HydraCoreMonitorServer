@@ -176,6 +176,11 @@
                 }
             }
 
+            if(PHP_SAPI !== 'cli') {
+                http_response_code(200);
+                ob_start();
+            }
+
             return true;
 
         }
@@ -318,6 +323,29 @@
                     }
                 }
 
+            }
+
+            
+            if(function_exists('getallheaders')) {
+                if(http_response_code() === 200) {
+                    $headers = \getallheaders();
+                    $contents = ob_get_contents();
+                    if($contents) {
+                        $md5 = md5($contents);
+                        if(isset($headers['If-None-Match'])) {
+                            if($headers['If-None-Match'] === $md5) {
+                                ob_end_clean();
+                                header('HTTP/1.1 304 Not Modified');
+                            }
+                        }
+
+                        header('Pragma: public');
+                        header('Content-Length: ' . mb_strlen($contents));
+                        header('ETag: '. $md5);
+                        header('Cache-Control: max-age=' . strtotime('+1 year', time()));
+                        header('Expires: ' . strtotime('+1 year', time()));
+                    }
+                }
             }
 
             $GLOBALS['skipShutdown'] = true;
