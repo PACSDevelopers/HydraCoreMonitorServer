@@ -4,4 +4,7 @@
     if(file_exists(__DIR__ . '/server.hh')) {
         require_once(__DIR__ . '/server.hh');
     }
+    if(file_exists(__DIR__ . '/bower.hh')) {
+        require_once(__DIR__ . '/bower.hh');
+    }
     

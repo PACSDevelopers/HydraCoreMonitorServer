@@ -52,10 +52,6 @@
 		public function run()
 
 		{
-            
-            if(ENVIRONMENT === 'DEV') {
-                return true;
-            }
 
 			// Get the resource path
 			if (isset($this->settings)) {
@@ -524,11 +520,11 @@
 
 
 			// Run the command
-			exec($command, $output, $returnCode);
+			$line = exec($command, $output, $returnCode);
             
 			// Return if the command failed
 			if ($returnCode !== 0) {
-
+                var_dump($command, $line, $output, $returnCode);
 				return false;
 
 			}
