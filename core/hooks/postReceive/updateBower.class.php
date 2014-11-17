@@ -50,10 +50,14 @@
             $cwd = getcwd();
 
             chdir(HC_LOCATION);
-            
-            $command = 'cd ' . HC_LOCATION . ' && npm update -g --unsafe-perm npm --quiet';
-            passthru($command, $returnCode);
 
+            if (0 == posix_getuid()) {
+                $command = 'cd ' . HC_LOCATION . ' && npm update -g --unsafe-perm npm --quiet';
+                passthru($command, $returnCode);
+            } else {
+                $returnCode = 0;
+            }
+            
             if($returnCode === 0) {
                 if(file_exists(HC_LOCATION . '/package.json')) {
                     echo 'Installing NPM Packages' . PHP_EOL;
