@@ -176,8 +176,10 @@
                 }
             }
 
-            http_response_code(200);
-            ob_start();
+            if(PHP_SAPI !== 'cli') {
+                http_response_code(200);
+                ob_start();
+            }
 
             return true;
 

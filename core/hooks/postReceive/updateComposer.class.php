@@ -56,8 +56,9 @@
                 }
             } else {
                 echo 'Updating Composer' . PHP_EOL;
-                $command = 'hhvm /tmp/composer.phar self-update';
-                passthru($command, $returnCode);
+                $command = 'hhvm /tmp/composer.phar self-update &> /dev/null;';
+                $output = [];
+                exec($command, $output, $returnCode);
                 
                 if($returnCode !== 0) {
                     echo 'Failed to update Composer' . PHP_EOL;
@@ -75,13 +76,13 @@
             chdir(HC_LOCATION);
             
             if(ENVIRONMENT === 'DEV') {
-                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n';
+                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n &> /dev/null;';
             } else {
-                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n --no-dev';
+                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n --no-dev &> /dev/null;';
             }
             
-    
-            passthru($command, $returnCode);
+            $output = [];
+            exec($command, $output, $returnCode);
     
             chdir($cwd);
             
