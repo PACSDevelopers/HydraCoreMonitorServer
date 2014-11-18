@@ -726,12 +726,6 @@
                     'views' => [
                         'header' => [
                             'pageName' => 'Error',
-                            'scss' => [
-                                'main' => true
-                            ],
-                            'js' => [
-                                'main' => true
-                            ]
                         ],
                         'body'   => true,
                         'footer' => true

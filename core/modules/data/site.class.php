@@ -339,11 +339,12 @@
                             }
                         }
 
-                        header('Pragma: public');
-                        header('Content-Length: ' . mb_strlen($contents));
-                        header('ETag: '. $md5);
-                        header('Cache-Control: max-age=' . strtotime('+1 year', time()));
-                        header('Expires: ' . strtotime('+1 year', time()));
+                        header('Pragma: public', true);
+                        header('Content-Length: ' . mb_strlen($contents), true);
+                        header('ETag: '. $md5, true);
+                        header_remove('cache-control');
+                        header_remove('expires');
+                        header_remove('last-modified');
                     }
                 }
             }
