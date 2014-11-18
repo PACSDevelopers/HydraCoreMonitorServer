@@ -161,7 +161,7 @@ class Domain extends \HC\Core
         if(isset(\HC\Error::$errorTitle[$data['Code']])) {
             $data['Code Message'] = \HC\Error::$errorTitle[$data['Code']];
         } else {
-            $data['Code Message'] = HC\Error::curl_strerror($data['Code']);
+            $data['Code Message'] = \HC\Error::curl_strerror($data['Code']);
         }
         
         $db = new \HC\DB();
