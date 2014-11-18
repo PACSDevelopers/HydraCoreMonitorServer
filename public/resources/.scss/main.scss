@@ -271,3 +271,8 @@ header {
   -ms-user-select: none;
   user-select: none;
 }
+
+.modal-dialog, .table-responsive {
+  z-index: 99999999;
+  overflow: visible;
+}

@@ -17,6 +17,9 @@
             'js' => [
                 'main' => true
             ],
+            'scss' => [
+                'main' => true
+            ],
             'less' => [
                 'fonts' => true
             ]
