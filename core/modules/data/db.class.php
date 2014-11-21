@@ -72,34 +72,25 @@ class DB extends Core
         // Parse global / local options
         $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
 
-        if(!count($globalSettings['database'])) {
+        if(empty($globalSettings['database'])) {
             throw new \Exception('Unable to find database settings');
         }
 
-        if(!(bool)count(array_filter(array_keys($globalSettings['database']), 'is_string'))) {
-            $found = false;
-            if(isset($settings['name'])) {
-                foreach($globalSettings['database'] as $database) {
-                    if(isset($database['name']) && ($database['name'] === $settings['name'])) {
-                        $globalSettings['database'] = $database;
-                        $found = true;
-                    }
-                }
-
-                if(!$found) {
-                    throw new \Exception('Unable to find database settings for: ' . $settings['name']);
-                }
+        if(isset($settings['name'])) {
+            if(isset($globalSettings['database'][$settings['name']])) {
+                $globalSettings['database'] = $globalSettings['database'][$settings['name']];
             }
-
-            if(!$found) {
-                $globalSettings['database'] = $globalSettings['database'][0];
+        } else {
+            $globalSettings['database'] = reset($globalSettings['database']);
+            if(!$globalSettings['database']) {
+                throw new \Exception('No database is defined');
             }
         }
 
         $settings = $this->parseOptions($settings, $globalSettings['database']);
 
         // Parse default options
-        $settings = $this->parseOptions($settings, ['name' => false, 'timeout' => 60, 'useCache' => false, 'persistant' => false, 'throwExceptions' => true]);
+        $settings = $this->parseOptions($settings, ['name' => false, 'timeout' => 60, 'useCache' => false, 'persistant' => false, 'throwExceptions' => true, 'engine' => 'mysql']);
         $this->settings = $settings;
         
         $serializedSettings = json_encode($settings);
@@ -136,18 +127,20 @@ class DB extends Core
     public function connect()
     {
         if ($this->connection === null) {
-            if (!isset($this->settings['engine'])) {
-                throw new \Exception('You must select a database driver');
-            }
-
             try {
+                $dsn  = $this->settings['engine'];
+                $dsn .= ':dbname=' . $this->settings['databasename'];
+                $dsn .=';host=' . $this->settings['host'];
+                    
+                    
                 // Create connection from settings defined
-                $this->connection = new \PDO($this->settings['engine'] . ':dbname=' . $this->settings['databasename'] . ';host=' . $this->settings['host'], $this->settings['username'], $this->settings['password']);
-                $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                $this->connection->setAttribute(\PDO::ATTR_TIMEOUT, $this->settings['timeout']);
-                $this->connection->setAttribute(\PDO::ATTR_PERSISTENT, $this->settings['persistant']);
-                $this->connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, $this->defaultFetchType);
-                $this->connection->setAttribute(\PDO::MYSQL_ATTR_INIT_COMMAND, 'SET NAMES ' . DB_ENCODING);
+                $this->connection = new \PDO($dsn, $this->settings['username'], $this->settings['password'], [
+                    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                    \PDO::ATTR_TIMEOUT => $this->settings['timeout'],
+                    \PDO::ATTR_PERSISTENT => $this->settings['persistant'],
+                    \PDO::ATTR_DEFAULT_FETCH_MODE => $this->defaultFetchType,
+                    \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES ' . DB_ENCODING
+                ]);
             } catch (\PDOException $exception) {
                 if($this->settings['throwExceptions']) {
                     throw $exception;
@@ -184,25 +177,27 @@ class DB extends Core
      * @throws \Exception
      */
     public function query($sql, $values = [], $fetchType = -1, $bypassCache = false, $tableModifications = false) {
+        if ($this->connection === null) {
+            $this->connect();
+        }
+        
         // Clean up the query
         $sql = $this->cleanUpQuery($sql);
 
-        // If this is a select
         $isSelect = self::isSelect($sql);
-        if($isSelect) {
-            // Check the cache
-            if(!$bypassCache) {
-                if($this->settings['useCache']) {
-                    return $this->cachedQuery($sql, $values, $fetchType);
-                }
-            }
-            $tableModifications = false;
-        } else {
-            if(!$tableModifications) {
+        
+        if($this->settings['useCache']) {
+            // If this is a select
+            if($isSelect && !$bypassCache) {
+                return $this->cachedQuery($sql, $values, $fetchType);
+            } else if(!$tableModifications) {
                 // Prepare the table modifications
                 $tableModifications = $this->prepareTableModification($sql);
+            } else {
+                $tableModifications = false;
             }
         }
+        
 
         // Run the query
         try {
@@ -211,6 +206,12 @@ class DB extends Core
             $success = $query->execute($values);
             $this->nonCPUBoundTime += (microtime(true) - $timeBefore);
         } catch (\PDOException $exception) {
+            if($exception->getCode() === 'HY000') {
+                $this->connection = null;
+                $this->connect();
+                return $this->query($sql, $values, $fetchType, $bypassCache, $tableModifications);
+            }
+            
             if($this->settings['throwExceptions']) {
                 throw $exception;
             } else {
@@ -328,7 +329,7 @@ class DB extends Core
     }
 
     public static function isSelect($sql) {
-        return (bool)preg_match('/SELECT/mi', $sql);
+        return (stripos($sql, 'SELECT') !== false);
     }
 
     private function prepareTableModification($sql) {
