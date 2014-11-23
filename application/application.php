@@ -50,6 +50,9 @@
                 case 'HCMS\Database':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/database.class.php');
                     break;
+                case 'HCMS\Template':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/template.class.php');
+                    break;
                 
                 /* Hooks */
                 case 'HCMS\Hooks\Cron\ProcessDatabases':
