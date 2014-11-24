@@ -700,5 +700,7 @@ function importTemplate(databaseID, schema) {
 
 
 $(document).ready(function(){
-    loadTables();
+    if($('#templateID').val()) {
+        loadTables();
+    }
 });

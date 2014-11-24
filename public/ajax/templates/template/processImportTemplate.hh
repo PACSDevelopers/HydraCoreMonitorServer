@@ -45,6 +45,7 @@ class ProcessImportTemplateAjax extends \HC\Ajax {
                                             $alias = str_replace('id', 'ID', $alias);
                                             $alias = str_replace('Id', 'ID', $alias);
                                             $alias = ucwords($alias);
+                                            $alias = str_replace('#', ' #', $alias);
                                             $db->write('data_template_columns', ['templateID' => $POST['data']['templateID'], 'tableID' => $tableID, 'name' => $column, 'alias' => $alias]);
                                         }
                                     }
