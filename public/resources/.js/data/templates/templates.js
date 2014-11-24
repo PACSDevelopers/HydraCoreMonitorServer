@@ -69,18 +69,15 @@ function updateTemplate() {
     inputs.forEach(function(value) {
         switch (checkFormElement('#' + value)) {
             case true:
-                console.log(true, value);
                 data[value] = getInputValue('#' + value);
                 submitThis = true;
                 break;
             default:
-                console.log(false, value);
                 // Skip value
                 break;
         }
     });
 
-    console.log(submitThis);
     if (submitThis) {
         // Append template ID
         data['templateID'] = $('#templateID').val();
@@ -236,7 +233,6 @@ function bindEvents() {
         var $table = $column.parent().parent();
         var columnID = $column.attr('data-id');
         var tableID = $table.attr('data-id');
-        console.log(columnID, tableID);
         var columnName = $this.val();
         $('.tableColumn' + columnID + 'Option').text(columnName);
 
@@ -363,7 +359,6 @@ function addColumn(element) {
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
-                console.log(response);
                 var html = '<div id="table' + id + 'Column' + response['id'] + '" data-id="' + response['id'] + '" class="form-group tableColumn"><div class="col-sm-11"><div class="col-sm-3"><input type="text" value="" id="table' + id + 'Column' + response['id'] + 'Name" class="form-control tableColumnName user-success"></div><div class="col-sm-3"><input type="text" value="" id="table' + id + 'Column' + response['id'] + 'Alias" class="form-control tableColumnAlias"></div><div class="col-sm-3"><select type="text" value="" id="table' + id + 'Column' + response['id'] + 'RelatedTable" data-orgvalue="0" class="form-control tableColumnRelatedTable user-success"><option value="0" selected="selected">None</option></select></div><div class="col-sm-3"><select type="text" id="table' + id + 'Column' + response['id'] + 'RelatedColumn" data-orgvalue="0" class="form-control tableColumnRelatedColumn"><option value="0" selected="selected">None</option></select></div></div><div class="col-sm-1"><button type="button" class="btn btn-default removeColumn pull-right" data-id="' + response['id'] + '"><span class="glyphicons remove"></span></button></div><div class="clearfix"></div><br /></div>';
                 var columnsElement = element.parent().children('.tableColumns');
                 columnsElement.append(html);
@@ -399,7 +394,6 @@ function addTable() {
     })
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
-                console.log(response);
                 var html = '<div id="table' + response['id'] + '" data-id="' + response['id'] + '" class="row"><div class="form-group"><label class="col-sm-6 control-label">Table Name</label><label class="col-sm-6 control-label">Table Alias</label></div><div class="form-group"><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Name" class="form-control tableName user-success"></div><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Alias" class="form-control tableAlias"></div></div><div class="clearfix"></div><br><div id="table' + response['id'] + 'Columns" class="row tableColumns"><div class="form-group"><label class="col-sm-3 control-label">Column Name</label><label class="col-sm-3 control-label">Column Alias</label><label class="col-sm-3 control-label">Related Table</label><label class="col-sm-3 control-label">Related Column</label></div></div><button type="button" class="btn btn-default removeTable pull-right">Remove Table</button><button type="button" class="btn btn-default addColumn pull-right" style="margin-right: 10px;">Add Column</button><div class="clearfix"></div><br></div>';
                         
                 window.tableColumns[response['id']] = [];
