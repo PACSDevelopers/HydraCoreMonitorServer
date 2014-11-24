@@ -176,6 +176,11 @@ function bindEvents() {
     $(document).on('change', '.tableColumnRelatedTable', function(){
         var $this = $(this);
         var id = $this.val();
+        var orgValue = $this.attr('data-orgvalue');
+        if(id != orgValue) {
+            $this.attr('data-orgvalue', id);
+            updateColumn({'tableColumnRelatedTable': id}, $this);
+        }
         
         var column = $this.parent().parent().parent();
         var columnID = column.attr('data-id');
@@ -215,14 +220,41 @@ function bindEvents() {
         var $this = $(this);
         var $table = $this.parent().parent().parent();
         var tableID = $table.attr('data-id');
-        $('.table' + tableID + 'Option').text($this.val());
+        var tableName = $this.val();
+        $('.table' + tableID + 'Option').text(tableName);
+
+        window.templateData.forEach(function(value, index){
+           if(value['id'] == tableID) {
+               window.templateData[index]['name'] = tableName;
+           } 
+        });
     });
     
     $(document).on('keyup', '.tableColumnName', function(){
         var $this = $(this);
-        var $table = $this.parent().parent().parent();
-        var columnID = $table.attr('data-id');
-        $('.tableColumn' + columnID + 'Option').text($this.val());
+        var $column = $this.parent().parent().parent();
+        var $table = $column.parent().parent();
+        var columnID = $column.attr('data-id');
+        var tableID = $table.attr('data-id');
+        console.log(columnID, tableID);
+        var columnName = $this.val();
+        $('.tableColumn' + columnID + 'Option').text(columnName);
+
+        window.tableColumns[tableID].forEach(function(value, index){
+           if(value['id'] == columnID) {
+               window.tableColumns[tableID][index]['name'] = columnName;
+           }
+        });
+
+        window.templateData.forEach(function(value, index){
+            if(value['id'] == tableID) {
+                value['columns'].forEach(function(value2, index2){
+                    if(value2['id'] == columnID) {
+                        window.templateData[index]['columns'][index2]['name'] = columnName;
+                    }
+                });
+            }
+        });
     });
 
     $(document).on('click', '.removeColumn', function(){
@@ -240,6 +272,80 @@ function bindEvents() {
     $(document).on('click', '.addTable', function(){
         addTable();
     });
+
+
+    $(document).on('change', '.tableName', function() {
+        var $this = $(this);
+        updateTable({'tableName': $this.val()}, $this);
+    });
+
+    $(document).on('change', '.tableAlias', function() {
+        var $this = $(this);
+        updateTable({'tableAlias': $this.val()}, $this);
+    });
+
+    $(document).on('change', '.tableColumnName', function() {
+        var $this = $(this);
+        updateColumn({'tableColumnName': $this.val()}, $this);
+    });
+
+    $(document).on('change', '.tableColumnAlias', function() {
+        var $this = $(this);
+        updateColumn({'tableColumnAlias': $this.val()}, $this);
+    });
+
+    $(document).on('change', '.tableColumnRelatedColumn', function() {
+        var $this = $(this);
+        updateColumn({'tableColumnRelatedColumn': $this.val()}, $this);
+    });
+}
+
+function updateTable(data, element) {
+    var $alertBox = $('#alertBox');
+    var parent = element.parent().parent().parent();
+    var id = parent.attr('data-id');
+    data['tableID'] = id;
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/templates/table/update',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function updateColumn(data, element) {
+    var $alertBox = $('#alertBox');
+    var parent = element.parent().parent().parent();
+    var id = parent.attr('data-id');
+    data['columnID'] = id;
+    
+    $.ajax({
+        type: "POST",
+        url: '/ajax/templates/column/update',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
 }
 
 function addColumn(element) {
