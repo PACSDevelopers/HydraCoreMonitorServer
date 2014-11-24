@@ -29,6 +29,7 @@
             '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
             '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
             '@^/downloads/backups/(?<id>\d+)$@' => '/downloads/backups.hh',
+            '@^/data/templates/(?<id>\d+)$@' => '/data/templates/template.hh',
         ]
     ];
 

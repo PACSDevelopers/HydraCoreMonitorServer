@@ -333,7 +333,7 @@
             }
             return false;
         }
-
+        
         /**
          * @param $errno
          * @param $errstr
@@ -436,6 +436,19 @@
                 $traceFirstLine = self::getErrorLine($errfile, $errline);
                 array_unshift($errorDetails['Trace'], $traceFirstLine);
             }
+
+            $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+            if(isset($globalSettings['keys']) && isset($globalSettings['keys']['github'])) {
+                $client = new \Github\Client();
+                $client->authenticate($globalSettings['keys']['github'], NULL, \Github\Client::AUTH_HTTP_TOKEN);
+
+                $errorDetails['Change Log'] = [];
+                $commits = $client->api('repo')->commits()->all(REPO_USER, REPO_NAME, array('sha' => 'master', 'path' => str_replace(HC_LOCATION . '/', '', $errfile)));
+
+                foreach($commits as $key => $val) {
+                    $errorDetails['Change Log'][] = $val['commit']['author']['name'] . ' - ' . $val['commit']['author']['date'] . ' - ' . $val['commit']['message'];
+                }
+            }
             
             if(isset($_SESSION)) {
                 $safeSession = self::protectArray($_SESSION);
@@ -472,7 +485,7 @@
                 $data = $errorDetails;
                 unset($data['Timestamp']);
                 
-                $data = $encryption->encrypt(json_encode($data), 'HC_ERROR_' . $errorDetails['Hash']);
+                $data = $encryption->encrypt(json_encode($data), 'HC_ERROR_' . $errorDetails['ID']);
 
                 // If could be encrypted
                 if ($data) {
@@ -559,6 +572,7 @@
             }
         }
 
+        <<__Memoize>>
         protected static function friendlyErrorType($type)
         {
             $return = '';
@@ -596,6 +610,7 @@
             return mb_substr($return,2);
         }
 
+        <<__Memoize>>
         protected static function friendlyErrorTypeInt($type)
         {
             if($type & E_ERROR) // 1 //
@@ -646,7 +661,7 @@
 
         }
 
-        public static function checkPHPSyntax($file) {
+        public static function checkPHPSyntax($file, $throwError = true) {
 
             // Check it's valid syntax
             $file = realpath($file);
@@ -655,18 +670,21 @@
             exec('hhvm -l ' . escapeshellarg($file), $output, $return_var);
 
             if($return_var === 1) {
-                $lastnum = 0;
-                $result = implode($output);
+                if($throwError) {
+                    $lastnum = 0;
+                    $result = implode($output);
 
-                if(preg_match_all('/\d+/', $result, $numbers)) {
-                    $lastnum = end($numbers[0]);
+                    if(preg_match_all('/\d+/', $result, $numbers)) {
+                        $lastnum = end($numbers[0]);
+                    }
+
+                    $result = str_replace('Fatal error: syntax error, ', '', $result);
+                    $result = str_replace(' in ' . $file . ' on line ' . $lastnum, '', $result);
+                    $result = ucfirst($result);
+
+                    Error::errorHandler(E_PARSE, $result, $file, $lastnum, 2, [], false, 'Syntax Error');
                 }
-
-                $result = str_replace('Fatal error: syntax error, ', '', $result);
-                $result = str_replace(' in ' . $file . ' on line ' . $lastnum, '', $result);
-                $result = ucfirst($result);
-
-                Error::errorHandler(E_PARSE, $result, $file, $lastnum, 2, [], false, 'Syntax Error');
+                
                 return false;
             }
 
