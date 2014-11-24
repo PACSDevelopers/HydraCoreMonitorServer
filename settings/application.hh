@@ -8,6 +8,7 @@
     const AUTHOR = 'Ryan Howell';
     const REGISTER_SHUTDOWN = true;
     const MODE = 'MVC';
+    const LOGIN_PAGE = 'login';
 
     /**
      * Pages

@@ -31,6 +31,12 @@ class ProcessLoginAjax extends \HC\Ajax {
                                     $response['user']['loggedIn'] = 1;
                                     $response['user']['f'] = $tempUser->getUserData()['firstName'];
                                     $response['user']['l'] = $tempUser->getUserData()['lastName'];
+                                    if(isset($_SESSION['desiredLoginPage'])) {
+                                        $response['url'] = $_SESSION['desiredLoginPage'];
+                                        unset($_SESSION['desiredLoginPage']);
+                                    } else {
+                                        $response['url'] = '/home';
+                                    }
                                 } else {
                                     $response['errors']['e7'] = true;
                                 }

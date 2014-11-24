@@ -90,8 +90,10 @@ class Session extends \HC\Core implements \SessionHandlerInterface
             if($isLoggedIn) {
                 header('Location: /timeout', true, 302);
             } else {
-                header('Location: /', true, 302);
+                header('Location: /' . LOGIN_PAGE, true, 302);
             }
+            
+            $_SESSION['desiredLoginPage'] = PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
             return true;
         }
 
