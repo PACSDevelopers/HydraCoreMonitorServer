@@ -25,6 +25,10 @@ class UpdateAjax extends \HC\Ajax {
                     'tableColumnRelatedColumn' => 'relationColumn',
                 ];
 
+                if(isset($POST['data']['tableColumnRelatedTable']) && $POST['data']['tableColumnRelatedTable'] == 0) {
+                    $POST['data']['tableColumnRelatedColumn'] = 0;
+                }
+                
                 $data = [];
                 foreach($POST['data'] as $key => $value) {
                     if(isset($updateKeys[$key])) {
@@ -35,6 +39,7 @@ class UpdateAjax extends \HC\Ajax {
                         }
                     }
                 }
+                
 
                 $db = new \HC\DB();
                 $query = $db->update('data_template_columns', ['id' => $POST['data']['columnID']], $data);

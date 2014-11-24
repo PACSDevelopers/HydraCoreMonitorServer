@@ -28,7 +28,7 @@ class TemplatesPage extends \HC\Page {
 	public function init() {
         
         if($_SESSION['user']->hasPermission('Create')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary pull-right" href="/data/templates/create">Create Template</a>];
+            $this->settings['views']['body']['headerButtonsRight'][] = <a class="btn btn-primary pull-right" href="/data/templates/create">Create Template</a>;
         }
 
         $db = new \HC\DB();

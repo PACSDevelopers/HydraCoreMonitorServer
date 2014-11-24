@@ -21,7 +21,7 @@ class LoadAllAjax extends \HC\Ajax {
 		if(count($response['errors']) == 0){
             if(isset($POST['data']['templateID'])) {
                 $db = new \HC\DB();
-                $result = $db->read('data_template_tables', ['id', 'name', 'alias'], ['templateID' => $POST['data']['templateID']]);
+                $result = $db->query('SELECT `id`, `name`, `alias` FROM `data_template_tables` WHERE `templateID` = ? ORDER BY `name`;', [$POST['data']['templateID']]);
                 
                 if($result){
                     foreach($result as $key => $row) {

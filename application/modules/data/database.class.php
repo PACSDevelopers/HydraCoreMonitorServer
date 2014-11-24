@@ -255,6 +255,37 @@ class Database extends \HC\Core
         return $response;
     }
     
+    public function getDatabaseConnection($databasename = 'mysql') {
+        try {
+            return new \HC\DB(['databasename' => $databasename, 'host' => long2ip($this->intIP), 'username' => $this->username, 'password' => $this->password]);
+        } catch (\Exception $e) {
+            var_dump($e);
+            return false;
+        }
+    }
+    
+    public function getSchema($name) {
+        $tempDB = $this->getDatabaseConnection('INFORMATION_SCHEMA');
+        if($tempDB) {
+            $tables = $tempDB->read('COLUMNS', ['TABLE_NAME', 'COLUMN_NAME'], ['TABLE_SCHEMA' => $name]);
+            $schema = [];
+            if($tables) {
+                foreach($tables as $row) {
+                    if(!isset($schema[$row['TABLE_NAME']])) {
+                        $schema[$row['TABLE_NAME']] = [$row['COLUMN_NAME']];
+                    } else {
+                        $schema[$row['TABLE_NAME']][] = $row['COLUMN_NAME'];
+                    }
+                    
+                }
+            }
+            
+            return $schema;
+        }
+        
+        return false;
+    }
+    
     public static function runMySQLDumpDirectBackup($id, $ip, $path, $username, $password, $backupID = 0) {
         if(is_file($path . '/' . $backupID . '.tar.xz')) {
             return true;
