@@ -153,6 +153,7 @@ function loadTables() {
         .done(function(response) {
             if (typeof(response.status) != 'undefined') {
                 var $tableList = $('#tableList');
+                bindEvents();
 
                 window.templateData = response.result;
                 
@@ -162,7 +163,7 @@ function loadTables() {
                 
                 populateRelatedTables();
 
-                $tableList.after('<div class="row"><button type="button" class="btn btn-default pull-right">Add Table</button></div>');
+                $tableList.after('<div class="row"><button type="button" class="btn btn-default addTable pull-right">Add Table</button></div>');
             }
         })
         .fail(function() {
@@ -231,9 +232,13 @@ function bindEvents() {
     $(document).on('click', '.removeTable', function(){
         removeTable($(this));
     });
-    
+
     $(document).on('click', '.addColumn', function(){
         addColumn($(this));
+    });
+
+    $(document).on('click', '.addTable', function(){
+        addTable();
     });
 }
 
@@ -257,6 +262,46 @@ function addColumn(element) {
                 var columnsElement = element.parent().children('.tableColumns');
                 columnsElement.append(html);
 
+                window.tableColumns[id].push({'id': response['id'], 'name': '', 'alias': '', 'relationColumn': 0, 'relationTable': 0});
+
+                window.templateData.forEach(function(value, index){
+                    if(value['id'] == id) {
+                        window.templateData[index]['columns'].push({'id': response['id'], 'name': '', 'alias': '', 'relationColumn': 0, 'relationTable': 0});
+                    }
+                });
+
+                populateRelatedTables();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
+function addTable() {
+    var $alertBox = $('#alertBox');
+    var element = $('#tableList');
+    var data = {'templateID': $('#templateID').val()};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/templates/table/add',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (typeof(response.status) != 'undefined') {
+                console.log(response);
+                var html = '<div id="table' + response['id'] + '" data-id="' + response['id'] + '" class="row"><div class="form-group"><label class="col-sm-6 control-label">Table Name</label><label class="col-sm-6 control-label">Table Alias</label></div><div class="form-group"><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Name" class="form-control tableName user-success"></div><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Alias" class="form-control tableAlias"></div></div><div class="clearfix"></div><br><div id="table' + response['id'] + 'Columns" class="row tableColumns"><div class="form-group"><label class="col-sm-3 control-label">Column Name</label><label class="col-sm-3 control-label">Column Alias</label><label class="col-sm-3 control-label">Related Table</label><label class="col-sm-3 control-label">Related Column</label></div></div><button type="button" class="btn btn-default removeTable pull-right">Remove Table</button><button type="button" class="btn btn-default addColumn pull-right" style="margin-right: 10px;">Add Column</button><div class="clearfix"></div><br></div>';
+                        
+                window.tableColumns[response['id']] = [];
+
+                window.templateData.push({'id': response['id'], 'name': '', 'alias': '', 'columns': []});
+
+                element.append(html);
+                
                 populateRelatedTables();
             }
         })
@@ -465,8 +510,6 @@ function populateRelatedTables() {
         $('.table' + value['id'] + 'Option').text(value['name']);
         $('.table' + value['id'] + 'Option').attr('value', value['id']);
     });
-    
-    bindEvents();
     
     $('.tableColumnRelatedTable').each(function(index) {
         var $this = $(this);
