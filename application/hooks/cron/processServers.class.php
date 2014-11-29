@@ -74,8 +74,6 @@
 
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
               
-              $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => [], 'cpu' => [], 'mem' => [], 'iow' => [], 'ds' => [], 'net' => [], 'rpm' => [], 'tps' => [], 'avgRespTime' => [], 'qpm' => [], 'avgTimeCpuBound' => []];
-
               if(isset($settings['domain']) && isset($settings['key'])) {
                   $authenticator = new \HC\Authenticator();
                   $authenticator->setCodeLength(9);
@@ -108,6 +106,10 @@
                   $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
 
+                  if(isset($extraData['total_time'])) {
+                      $after = $extraData['total_time'];
+                  }
+                  
                   $dateTokens = explode('.', $before);
                   if(!isset($dateTokens[1])) {
                       $dateTokens[1] = 0;
@@ -115,38 +117,20 @@
                   $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
                   if($isValidConnection === 200) {
-                      $overview['up']++;
                       echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   } else {
                       echo $row['serverTitle'] . ' (' . $row['serverID'] . ') - ' . $row['domainTitle'] . ' (' .  $row['domainID'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
 
-                  $overview['responseTime'][] = $after;
-
                   $currentClientData = ['status' => $isValidConnection, 'serverID' => $row['serverID'], 'domainID' => $row['domainID'], 'responseTime' => $after, 'dateCreated' => $dateCreated, 'cpu' => 0, 'mem' => 0, 'iow' => 0, 'ds' => 0, 'net' => 0, 'rpm' => 0, 'tps' => 0, 'avgRespTime' => 0, 'qpm' => 0, 'avgTimeCpuBound' => 0];
                   
                   if(isset($settings['domain']) && isset($settings['key']) && $isUniqueServer) {
-                      $ip = long2ip($row['ip']);
+                      $tempClientData = \HCMS\Server::checkClient(long2ip($row['ip']), $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
                       
-                      $before2 = microtime(true);
-                      $tempClientData = \HCMS\Server::checkClient($ip, $settings['domain'], 'http', '/v1/all/get?code=' . $authenticator->getCode($settings['key']));
-                      $after2 = microtime(true) - $before2;
                       if($tempClientData && isset($tempClientData['result'])) {
-                          
                           if(isset($tempClientData['result']['updates']) && isset($tempClientData['result']['securityUpdates']) && isset($tempClientData['result']['rebootRequired'])) {
                               $db->update('servers', ['id' => $row['serverID']], ['updates' => $tempClientData['result']['updates'], 'securityUpdates' => $tempClientData['result']['securityUpdates'], 'rebootRequired' => $tempClientData['result']['rebootRequired']]);
                           }
-                          
-                          $overview['cpu'][]             = $currentClientData['cpu']             = $tempClientData['result']['cpu'];
-                          $overview['mem'][]             = $currentClientData['mem']             = $tempClientData['result']['mem'];
-                          $overview['iow'][]             = $currentClientData['iow']             = $tempClientData['result']['iow'];
-                          $overview['ds'][]              = $currentClientData['ds']              = $tempClientData['result']['ds'];
-                          $overview['net'][]             = $currentClientData['net']             = $tempClientData['result']['net'];
-                          $overview['rpm'][]             = $currentClientData['rpm']             = $tempClientData['result']['rpm'];
-                          $overview['tps'][]             = $currentClientData['tps']             = $tempClientData['result']['tps'];
-                          $overview['avgRespTime'][]     = $currentClientData['avgRespTime']     = $tempClientData['result']['avgRespTime'];
-                          $overview['qpm'][]             = $currentClientData['qpm']             = $tempClientData['result']['qpm'];
-                          $overview['avgTimeCpuBound'][] = $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
                       }
                       
                       $db->write('server_history', $currentClientData);
@@ -204,44 +188,6 @@
                       }
                   }
               }
-            
-              $serverCount = count($result);
-              if($serverCount) {
-                  $overview['responseTime'] = array_sum($overview['responseTime']) / $serverCount;
-                  $overview['percent'] = ($overview['up'] / $serverCount) * 100;
-              } else {
-                  $overview['responseTime'] = 0;
-                  $overview['percent'] = 0;
-              }
-              
-              $clientCount = count($overview['cpu']);
-              if($clientCount) {
-                  $overview['cpu'] = array_sum($overview['cpu']) / $clientCount;
-                  $overview['mem'] = array_sum($overview['mem']) / $clientCount;
-                  $overview['iow'] = array_sum($overview['iow']) / $clientCount;
-                  $overview['ds'] = array_sum($overview['ds']) / $clientCount;
-                  $overview['net'] = array_sum($overview['net']) / $clientCount;
-                  $overview['rpm'] = array_sum($overview['rpm']);
-                  $overview['tps'] = array_sum($overview['tps']) / $clientCount;
-                  $overview['avgRespTime'] = array_sum($overview['avgRespTime']) / $clientCount;
-                  $overview['qpm'] = array_sum($overview['qpm']);
-                  $overview['avgTimeCpuBound'] = array_sum($overview['avgTimeCpuBound']) / $clientCount;
-              } else {
-                  $overview['cpu'] = 0;
-                  $overview['mem'] = 0;
-                  $overview['iow'] = 0;
-                  $overview['ds'] = 0;
-                  $overview['net'] = 0;
-                  $overview['rpm'] = 0;
-                  $overview['tps'] = 0;
-                  $overview['avgRespTime'] = 0;
-                  $overview['qpm'] = 0;
-                  $overview['avgTimeCpuBound'] = 0;
-              }
-                
-              unset($overview['up']);
-              
-              $db->write('server_history_overview', $overview);
 
               $before = (microtime(true) - (86400*30));
               $dateTokens = explode('.', $before);
@@ -252,7 +198,6 @@
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
               
               $db->query('DELETE FROM `server_history` WHERE `dateCreated` < ?;', [$dateCreated]);
-              $db->query('DELETE FROM `server_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
 
               echo 'Processed Servers' . PHP_EOL;
 

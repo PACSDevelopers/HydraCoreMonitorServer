@@ -102,7 +102,7 @@ function updateForm() {
       }
     })
       .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
+        if (response.status) {
           $alertBox.html(bootstrapAlert('success', 'Database successfully edited.')).slideDown();
         } else {
             $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
@@ -133,7 +133,7 @@ function deleteDatabase() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 $alertBox.html(bootstrapAlert('success', 'Database successfully deleted.')).slideDown();
             }
         })
@@ -156,7 +156,7 @@ function backupDatabase() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 switch(response.status) {
                     case 1:
                         $alertBox.html(bootstrapAlert('success', 'Database backup scheduled.')).slideDown();
@@ -195,7 +195,7 @@ function getArchiveFromVault(id) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     $alertBox.html(bootstrapAlert('success', 'Request sent to vault successfully.')).slideDown();
                 } else {
@@ -224,7 +224,7 @@ function deleteBackup(id) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     $alertBox.html(bootstrapAlert('success', 'Backup deleted successfully.')).slideDown();
                 }
@@ -251,7 +251,7 @@ function deleteArchiveFromVault(id) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     $alertBox.html(bootstrapAlert('success', 'Request sent to vault successfully.')).slideDown();
                 }
@@ -282,7 +282,7 @@ function transferBackup(id, id2) {
             }
         })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if (response.status == 1) {
                     $alertBox.slideUp().html(bootstrapAlert('success', 'Transfer successfully scheduled.')).slideDown();
                 } else {
@@ -307,7 +307,7 @@ function transferBackup(id, id2) {
             }
         })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     var modal = '<div id="transferBackupModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="Transfer Backup" aria-hidden="true">' +
                         '<div class="modal-dialog">' +
@@ -370,7 +370,7 @@ function stopBackup(id) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     $alertBox.html(bootstrapAlert('success', 'Backup stop request sent successfully.')).slideDown();
                 }
@@ -397,7 +397,7 @@ function stopTransfer(id) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status == 1) {
                     $alertBox.html(bootstrapAlert('success', 'Transfer stop request sent successfully.')).slideDown();
                 }

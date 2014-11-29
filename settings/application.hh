@@ -8,6 +8,7 @@
     const AUTHOR = 'PACS Tools';
     const REGISTER_SHUTDOWN = true;
     const MODE = 'MVC';
+    const LOGIN_PAGE = 'login';
 
     /**
      * Pages
@@ -30,6 +31,8 @@
             '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
             '@^/downloads/backups/(?<id>\d+)$@' => '/downloads/backups.hh',
             '@^/data/templates/(?<id>\d+)$@' => '/data/templates/template.hh',
+            '@^/data/exports/(?<id>\d+)$@' => '/data/exports/export.hh',
+            '@^/data/exports/(?<id>\d+)/(?<name>[a-zA-Z0-9]+)$@' => '/data/exports/schemaExport.hh',
         ]
     ];
 

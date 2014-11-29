@@ -14,7 +14,7 @@ class ServersPage extends \HC\Page {
 									'extenders' => true,
 									'main' => true,
 									'bootstrap-functions' => true,
-                                    'serverTable' => true
+                                    'servers/serverTable' => true
 							]
 					],
 					'body' => [

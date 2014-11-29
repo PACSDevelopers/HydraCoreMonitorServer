@@ -306,6 +306,11 @@
             $redactedKeys = ['Salt', 'salt', 'pass', 'Pass', 'password', 'Password', 'key', 'Key'];
             
             foreach($array as $key => $value) {
+                if(is_object($value)) {
+                    $newArray[$key] = serialize($value);
+                    continue;
+                }
+                
                 foreach($redactedKeys as $redactedKey) {
                     if(mb_strpos($key, $redactedKey) !== false) {
                         $newArray[$key] = '*REDACTED*';

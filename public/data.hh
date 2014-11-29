@@ -34,10 +34,10 @@ class DataPage extends \HC\Page {
                 <div class="row">
                     <h1>Data</h1>
                     <div class="col-lg-4">
-                            <a class="btn btn-default" style="display: block; " href="/data/import"><span class="glyphicons cloud-upload" style="display: block; font-size: 48px;"></span>Import</a>
+                            <a class="btn btn-default" style="display: block; " href="/data/imports"><span class="glyphicons cloud-upload" style="display: block; font-size: 48px;"></span>Import</a>
                     </div>
                     <div class="col-lg-4">
-                            <a class="btn btn-default" style="display: block;" href="/data/export"><span class="glyphicons cloud-download" style="display: block; font-size: 48px;"></span>Export</a>
+                            <a class="btn btn-default" style="display: block;" href="/data/exports"><span class="glyphicons cloud-download" style="display: block; font-size: 48px;"></span>Export</a>
                     </div>
                     <div class="col-lg-4">
                             <a class="btn btn-default" style="display: block;" href="/data/templates"><span class="glyphicons wrench" style="display: block; font-size: 48px;"></span>Templates</a>

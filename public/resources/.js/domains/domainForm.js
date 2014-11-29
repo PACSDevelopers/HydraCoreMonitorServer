@@ -94,7 +94,7 @@ function updateForm() {
       }
     })
       .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
+        if (response.status) {
             $alertBox.html(bootstrapAlert('success', 'Domain successfully edited.')).slideDown();
         } else {
             $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
@@ -125,7 +125,7 @@ function deleteDomain() {
         }
     })
     .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
+        if (response.status) {
             $alertBox.html(bootstrapAlert('success', 'Domain successfully deleted.')).slideDown();
         } else {
             $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();

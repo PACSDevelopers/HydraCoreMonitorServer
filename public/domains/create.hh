@@ -14,7 +14,7 @@ class CreatePage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms'      => true,
-									'domainForm' => true
+									'domains/domainForm' => true
 							]
 					],
 					'body' => true,

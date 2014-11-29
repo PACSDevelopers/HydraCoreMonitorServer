@@ -159,7 +159,9 @@
 
 					if (!isset($_SESSION['user'])) {
 
-						header('Location: ' . PROTOCOL . '://' . SITE_DOMAIN);
+                        $_SESSION['desiredLoginPage'] = PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+                        
+						header('Location: ' . PROTOCOL . '://' . SITE_DOMAIN . '/' . LOGIN_PAGE);
 
 						exit();
 

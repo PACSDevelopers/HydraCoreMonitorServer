@@ -229,7 +229,7 @@ function domainData(scale, callback, availability, responseTimes) {
         data: {scale: scale}
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     callback.call(undefined, response.result, availability, responseTimes);
                 }
@@ -247,7 +247,7 @@ function databaseData(scale, callback, availability, responseTimes) {
         data: {scale: scale}
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     callback.call(undefined, response.result, availability, responseTimes);
                 }
@@ -265,7 +265,7 @@ function serverData(scale, callback, availability, responseTimes) {
         data: {scale: scale}
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     callback.call(undefined, response.result, availability, responseTimes);
                 }
@@ -461,7 +461,10 @@ function drawServerHistoryNetworkTraffic(result){
 function drawServerHistoryApplicationRPM(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['rpm'])]);
+        var rpm = parseFloat(value['rpm']);
+        if(rpm !== 0) {
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), rpm]);
+        }
     });
 
     var data = new google.visualization.DataTable();
@@ -538,7 +541,10 @@ function drawServerHistoryTPS(result){
 function drawServerHistoryApplicationResponseTime(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['avgRespTime'])]);
+        var avgRespTime = parseFloat(value['avgRespTime']);
+        if(avgRespTime !== 0) {
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), avgRespTime]);
+        }
     });
 
     var data = new google.visualization.DataTable();
@@ -585,7 +591,10 @@ function drawServerHistoryApplicationResponseTime(result){
 function drawServerHistoryApplicationQPM(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['qpm'])]);
+        var qpm = parseFloat(value['qpm']);
+        if(qpm !== 0) {
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), qpm]);
+        }
     });
 
     var data = new google.visualization.DataTable();
@@ -632,7 +641,10 @@ function drawServerHistoryApplicationQPM(result){
 function drawServerHistoryApplicationAVGTimeCPUBound(result){
     var dataArray = [];
     result.forEach(function(value){
-        dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['avgTimeCpuBound'])]);
+        var avgTimeCpuBound = parseFloat(value['avgTimeCpuBound']);
+        if(avgTimeCpuBound !== 0) {
+            dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), avgTimeCpuBound]);
+        }
     });
 
     var data = new google.visualization.DataTable();
@@ -700,7 +712,7 @@ function drawAvailability(availability, result, type) {
         data.addColumn('number', 'Database');
         data.addRows(dataArray);
 
-        var dateFormatter = new google.visualization.DateFormat();
+        var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
         dateFormatter.format(data, 0);
 
         var percentFormatter = new google.visualization.NumberFormat({pattern: '#\'%\''});

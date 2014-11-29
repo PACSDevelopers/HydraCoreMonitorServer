@@ -90,7 +90,7 @@ function updateTemplate() {
             }
         })
             .done(function(response) {
-                if (typeof(response.status) != 'undefined') {
+                if (response.status) {
                     $alertBox.html(bootstrapAlert('success', 'Template successfully edited.')).slideDown();
                 } else {
                     $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
@@ -126,7 +126,7 @@ function deleteTemplate() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 $alertBox.html(bootstrapAlert('success', 'Template successfully deleted.')).slideDown();
             }
         })
@@ -150,7 +150,7 @@ function loadTables() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 $alertBox.html(bootstrapAlert('info', 'Loading template.'));
                 
                 setTimeout(function(){
@@ -310,13 +310,7 @@ function updateTable(data, element) {
         data: {
             data: data
         }
-    })
-        .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
-                
-            }
-        })
-        .fail(function() {
+    }).fail(function() {
             // Tell user error
             $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
         });
@@ -334,13 +328,7 @@ function updateColumn(data, element) {
         data: {
             data: data
         }
-    })
-        .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
-                
-            }
-        })
-        .fail(function() {
+    }).fail(function() {
             // Tell user error
             $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
         });
@@ -360,7 +348,7 @@ function addColumn(element) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 var html = '<div id="table' + id + 'Column' + response['id'] + '" data-id="' + response['id'] + '" class="form-group tableColumn"><div class="col-sm-11"><div class="col-sm-3"><input type="text" value="" id="table' + id + 'Column' + response['id'] + 'Name" class="form-control tableColumnName user-success"></div><div class="col-sm-3"><input type="text" value="" id="table' + id + 'Column' + response['id'] + 'Alias" class="form-control tableColumnAlias"></div><div class="col-sm-3"><select type="text" value="" id="table' + id + 'Column' + response['id'] + 'RelatedTable" data-orgvalue="0" class="form-control tableColumnRelatedTable user-success"><option value="0" selected="selected">None</option></select></div><div class="col-sm-3"><select type="text" id="table' + id + 'Column' + response['id'] + 'RelatedColumn" data-orgvalue="0" class="form-control tableColumnRelatedColumn"><option value="0" selected="selected">None</option></select></div></div><div class="col-sm-1"><button type="button" class="btn btn-default removeColumn pull-right" data-id="' + response['id'] + '"><span class="glyphicons remove"></span></button></div><div class="clearfix"></div><br /></div>';
                 var columnsElement = element.parent().children('.tableColumns');
                 columnsElement.append(html);
@@ -389,7 +377,7 @@ function addTable() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 var html = '<div id="table' + response['id'] + '" data-id="' + response['id'] + '" class="row"><div class="form-group"><label class="col-sm-6 control-label">Table Name</label><label class="col-sm-6 control-label">Table Alias</label></div><div class="form-group"><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Name" class="form-control tableName user-success"></div><div class="col-sm-6"><input type="text" value="" id="table' + response['id'] + 'Alias" class="form-control tableAlias"></div></div><div class="clearfix"></div><br><div id="table' + response['id'] + 'Columns" class="row tableColumns"><div class="form-group"><label class="col-sm-3 control-label">Column Name</label><label class="col-sm-3 control-label">Column Alias</label><label class="col-sm-3 control-label">Related Table</label><label class="col-sm-3 control-label">Related Column</label></div></div><button type="button" class="btn btn-default removeTable pull-right">Remove Table</button><button type="button" class="btn btn-default addColumn pull-right" style="margin-right: 10px;">Add Column</button><div class="clearfix"></div><br></div>';
                         
                 window.tableColumns[response['id']] = [];
@@ -422,7 +410,7 @@ function removeColumn(element) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 element.parent().parent().remove();
                 window.tableColumns[tableID].forEach(function(value, index){
                     if(value['id'] == id) {
@@ -458,7 +446,7 @@ function removeTable(element) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 parent.remove();
                 window.tableColumns[id] = undefined;
                 window.templateData.forEach(function(value, index){
@@ -614,7 +602,7 @@ function importTemplate(databaseID, schema) {
                     data: data
                 }
             }).done(function(response) {
-                if (typeof(response.status) != 'undefined') {
+                if (response.status) {
                     window.location.reload();
                 }
             }).fail(function() {
@@ -631,7 +619,7 @@ function importTemplate(databaseID, schema) {
                     data: data
                 }
             }).done(function(response) {
-                if (typeof(response.status) != 'undefined') {
+                if (response.status) {
                     if(response.result) {
                         var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
 
@@ -669,7 +657,7 @@ function importTemplate(databaseID, schema) {
                 data: data
             }
         }).done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.result) {
                     var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
 
