@@ -189,7 +189,7 @@ class Database extends \HC\Core
         
         $df = disk_free_space($path);
         $dt = disk_total_space($path);
-        $ds = 100 - ($df / $dt) * 100;
+        $ds = (($dt - $df) / $dt) * 100;
         
         if($ds < 90) {
             $db = new \HC\DB();
