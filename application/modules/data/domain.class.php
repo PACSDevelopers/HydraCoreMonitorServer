@@ -114,8 +114,8 @@ class Domain extends \HC\Core
             curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, true);
-            curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
-            curl_setopt($handle, CURLOPT_TIMEOUT, 60);
+            curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 3);
+            curl_setopt($handle, CURLOPT_TIMEOUT, 3);
 
             $curlResponse = curl_exec($handle);
             if($curlResponse) {
