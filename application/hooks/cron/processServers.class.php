@@ -140,6 +140,17 @@
                           }
                       }
                       
+                      $currentClientData['cpu']             = $tempClientData['result']['cpu'];
+                      $currentClientData['mem']             = $tempClientData['result']['mem'];
+                      $currentClientData['iow']             = $tempClientData['result']['iow'];
+                      $currentClientData['ds']              = $tempClientData['result']['ds'];
+                      $currentClientData['net']             = $tempClientData['result']['net'];
+                      $currentClientData['rpm']             = $tempClientData['result']['rpm'];
+                      $currentClientData['tps']             = $tempClientData['result']['tps'];
+                      $currentClientData['avgRespTime']     = $tempClientData['result']['avgRespTime'];
+                      $currentClientData['qpm']             = $tempClientData['result']['qpm'];
+                      $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
+                      
                       $db->write('server_history', $currentClientData);
                       $servers[$row['serverID']] = $currentClientData;
                   } else {
