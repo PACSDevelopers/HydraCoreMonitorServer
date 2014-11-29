@@ -571,10 +571,12 @@
         protected static function getErrorLine($file, $line) {
             if(file_exists($file)) {
                 $fileLines = file($file);
-                return ' ' . $file . ':' . $line . ' ' . trim($fileLines[$line - 1]);
-            } else {
-                return ' ' . $file . ':' . $line;
+                if(isset($fileLines[$line - 1])) {
+                    return ' ' . $file . ':' . $line . ' ' . trim($fileLines[$line - 1]);
+                }
             }
+
+            return ' ' . $file . ':' . $line;
         }
 
         <<__Memoize>>

@@ -19,7 +19,16 @@ class ProcessDatabaseStatusAjax extends \HC\Ajax {
             if(isset($POST['data']['databaseID'])){
                 $database = new \HCMS\Database(['id' => $POST['data']['databaseID']]);
                 if($database->checkExists()) {
-                    $response = ['status' => \HCMS\Database::testMySQLPort(long2ip($database->ip))];
+                    $isValidConnection = false;
+                    $connection = $database->getDatabaseConnection();
+                    if($connection) {
+                        if($connection->isActive()) {
+                            $isValidConnection = true;
+                            $connection->disconnect();
+                        }
+                    }
+                    
+                    $response = ['status' => $isValidConnection];
                 } else {
                     $response['errors']['e3'] = true;
                 }
