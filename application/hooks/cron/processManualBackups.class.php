@@ -55,10 +55,10 @@
           $db = new \HC\DB();
           
           // Check already running backups
-          $result = $db->read('database_backups', ['status' => 2]);
+          $result = $db->read('database_backups', ['id'], ['status' => 2]);
           if($result) {
               if(count($result) >= 2) {
-                  echo 'Processed Manual Backups (skipped, already running >= 3)' . PHP_EOL;
+                  echo 'Processed Manual Backups (skipped, already running >= 2)' . PHP_EOL;
                   return true;
               }
           }
