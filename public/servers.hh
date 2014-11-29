@@ -68,7 +68,7 @@ class ServersPage extends \HC\Page {
 		$this->body = <x:frag>
             <div class="container">
                 <div class="row">
-                    <h1>Severs</h1>
+                    <h1>Servers</h1>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-hover" id="serversTable">
                             <thead>
