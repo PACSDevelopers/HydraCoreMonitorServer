@@ -126,7 +126,7 @@ class DB extends Core
      */
     public function connect()
     {
-        if ($this->connection === null) {
+        if (!$this->isActive()) {
             try {
                 $dsn  = $this->settings['engine'];
                 $dsn .= ':dbname=' . $this->settings['databasename'];
@@ -149,7 +149,7 @@ class DB extends Core
                 }
             }
 
-            if($this->connection === null) {
+            if(!$this->isActive()) {
                 if($this->settings['throwExceptions']) {
                     throw new \Exception('Unable to connect to database.');
                 } else {
@@ -193,7 +193,7 @@ class DB extends Core
             }
         }
         
-        if ($this->connection === null) {
+        if($this->connection === null) {
             $this->connect();
         }
         
@@ -222,9 +222,13 @@ class DB extends Core
             $success = $query->execute($values);
             $this->nonCPUBoundTime += (microtime(true) - $timeBefore);
         } catch (\PDOException $exception) {
-            $this->connection = null;
-            $this->connect();
-            return $this->query($sql, $values, $fetchType, $bypassCache, $tableModifications, $attempts, $exception);
+            if($this->isActive()) {
+                throw $exception;
+            } else {
+                $query = null;
+                $this->reconnect();
+                return $this->query($sql, $values, $fetchType, $bypassCache, $tableModifications, $attempts, $exception);
+            }
         }
 
         // If we have any table modifications, run them
@@ -246,6 +250,8 @@ class DB extends Core
             // There was no rows, use status values
         }
 
+        $query = null;
+
         if (!is_array($result)) {
             if (isset($success)) {
                 $result = $success;
@@ -257,9 +263,6 @@ class DB extends Core
             $this->modifyNumberOfSelects(1);
         }
 
-        $query = null;
-        unset($query);
-
         if (empty($result)) {
             return false;
         }
@@ -267,6 +270,39 @@ class DB extends Core
         return $result;
     }
 
+    public function isActive() {
+        if($this->connection !== null && $this->connection instanceof \PDO) {
+            try {
+                $result = $this->query('SELECT CONNECTION_ID();', [], -1, true);
+                if($result) {
+                    return true;
+                }
+            } catch(\Exception $e) {}
+            
+            $this->connection = null;
+        }
+        
+        return false;
+    }
+    
+    public function reconnect() {
+        $this->disconnect();
+        return $this->connect();
+    }
+    
+    public function disconnect() {
+        if($this->isActive()) {
+            try {
+                $this->connection->exec('KILL CONNECTION_ID();');
+                return true;
+            } catch(\Exception $e) {}
+        } else {
+            return true;
+        }
+        
+        return false;
+    }
+    
     public function beginTransaction() {
         return $this->connection->beginTransaction();
     }

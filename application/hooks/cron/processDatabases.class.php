@@ -59,9 +59,23 @@
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
               
               foreach($result as $row) {
+
+                  $database = new \HCMS\Database(['id' => $row['id']]);
+
+                  $isActive = false;
                   $before = microtime(true);
-                  $isValidConnection = \HCMS\Database::testMySQLPort(long2ip($row['extIP']));
+                  $connection = $database->getDatabaseConnection();
+                  if($connection) {
+                      $isActive = $connection->isActive();
+                  }
                   $after = microtime(true) - $before;
+
+                  if($isActive) {
+                      $isValidConnection = true;
+                      $connection->disconnect();
+                  } else {
+                      $isValidConnection = false;
+                  }
                   
                   $dateTokens = explode('.', $before);
                   if(!isset($dateTokens[1])) {
