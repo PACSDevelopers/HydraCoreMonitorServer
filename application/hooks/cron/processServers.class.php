@@ -138,18 +138,20 @@
                           if(isset($tempClientData['result']['updates']) && isset($tempClientData['result']['securityUpdates']) && isset($tempClientData['result']['rebootRequired'])) {
                               $db->update('servers', ['id' => $row['serverID']], ['updates' => $tempClientData['result']['updates'], 'securityUpdates' => $tempClientData['result']['securityUpdates'], 'rebootRequired' => $tempClientData['result']['rebootRequired']]);
                           }
+
+                          $currentClientData['cpu']             = $tempClientData['result']['cpu'];
+                          $currentClientData['mem']             = $tempClientData['result']['mem'];
+                          $currentClientData['iow']             = $tempClientData['result']['iow'];
+                          $currentClientData['ds']              = $tempClientData['result']['ds'];
+                          $currentClientData['net']             = $tempClientData['result']['net'];
+                          $currentClientData['rpm']             = $tempClientData['result']['rpm'];
+                          $currentClientData['tps']             = $tempClientData['result']['tps'];
+                          $currentClientData['avgRespTime']     = $tempClientData['result']['avgRespTime'];
+                          $currentClientData['qpm']             = $tempClientData['result']['qpm'];
+                          $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
                       }
                       
-                      $currentClientData['cpu']             = $tempClientData['result']['cpu'];
-                      $currentClientData['mem']             = $tempClientData['result']['mem'];
-                      $currentClientData['iow']             = $tempClientData['result']['iow'];
-                      $currentClientData['ds']              = $tempClientData['result']['ds'];
-                      $currentClientData['net']             = $tempClientData['result']['net'];
-                      $currentClientData['rpm']             = $tempClientData['result']['rpm'];
-                      $currentClientData['tps']             = $tempClientData['result']['tps'];
-                      $currentClientData['avgRespTime']     = $tempClientData['result']['avgRespTime'];
-                      $currentClientData['qpm']             = $tempClientData['result']['qpm'];
-                      $currentClientData['avgTimeCpuBound'] = $tempClientData['result']['avgTimeCpuBound'];
+                      
                       
                       $db->write('server_history', $currentClientData);
                       $servers[$row['serverID']] = $currentClientData;
