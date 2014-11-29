@@ -95,12 +95,14 @@
                                   $email->send($user[0]['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' is complete.');
                               }
                           } else {
+                              
                               echo 'Failure: ' . $row['backupID'] . ' - ' . $row['title']  . ' (' . $row['id'] . ')' . ($after - $before) . 's' . PHP_EOL;
                               $email = new \HC\Email();
                               if($row['isAuto'] == 0) {
                                   $user = $db->read('users', ['email'], ['id' => $row['creatorID']]);
                                   $email->send($user[0]['email'], 'Backup: ' . $row['title']  . ' (' . $row['id'] . ')', 'Your backup of ' . $row['title']  . ' (' . $row['id'] . ')' . ' failed.');
                               } else {
+                                  $db->update('databases', ['id' => $row['id']], ['lastBackUp' => 0]);
                                   $users = $db->read('users', ['email'], ['notify' => 1]);
                                   if($users) {
                                       foreach($users as $user) {
