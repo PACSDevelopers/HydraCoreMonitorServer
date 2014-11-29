@@ -88,9 +88,9 @@ class Session extends \HC\Core implements \SessionHandlerInterface
             session_id($sessionID);
             setcookie(session_name(), $sessionID, time() + 63072000, '/', NULL, true);
             if($isLoggedIn) {
-                header('Location: /timeout', true, 302);
+                header('Location: /timeout', true, 307);
             } else {
-                header('Location: /' . LOGIN_PAGE, true, 302);
+                header('Location: /' . LOGIN_PAGE, true, 307);
             }
             
             $_SESSION['desiredLoginPage'] = PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
