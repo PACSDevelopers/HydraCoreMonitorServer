@@ -53,6 +53,16 @@
           echo 'Processing Manual Backups' . PHP_EOL;
           $encryption = new \HC\Encryption();
           $db = new \HC\DB();
+          
+          // Check already running backups
+          $result = $db->read('database_backups', ['status' => 2]);
+          if($result) {
+              if(count($result) >= 2) {
+                  echo 'Processed Manual Backups (skipped, already running >= 3)' . PHP_EOL;
+                  return true;
+              }
+          }
+          
           $result = $db->query('SELECT `DB`.`id` as `backupID`, `DB`.`isAuto`, `DB`.`creatorID`, `D`.`id`, `D`.`title`, `D`.`intIP`, `D`.`extIP`, `D`.`username`, `D`.`password`, `D`.`backupType`, `D`.`dateCreated` FROM `database_backups` `DB` LEFT JOIN `databases` `D` ON (`D`.`id` = `DB`.`databaseID`) WHERE `DB`.`status` = 1;');
           if($result) {
               foreach($result as $row) {

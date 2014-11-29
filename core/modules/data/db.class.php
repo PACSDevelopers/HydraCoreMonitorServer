@@ -273,7 +273,7 @@ class DB extends Core
     public function isActive() {
         if($this->connection !== null && $this->connection instanceof \PDO) {
             try {
-                $result = $this->query('SELECT CONNECTION_ID();', [], -1, true);
+                $result = $this->connection->query('SELECT CONNECTION_ID();');
                 if($result) {
                     return true;
                 }
