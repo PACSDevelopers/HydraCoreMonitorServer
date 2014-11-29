@@ -16,11 +16,6 @@ module.exports = function(grunt) {
                             main: [
                                 'js-webshim/minified/polyfiller.js'
                             ]
-                        },
-                        pleasejs: {
-                            main: [
-                                'dist/Please.js'
-                            ]
                         }
                     }
                 }
