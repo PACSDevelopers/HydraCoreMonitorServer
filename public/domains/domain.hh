@@ -15,9 +15,9 @@ class DomainPage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'domainForm' => true,
-                                    'domainTable' => true,
-                                    'domainCharts' => true
+									'domains/domainForm' => true,
+                                    'domains/domainTable' => true,
+                                    'domains/domainCharts' => true
 							]
 					],
                     'body' => [

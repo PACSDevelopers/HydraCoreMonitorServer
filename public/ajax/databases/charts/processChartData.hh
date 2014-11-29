@@ -15,17 +15,21 @@ class ProcessChartDataAjax extends \HC\Ajax {
             switch($POST['scale']) {
                 case 1:
                     $current24 = $current - 86400;
+                    $divisor = 600;
                     break;
                 case 2:
                     $current24 = $current - 604800;
+                    $divisor = 1200;
                     break;
 
                 case 3:
                     $current24 = $current - (86400*30);
+                    $divisor = 2400;
                     break;
 
                 default:
                     $current24 = $current - 3600;
+                    $divisor = 300;
                     break;
             }
 
@@ -37,8 +41,23 @@ class ProcessChartDataAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DHO`.`percent`, `DHO`.`responseTime`, UNIX_TIMESTAMP(`DHO`.`dateCreated`) as `dateCreated` FROM `database_history_overview` `DHO` WHERE `DHO`.`dateCreated` > ?;', [$currentDate24]);
-
+            $result = $db->query('SELECT 
+                                        (COUNT(`DH`.`id`) - COUNT(`DHOFF`.`id`)) / COUNT(`DH`.`id`) * 100 as `percent`,
+                                        AVG(`DHON`.`responseTime`) as `responseTime`,
+                                        UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated`
+                                    FROM
+                                        `database_history` `DH`
+                                            LEFT JOIN
+                                        `database_history` `DHON` ON (`DHON`.`id` = `DH`.`id`
+                                            AND `DHON`.`status` = 1)
+                                            LEFT JOIN
+                                        `database_history` `DHOFF` ON (`DHOFF`.`id` = `DH`.`id`
+                                            AND `DHOFF`.`status` != 1)
+                                    WHERE
+                                        `DH`.`dateCreated` > ?
+                                    GROUP BY UNIX_TIMESTAMP(`DH`.`dateCreated`) DIV ?
+                                    ORDER BY `DH`.`dateCreated`;', [$currentDate24, $divisor]);
+            
             if($result == false) {
                 $result = [];
             }

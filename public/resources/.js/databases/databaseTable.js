@@ -11,7 +11,7 @@ function updateStatus($value) {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     $value.removeClass('circle_question_mark').addClass('circle_ok').css('color', '#53A93F');
                 } else {

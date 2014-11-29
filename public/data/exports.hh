@@ -1,12 +1,12 @@
 <?hh
-namespace HCPublic;
+namespace HCPublic\Data;
 
-class DatabasesPage extends \HC\Page {
+class ExportsPage extends \HC\Page {
 
 	protected $settings = [
 			'views' => [
 					'header' => [
-							'pageName' => 'Databases',
+							'pageName' => 'Data - Exports',
 							'scss' => [
 									'main' => true
 							],
@@ -14,7 +14,7 @@ class DatabasesPage extends \HC\Page {
 									'extenders' => true,
 									'main' => true,
 									'bootstrap-functions' => true,
-                                    'databases/databaseTable' => true
+                                    'data/exports' => true
 							]
 					],
 					'body' => [
@@ -27,18 +27,14 @@ class DatabasesPage extends \HC\Page {
 	];
 
 	public function init() {
-        if($_SESSION['user']->hasPermission('Create')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<a class="btn btn-primary pull-right" href="/databases/create">Create Database</a>];
-        }
-		
-		$db = new \HC\DB();
-        
-		$columns = ['ID' => 'id', 'Title' => 'title', 'External IP' => 'extIP', 'Internal IP' => 'intIP'];
+
+        $db = new \HC\DB();
+
+        $columns = ['ID' => 'id', 'Title' => 'title'];
         $databasesHeader = <tr></tr>;
 		foreach($columns as $key => $column) {
             $databasesHeader->appendChild(<th>{$key}</th>);
 		}
-        $databasesHeader->appendChild(<th>Status</th>);
         
         $databasesBody = <tbody></tbody>;
         
@@ -49,7 +45,7 @@ class DatabasesPage extends \HC\Page {
                 $databasesRow = <tr></tr>;
                 foreach($row as $key2 => $value) {
                     if($key2 === 'title') {
-                        $databasesRow->appendChild(<td><a href={'/databases/' . $row['id']}>{$value}</a></td>);
+                        $databasesRow->appendChild(<td><a href={'/data/exports/' . $row['id']}>{$value}</a></td>);
                     } else if($key2 === 'url') {
                         $databasesRow->appendChild(<td><a href={'http://' . $value}>{$value}</a></td>);
                     } else if($key2 === 'extIP' || $key2 === 'intIP') {
@@ -58,7 +54,6 @@ class DatabasesPage extends \HC\Page {
                         $databasesRow->appendChild(<td>{$value}</td>);
                     }
                 }
-                $databasesRow->appendChild(<td><span class="databaseStatusIcon glyphicons circle_question_mark pull-right" data-id={$row['id']}></span></td>);
                 $databasesBody->appendChild($databasesRow);
             }
         }
@@ -66,7 +61,7 @@ class DatabasesPage extends \HC\Page {
 		$this->body = <x:frag>
             <div class="container">
                 <div class="row">
-                    <h1>Databases</h1>
+                    <h1>Data - Exports</h1>
                     <div class="table-responsive">
                         <table class="table table-bordered table-striped table-hover" id="databasesTable">
                             <thead>

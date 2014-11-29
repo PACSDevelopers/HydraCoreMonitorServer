@@ -29,6 +29,11 @@ footer {
   border: none;
 }
 
+.modal-dialog, .table-responsive {
+  z-index: 99999999;
+  overflow: visible;
+}
+
 /* Tables */
 td a {
   display: inline-block;
@@ -270,9 +275,4 @@ header {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-
-.modal-dialog, .table-responsive {
-  z-index: 99999999;
-  overflow: visible;
 }

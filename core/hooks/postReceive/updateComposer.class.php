@@ -44,13 +44,19 @@
 		{
             if(!is_file('/tmp/composer.phar')) {
                 echo 'Installing Composer' . PHP_EOL;
-                $composer = fopen('https://getcomposer.org/composer.phar', 'r');
+                
+                $fp = fopen('/tmp/composer.phar', 'w+');
+                
+                $ch = curl_init('https://getcomposer.org/composer.phar');
+                curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+                curl_setopt($ch, CURLOPT_FILE, $fp);
+                curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+                $result = curl_exec($ch);
+                curl_close($ch);
+                
+                fclose($fp);
 
-                $bytesWritten = file_put_contents('/tmp/composer.phar', $composer);
-
-                fclose($composer);
-
-                if($bytesWritten === false) {
+                if($result === false) {
                     echo 'Failed to install Composer' . PHP_EOL;
                     return true;
                 }
@@ -76,9 +82,9 @@
             chdir(HC_LOCATION);
             
             if(ENVIRONMENT === 'DEV') {
-                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n &> /dev/null;';
+                $command = 'cd ' . HC_LOCATION . ' && hhvm -v ResourceLimit.SocketDefaultTimeout=30 -v Http.SlowQueryThreshold=30000 /tmp/composer.phar update --prefer-dist -n &> /dev/null;';
             } else {
-                $command = 'cd ' . HC_LOCATION . ' && hhvm /tmp/composer.phar update -n --no-dev &> /dev/null;';
+                $command = 'cd ' . HC_LOCATION . ' && hhvm -v ResourceLimit.SocketDefaultTimeout=30 -v Http.SlowQueryThreshold=30000 /tmp/composer.phar update --prefer-dist -n --no-dev &> /dev/null;';
             }
             
             $output = [];

@@ -218,7 +218,7 @@ class Database extends \HC\Core
 
             switch($type) {
                 case 1:
-                    $response =  self::runMySQLDumpDirectBackup($id, $ip, $path, $username, $password, $backupID);
+                    $response = self::runMySQLDumpDirectBackup($id, $ip, $path, $username, $password, $backupID);
                     break;
                 case 2:
                     $response = self::runMySQLDumpClientBackup($id, $ip, $path, $backupID);
@@ -256,12 +256,22 @@ class Database extends \HC\Core
     }
     
     public function getDatabaseConnection($databasename = 'mysql') {
-        try {
-            return new \HC\DB(['databasename' => $databasename, 'host' => long2ip($this->intIP), 'username' => $this->username, 'password' => $this->password]);
-        } catch (\Exception $e) {
-            var_dump($e);
-            return false;
+        $ip = long2ip($this->intIP);
+        
+        if(self::testMySQLPort($ip)) {
+            try {
+                return new \HC\DB(['databasename' => $databasename, 'host' => $ip, 'username' => $this->username, 'password' => $this->password]);
+            } catch (\Exception $e) {}
         }
+
+        $ip = long2ip($this->extIP);
+        if(self::testMySQLPort($ip)) {
+            try {
+                return new \HC\DB(['databasename' => $databasename, 'host' => $ip, 'username' => $this->username, 'password' => $this->password]);
+            } catch (\Exception $e) {}
+        }
+        
+        return false;
     }
     
     public function getSchema($name) {
@@ -281,6 +291,24 @@ class Database extends \HC\Core
             }
             
             return $schema;
+        }
+        
+        return false;
+    }
+    
+    public function getSchemas() {
+        $connection = $this->getDatabaseConnection();
+        if($connection) {
+            $result = $connection->query('SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA` WHERE `SCHEMA_NAME` NOT IN(?,?,?);', ['information_schema', 'performance_schema', 'mysql']);
+            if($result) {
+                $niceResult = [];
+
+                foreach($result as $row) {
+                    $niceResult[] = $row['SCHEMA_NAME'];
+                }
+                
+                return $niceResult;
+            }
         }
         
         return false;

@@ -15,9 +15,9 @@ class DatabasePage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'databaseForm' => true,
-                                    'databaseTable' => true,
-                                    'databaseCharts' => true,
+									'databases/databaseForm' => true,
+                                    'databases/databaseTable' => true,
+                                    'databases/databaseCharts' => true,
 							]
 					],
                     'body' => [

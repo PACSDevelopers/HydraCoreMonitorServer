@@ -96,10 +96,10 @@ class DB extends Core
         $serializedSettings = json_encode($settings);
         $settingsHash = crc32($serializedSettings);
         if(isset($GLOBALS['HC_DB_' . $settingsHash . '_CONNECTION'])) {
-            $this->connection = $GLOBALS['HC_DB_' . $settingsHash . '_CONNECTION'];
+            $this->connection = &$GLOBALS['HC_DB_' . $settingsHash . '_CONNECTION'];
         } else {
             $this->connect();
-            $GLOBALS['HC_DB_' . $settingsHash] = $this->connection;
+            $GLOBALS['HC_DB_' . $settingsHash] = &$this->connection;
         }
 
         if($settings['useCache']) {
@@ -146,9 +146,16 @@ class DB extends Core
                     throw $exception;
                 } else {
                     Error::exceptionHandler($exception);
-                }                
+                }
             }
 
+            if($this->connection === null) {
+                if($this->settings['throwExceptions']) {
+                    throw new \Exception('Unable to connect to database.');
+                } else {
+                    Error::exceptionHandler(new \Exception('Unable to connect to database.'));
+                }
+            }
             return true;
         }
 
@@ -176,7 +183,16 @@ class DB extends Core
      * @return false|array
      * @throws \Exception
      */
-    public function query($sql, $values = [], $fetchType = -1, $bypassCache = false, $tableModifications = false) {
+    public function query($sql, $values = [], $fetchType = -1, $bypassCache = false, $tableModifications = false, $attempts = 0, $exception = false) {
+        if($attempts > 3 && $exception) {
+            if($this->settings['throwExceptions']) {
+                throw $exception;
+            } else {
+                Error::exceptionHandler($exception);
+                return false;
+            }
+        }
+        
         if ($this->connection === null) {
             $this->connect();
         }
@@ -206,17 +222,9 @@ class DB extends Core
             $success = $query->execute($values);
             $this->nonCPUBoundTime += (microtime(true) - $timeBefore);
         } catch (\PDOException $exception) {
-            if($exception->getCode() === 'HY000') {
-                $this->connection = null;
-                $this->connect();
-                return $this->query($sql, $values, $fetchType, $bypassCache, $tableModifications);
-            }
-            
-            if($this->settings['throwExceptions']) {
-                throw $exception;
-            } else {
-                Error::exceptionHandler($exception);
-            }
+            $this->connection = null;
+            $this->connect();
+            return $this->query($sql, $values, $fetchType, $bypassCache, $tableModifications, $attempts, $exception);
         }
 
         // If we have any table modifications, run them

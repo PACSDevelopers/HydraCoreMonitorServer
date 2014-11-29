@@ -1,12 +1,12 @@
 <?hh
 namespace HCPublic\Data;
 
-class ExportPage extends \HC\Page {
+class ImportsPage extends \HC\Page {
 
 	protected $settings = [
 			'views' => [
 					'header' => [
-							'pageName' => 'Data - Export',
+							'pageName' => 'Data - Imports',
 							'scss' => [
 									'main' => true
 							],
@@ -14,7 +14,7 @@ class ExportPage extends \HC\Page {
 									'extenders' => true,
 									'main' => true,
 									'bootstrap-functions' => true,
-                                    'data/export' => true
+                                    'data/import' => true
 							]
 					],
 					'body' => [
@@ -32,7 +32,7 @@ class ExportPage extends \HC\Page {
 		$this->body = <x:frag>
             <div class="container">
                 <div class="row">
-                    <h1>Data - Export</h1>
+                    <h1>Data- Imports</h1>
                 </div>
             </div>
         </x:frag>;

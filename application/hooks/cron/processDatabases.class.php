@@ -57,8 +57,6 @@
               }
 
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-
-              $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => []];
               
               foreach($result as $row) {
                   $before = microtime(true);
@@ -73,7 +71,6 @@
 
                   if($isValidConnection) {
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
-                      $overview['up']++;
                   } else {
                       $data = [
                               'Code'                    => $isValidConnection,
@@ -88,17 +85,9 @@
                       \HCMS\Database::alertDown($data);
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
-                  $overview['responseTime'][] = $after;
                   
                   $db->write('database_history', ['status' => $isValidConnection, 'databaseID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
               }
-
-              $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);
-
-              $overview['percent'] = ($overview['up'] / count($result)) * 100;
-
-              unset($overview['up']);
-              $db->write('database_history_overview', $overview);
 
 
               $before = (microtime(true) - (86400*30));
@@ -110,7 +99,6 @@
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
               $db->query('DELETE FROM `database_history` WHERE `dateCreated` < ?;', [$dateCreated]);
-              $db->query('DELETE FROM `database_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
 
               echo 'Processed Databases' . PHP_EOL;
               

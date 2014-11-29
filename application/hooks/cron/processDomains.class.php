@@ -70,8 +70,6 @@
               }
 
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-              
-              $overview = ['up' => 0, 'dateCreated' => $dateCreated, 'responseTime' => []];
 
               if(isset($settings['domain']) && isset($settings['key'])) {
                   $authenticator = new \HC\Authenticator();
@@ -99,6 +97,11 @@
                   $isValidConnection = \HCMS\Domain::checkHTTP($row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
                   
+                  if(isset($extraData['total_time'])) {
+                      $after = $extraData['total_time'];
+                  }
+                  
+                  
                   $dateTokens = explode('.', $before);
                   if(!isset($dateTokens[1])) {
                       $dateTokens[1] = 0;
@@ -117,7 +120,6 @@
                   
                   if($isValidConnection === 200) {
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
-                      $overview['up']++;
                   } else {
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms  on' . $dateCreated . PHP_EOL;
                       $data = [
@@ -154,17 +156,9 @@
                           \HCMS\Domain::alertDown($data);
                       }
                   }
-                  $overview['responseTime'][] = $after;
                   
                   $db->write('domain_history', ['status' => $isValidConnection, 'domainID' => $row['id'], 'responseTime' => $after, 'dateCreated' => $dateCreated]);
               }
-
-              $overview['responseTime'] = array_sum($overview['responseTime']) / count($overview['responseTime']);
-
-              $overview['percent'] = ($overview['up'] / count($result)) * 100;
-
-              unset($overview['up']);
-              $db->write('domain_history_overview', $overview);
 
               $before = (microtime(true) - (86400*30));
               $dateTokens = explode('.', $before);
@@ -175,7 +169,6 @@
               $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
               $db->query('DELETE FROM `domain_history` WHERE `dateCreated` < ?;', [$dateCreated]);
-              $db->query('DELETE FROM `domain_history_overview` WHERE `dateCreated` < ?;', [$dateCreated]);
 
               echo 'Processed Domains' . PHP_EOL;
 

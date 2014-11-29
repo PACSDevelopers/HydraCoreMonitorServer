@@ -62,23 +62,11 @@ class ProcessImportTemplateAjax extends \HC\Ajax {
                     } else {
                         // Return Schemas
                         $database = new \HCMS\Database(['id' => $POST['data']['databaseID']]);
-                        
-                        $connection = $database->getDatabaseConnection();
-                        if($connection) {
-                            $result = $connection->query('SELECT `SCHEMA_NAME` FROM `INFORMATION_SCHEMA`.`SCHEMATA` WHERE `SCHEMA_NAME` NOT IN(?,?,?);', ['information_schema', 'performance_schema', 'mysql']);
-                            if($result) {
-                                $niceResult = [];
-                                
-                                foreach($result as $row) {
-                                    $niceResult[] = $row['SCHEMA_NAME'];
-                                }
-                                
-                                $response = ['status' => 1, 'result' => $niceResult];
-                            } else {
-                                $response = ['status' => 1, 'result' => []];
-                            }
+                        $result = $database->getSchemas();
+                        if($result) {
+                            $response = ['status' => 1, 'result' => $result];
                         } else {
-                            $response['errors']['e4'] = true;
+                            $response = ['status' => 1, 'result' => []];
                         }
                     }
                 } else {

@@ -14,7 +14,7 @@ class DomainsPage extends \HC\Page {
 									'extenders' => true,
 									'main' => true,
 									'bootstrap-functions' => true,
-                                    'domainTable' => true
+                                    'domains/domainTable' => true
 							]
 					],
 					'body' => [

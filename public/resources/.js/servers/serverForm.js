@@ -92,7 +92,7 @@ function updateForm() {
       }
     })
       .done(function(response) {
-        if (typeof(response.status) != 'undefined') {
+        if (response.status) {
             $alertBox.html(bootstrapAlert('success', 'Server successfully edited.')).slideDown();
         } else {
             $alertBox.html(bootstrapAlert('warning', 'The details you entered are not valid, please try again.')).slideDown();
@@ -128,7 +128,7 @@ function deleteServer() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 $alertBox.html(bootstrapAlert('success', 'Server successfully deleted.')).slideDown();
             }
         })
@@ -156,7 +156,7 @@ function updateServer() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     $alertBox.html(bootstrapAlert('success', 'Server update requested successfully.')).slideDown();
                 } else {
@@ -188,7 +188,7 @@ function rebootServer() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     $alertBox.html(bootstrapAlert('success', 'Server reboot requested successfully.')).slideDown();
                 } else {
@@ -220,7 +220,7 @@ function restartServer() {
         }
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     $alertBox.html(bootstrapAlert('success', 'Server restart requested successfully.')).slideDown();
                 } else {
@@ -248,7 +248,7 @@ function addDomain($this) {
                 data: data
             }
         }).done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 var row = '<tr><td>' + $this.val() + '</td>' +
                     '<td><a href="/domains/' + $this.val() + '">' + $this.attr('data-title') + '</a></td>' +
                     '<td><a href="http://' + $this.attr('data-url') + '">' + $this.attr('data-url') + '</a></td>' +
@@ -273,7 +273,7 @@ function addDomain($this) {
                 data: data
             }
         }).done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.result) {
                     var select = '<select id="addDomainModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
                     
@@ -318,7 +318,7 @@ function removeDomain($this) {
             data: data
         }
     }).done(function(response) {
-        if (typeof(response.status) != 'undefined') {
+        if (response.status) {
             $this.parent().parent().remove();
         }
     })

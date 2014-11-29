@@ -15,17 +15,21 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             switch($POST['scale']) {
                 case 1:
                     $current24 = $current - 86400;
+                    $divisor = 600;
                     break;
                 case 2:
                     $current24 = $current - 604800;
+                    $divisor = 1200;
                     break;
 
                 case 3:
                     $current24 = $current - (86400*30);
+                    $divisor = 2400;
                     break;
 
                 default:
                     $current24 = $current - 3600;
+                    $divisor = 300;
                     break;
             }
 
@@ -37,7 +41,18 @@ class ProcessChartDataSingleAjax extends \HC\Ajax {
             $currentDate24 = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
 
             $db = new \HC\DB();
-            $result = $db->query('SELECT `DH`.`status`, `DH`.`responseTime`, UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated` FROM `database_history` `DH` WHERE `DH`.`databaseID` = ? AND `DH`.`dateCreated` > ?;', [$POST['databaseID'], $currentDate24]);
+            $result = $db->query('SELECT 
+                                        `DH`.`status`,
+                                        `DH`.`responseTime`,
+                                        UNIX_TIMESTAMP(`DH`.`dateCreated`) as `dateCreated`
+                                    FROM
+                                        `database_history` `DH`
+                                    WHERE
+                                        `DH`.`databaseID` = ?
+                                    AND
+                                        `DH`.`dateCreated` > ?
+                                    GROUP BY UNIX_TIMESTAMP(`DH`.`dateCreated`) DIV ?
+                                    ORDER BY `DH`.`dateCreated`;', [$POST['databaseID'], $currentDate24, $divisor]);
 
             if($result == false) {
                 $result = [];

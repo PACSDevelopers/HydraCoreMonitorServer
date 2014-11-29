@@ -221,14 +221,14 @@ function showHideSeries (chart, data, series, columns, view, options) {
     }
 }
 
-function domainData(scale, callback, availability, responseTimes) {
+function databaseData(scale, callback, availability, responseTimes) {
     $.ajax({
         type: 'POST',
-        url: '/ajax/domains/charts/processChartDataSingle',
-        data: {scale: scale, domainID: $('#domainID').val()}
+        url: '/ajax/databases/charts/processChartDataSingle',
+        data: {scale: scale, databaseID: $('#databaseID').val()}
     })
         .done(function(response) {
-            if (typeof(response.status) != 'undefined') {
+            if (response.status) {
                 if(response.status) {
                     callback.call(undefined, response.result, availability, responseTimes);
                 }
@@ -239,13 +239,13 @@ function domainData(scale, callback, availability, responseTimes) {
         });
 }
 
-function drawDomainCharts(result, availability, responseTimes) {
+function drawDatabaseCharts(result, availability, responseTimes) {
     setTimeout(function(){
-        drawAvailability(availability, result, 'domain');
+        drawAvailability(availability, result, 'database');
     }, 0);
 
     setTimeout(function(){
-        drawResponseTimes(responseTimes, result, 'domain');
+        drawResponseTimes(responseTimes, result, 'database');
     }, 0);
     
 }
@@ -254,9 +254,9 @@ function drawAvailability(availability, result, type) {
     availability[type] = result;
     var dataArray = [];
 
-    availability['domain'].forEach(function(value){
+    availability['database'].forEach(function(value){
         var status = 0;
-        if(value['status'] == 200) {
+        if(value['status'] == 1) {
             status = 100;    
         }
         dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), status]);
@@ -277,7 +277,7 @@ function drawAvailability(availability, result, type) {
     var options = {
         title: 'Availability',
         curveType: 'function',
-        colors: generateChartColors(3),
+        colors: generateChartColors(1),
         vAxis: {
             format: '#\'%\'',
             minValue: 0.00,
@@ -310,8 +310,8 @@ function drawResponseTimes(responseTimes, result, type) {
     
     var dataArray = [];
 
-    if(responseTimes['domain']) {
-        responseTimes['domain'].forEach(function(value){
+    if(responseTimes['database']) {
+        responseTimes['database'].forEach(function(value){
             dataArray.push([new Date(parseInt(value['dateCreated'].replace('.', '').slice(0,-1))), parseFloat(value['responseTime']) * 1000]);
         });
     }
@@ -327,7 +327,7 @@ function drawResponseTimes(responseTimes, result, type) {
     var options = {
         title: 'Response Time',
         curveType: 'function',
-        colors: generateChartColors(3),
+        colors: generateChartColors(1),
         vAxis: {
             format: '#.#ms',
             minValue: 0.00,
@@ -426,7 +426,7 @@ function drawChartsTrigger() {
     var scale = $('#timeScale').val();
     $('.chart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
     setTimeout(function(){
-        domainData(scale, drawDomainCharts, availability, responseTimes);
+        databaseData(scale, drawDatabaseCharts, availability, responseTimes);
     },0);
 }
 

@@ -15,9 +15,9 @@ class ServerPage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'serverForm' => true,
-                                    'serverTable' => true,
-                                    'serverCharts' => true
+									'servers/serverForm' => true,
+                                    'servers/serverTable' => true,
+                                    'servers/serverCharts' => true
 							]
 					],
                     'body' => [
