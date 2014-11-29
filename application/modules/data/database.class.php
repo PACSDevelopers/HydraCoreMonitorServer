@@ -358,7 +358,7 @@ class Database extends \HC\Core
                 $startTime = time();
                 
                 foreach($schemaList as $schema => $schemaSize) {
-                    $pid = $process->start('backup-' . $backupID . '-' . $schema . $startTime, 'mysqldump ' . $schema . ' --disable-keys --extended-insert --single-transaction --quick --max_allowed_packet=1G --compress --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . '  > ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false, false);
+                    $pid = $process->start('backup-' . $backupID . '-' . $schema . $startTime, 'mysqldump ' . $schema . ' --disable-keys --skip-dump-date --quick --max_allowed_packet=1G --compress --user=\'' . $username . '\' --password=\'' . $password . '\' -h ' . $ip . '  > ' . $path . '/' . $backupID . '/' . $schema . '.sql', $path, false, false);
                     if($pid) {
                         $schemaProcessMap['backup-' . $backupID . '-' . $schema . $startTime] = $schema;
                         $processList['backup-' . $backupID . '-' . $schema . $startTime] = false;
