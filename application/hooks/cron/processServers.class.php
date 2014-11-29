@@ -64,7 +64,6 @@
               ]
           ], ['D.id' => 'domainID', 'S.id' => 'serverID', 'D.title' => 'domainTitle', 'S.title' => 'serverTitle', 'D.url', 'S.ip'], ['S.status' => 1,'D.status' => 1]);
           
-          
           if($result) {
               $before = microtime(true);
               $dateTokens = explode('.', $before);
@@ -105,6 +104,14 @@
                   $before = microtime(true);
                   $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
+                  
+                  if($isValidConnection === 503) {
+                      if(isset($errorDetails['status'])) {
+                          if($errorDetails['status'] === '503-2') {
+                              $isValidConnection = 200;
+                          }
+                      }
+                  }
 
                   if(isset($extraData['total_time'])) {
                       $after = $extraData['total_time'];
@@ -138,6 +145,8 @@
                   } else {
                       $currentClientData = $servers[$row['serverID']];
                   }
+                  
+                  
 
                   if($isValidConnection !== 200) {
                       $data = [
