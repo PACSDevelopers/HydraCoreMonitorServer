@@ -125,7 +125,7 @@ class Server extends \HC\Core
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
-            if($httpCode === 301 || $httpCode === 302) {
+            if($httpCode === 301 || $httpCode === 302 || $httpCode === 307) {
                 $oldCookies = $cookies;
                 $matches = [];
                 preg_match_all('/^Set-Cookie: (.*?)=(.*?);/m', $curlResponse, $matches);
