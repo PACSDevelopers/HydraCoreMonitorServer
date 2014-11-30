@@ -65,14 +65,15 @@ class DatabasePage extends \HC\Page {
         $backupsHeader = <tr></tr>;
         $backupsBody = <tbody></tbody>;
         
-        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'isAuto', 'hasJob', 'status', 'dateStarted'], ['databaseID' => $GET['id']]);
+        $backups = $db->read('database_backups', ['id', 'progress', 'isLocal', 'inVault', 'isAuto', 'hasJob', 'status', 'dateStarted', 'dateEnded'], ['databaseID' => $GET['id']]);
         if($backups) {
 
             $backupsHeader->appendChild(<th>ID</th>);
             $backupsHeader->appendChild(<th>Status</th>);
             $backupsHeader->appendChild(<th>Available</th>);
             $backupsHeader->appendChild(<th>In Vault</th>);
-            $backupsHeader->appendChild(<th>Date</th>);
+            $backupsHeader->appendChild(<th>Date Started</th>);
+            $backupsHeader->appendChild(<th>Date Ended</th>);
             $backupsHeader->appendChild(<th>Type</th>);
             $backupsHeader->appendChild(<th>Progress</th>);
             $backupsHeader->appendChild(<th>Action</th>);
@@ -90,14 +91,14 @@ class DatabasePage extends \HC\Page {
                         $backupsRow->appendChild(<td><span class="glyphicons circle_question_mark"></span></td>);
                         $backupsRow->appendChild(<td><span class="glyphicons circle_question_mark"></span></td>);
                         $backupsRow->appendChild(<td><span>{$backup['dateStarted']}</span></td>);
-                        
+                        $backupsRow->appendChild(<td><span>{$backup['dateEnded']}</span></td>);
                         if($backup['isAuto']) {
                             $backupsRow->appendChild(<td><span>Auto</span></td>);
                         } else {
                             $backupsRow->appendChild(<td><span>Manual</span></td>);
                         }
                         
-                        $backupsRow->appendChild(<td style="width: 50%;">
+                        $backupsRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -131,6 +132,7 @@ class DatabasePage extends \HC\Page {
                         }
 
                         $backupsRow->appendChild(<td><span>{$backup['dateStarted']}</span></td>);
+                        $backupsRow->appendChild(<td><span>{$backup['dateEnded']}</span></td>);
                         
                         if($backup['isAuto']) {
                             $backupsRow->appendChild(<td><span>Auto</span></td>);
@@ -138,7 +140,7 @@ class DatabasePage extends \HC\Page {
                             $backupsRow->appendChild(<td><span>Manual</span></td>);
                         }
                         
-                        $backupsRow->appendChild(<td style="width: 50%;">
+                        $backupsRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -150,12 +152,13 @@ class DatabasePage extends \HC\Page {
                         $backupsRow->appendChild(<td><span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span></td>);
                         $backupsRow->appendChild(<td><span class="glyphicons circle_exclamation_mark" style="color: #E04A3F;"></span></td>);
                         $backupsRow->appendChild(<td><span>{$backup['dateStarted']}</span></td>);
+                        $backupsRow->appendChild(<td><span>{$backup['dateEnded']}</span></td>);
                         if($backup['isAuto']) {
                             $backupsRow->appendChild(<td><span>Auto</span></td>);
                         } else {
                             $backupsRow->appendChild(<td><span>Manual</span></td>);
                         }
-                        $backupsRow->appendChild(<td style="width: 50%;">
+                        $backupsRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -167,12 +170,13 @@ class DatabasePage extends \HC\Page {
                         $backupsRow->appendChild(<td><span class="glyphicons circle_question_mark"></span></td>);
                         $backupsRow->appendChild(<td><span class="glyphicons circle_question_mark"></span></td>);
                         $backupsRow->appendChild(<td><span>{$backup['dateStarted']}</span></td>);
+                        $backupsRow->appendChild(<td><span>{$backup['dateEnded']}</span></td>);
                         if($backup['isAuto']) {
                             $backupsRow->appendChild(<td><span>Auto</span></td>);
                         } else {
                             $backupsRow->appendChild(<td><span>Manual</span></td>);
                         }
-                        $backupsRow->appendChild(<td style="width: 50%;">
+                        $backupsRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar" role="progressbar" aria-valuenow={$backup['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $backup['progress'] . '%;'}>
                                                         <span class="sr-only">$backup['progress']</span>
@@ -276,7 +280,7 @@ class DatabasePage extends \HC\Page {
                 
                 switch($transfer['status']) {
                     case 2:
-                        $transfersRow->appendChild(<td style="width: 50%;">
+                        $transfersRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
                                                         <span class="sr-only">$transfer['progress']</span>
@@ -285,7 +289,7 @@ class DatabasePage extends \HC\Page {
                                                     </td>);
                         break;
                     case 3:
-                        $transfersRow->appendChild(<td style="width: 50%;">
+                        $transfersRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
                                                         <span class="sr-only">$transfer['progress']</span>
@@ -294,7 +298,7 @@ class DatabasePage extends \HC\Page {
                                                     </td>);
                         break;
                     case 4:
-                        $transfersRow->appendChild(<td style="width: 50%;">
+                        $transfersRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
                                                         <span class="sr-only">$transfer['progress']</span>
@@ -303,7 +307,7 @@ class DatabasePage extends \HC\Page {
                                                     </td>);
                         break;
                     default:
-                        $transfersRow->appendChild(<td style="width: 50%;">
+                        $transfersRow->appendChild(<td style="width: 30%;">
                                                     <div class="progress">
                                                       <div class="progress-bar" role="progressbar" aria-valuenow={$transfer['progress']} aria-valuemin="0" aria-valuemax="100" style={'width: ' . $transfer['progress'] . '%;'}>
                                                         <span class="sr-only">$transfer['progress']</span>

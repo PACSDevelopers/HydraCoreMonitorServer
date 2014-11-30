@@ -16,6 +16,7 @@ class BackupsPage extends \HC\Page {
                     $backup = $backup[0];
                     $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
                     if(isset($globalSettings['backups'])) {
+                        clearstatcache();
                         $file = $globalSettings['backups']['archive'] . '/' . $GET['id'] . '.tar.xz';
                         if(is_file($file)) {
                             $this->setRendered(true);
