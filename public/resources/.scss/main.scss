@@ -120,6 +120,10 @@ header {
   box-shadow: none;
 }
 
+.btn:hover, .btn-default:hover, .btn-default:focus, .btn-primary:hover, .btn-primary:focus, .btn-success:hover, .btn-success:focus, .btn-info:hover, .btn-info:focus, .btn-warning:hover, .btn-warning:focus, .btn-danger:hover, .btn-danger:focus {
+  margin-top: inherit !important;
+}
+
 /* Drag and Drop */
 .icon-bar {
   display: block;

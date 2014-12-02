@@ -58,9 +58,11 @@ class SchemaExportPage extends \HC\Page {
                         {$templates}
                     </div>
                 </div>
-            </div>
-            <div class="row" id="template">
-                    
+                <div class="row" id="template">
+                    <ul class="list-group row" id="tableRowList"></ul>
+                    <div class="cleafix"></div>
+                    <button class="btn btn-lg btn-primary btn-block" type="button" onclick="runExport();">Export</button>
+                </div>
             </div>
         </x:frag>;
         

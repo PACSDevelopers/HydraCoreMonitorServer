@@ -22,6 +22,7 @@
         "modernizr": "*",
         "respond": "*",
         "screenfull": "*",
-        "webshim": "*"
+        "webshim": "*",
+        "bootstrap-toggle": "*"
     }
 }

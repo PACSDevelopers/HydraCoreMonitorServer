@@ -2,7 +2,7 @@
 
 function loadTemplate(id) {
     window.tables = [];
-    var $template = $('#template');
+    var $template = $('#tableRowList');
     $template.html('');
 
     var $alertBox = $('#alertBox');
@@ -22,26 +22,17 @@ function loadTemplate(id) {
                 $alertBox.html(bootstrapAlert('info', 'Loading template.'));
 
                 setTimeout(function(){
+                    console.log(response);
                     response.result.forEach(function(value){
-                        var labelRow = '<div>';
-                        var columnCount = value['columns'].length + 1;
-                        labelRow += '<div class="col-sm-1">';
-
-                        labelRow += '<p>' + value['name'] + '</p>';
-
-                        labelRow += '</div>';
-
-                        value['columns'].forEach(function(value) {
-                            labelRow += '<div class="col-sm-1">';
-
-                            labelRow += '<p>' + value['name'] + '</p>';
-
-                            labelRow += '</div>';
-                        });
-
-                        labelRow += '</div><div class="clearfix"></div>';
-                        //$template.append(labelRow);                        
+                        var labelRow = '<li class="list-group-item col-xs-12 col-md-6 col-lg-3" id="tableRow' +  value['id'] + '">';
+                        labelRow += '<div class="pull-left text-left">' + value['name'] + '</div>';
+                        labelRow += '<div class="pull-right text-right"><input type="checkbox" data-toggle="toggle" class="form-checkbox checkbox-inline tableRowCheckbox" data-id="'+  value['id'] + '" id="tableRowCheckbox' +  value['id'] + '" /></div>';
+                        labelRow += '<div class="cleafix"></div>';
+                        labelRow += '</li>';
+                        $template.append(labelRow);
+                        $('.tableRowCheckbox').bootstrapToggle();
                     });
+
                 }, 1000);
             }
         })
