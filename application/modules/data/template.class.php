@@ -5,6 +5,7 @@ class Template extends \HC\Core
 {    
     protected $db;
     protected $data = [];
+    protected $template = [];
 
     public function  __construct($template = [])
     {
@@ -69,6 +70,27 @@ class Template extends \HC\Core
         }
 
         return $response;
+    }
+
+    public function load($forceReload = false) {
+        if($forceReload || empty($this->template)) {
+            $result = $this->db->query('SELECT `id`, `name`, `alias` FROM `data_template_tables` WHERE `templateID` = ? ORDER BY `name`;', [$this->id]);
+
+            if($result) {
+                foreach ($result as $key => $row) {
+                    $colResult = $this->db->read('data_template_columns', ['id', 'name', 'alias', 'relationTable', 'relationColumn'], ['templateID' => $this->id, 'tableID' => $row['id']]);
+                    if (!$colResult) {
+                        $colResult = [];
+                    }
+                    $result[$key]['columns'] = $colResult;
+                }
+
+            }
+
+            $this->template = $result;
+        }
+
+        return $this->template;
     }
     
     public static function create($data){

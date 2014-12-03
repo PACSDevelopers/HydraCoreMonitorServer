@@ -48,7 +48,27 @@ function loadTemplate(id) {
 
 function runExport() {
     var $alertBox = $('#alertBox');
-    var data = {'templateID': $('#templateSelect').val(), 'databaseID': $('#databaseID').val(), 'selectedTables': window.selectedTables};
+    var data = {'templateID': $('#templateSelect').val(), 'databaseID': $('#databaseSelect').val(), 'schema': $('#schemaSelect').val(), 'selectedTables': window.selectedTables};
+
+    if(!data['templateID']) {
+        $alertBox.html(bootstrapAlert('warning', 'Please select a template.')).slideDown();
+        return false;
+    }
+
+    if(!data['databaseID']) {
+        $alertBox.html(bootstrapAlert('warning', 'Please select a database.')).slideDown();
+        return false;
+    }
+
+    if(!data['schema']) {
+        $alertBox.html(bootstrapAlert('warning', 'Please select a schema.')).slideDown();
+        return false;
+    }
+
+    if(!data['selectedTables'].length) {
+        $alertBox.html(bootstrapAlert('warning', 'Please select at least one table.')).slideDown();
+        return false;
+    }
 
     $alertBox.html(bootstrapAlert('info', 'Scheduling export.')).slideDown();
 
@@ -73,7 +93,45 @@ function runExport() {
 
 }
 
+function populateSchemas(databaseID) {
+    var $schemaSelect = $('#schemaSelect');
+    $schemaSelect.html('<option value="0" selected="selected" disabled="disabled">Please select a schema</option>');
+
+    if(!databaseID) {
+        return false;
+    }
+
+    var data = {'databaseID': databaseID};
+
+    $.ajax({
+        type: "POST",
+        url: '/ajax/databases/database/getSchemas',
+        data: {
+            data: data
+        }
+    })
+        .done(function(response) {
+            if (response.status) {
+
+                response['schemas'].forEach(function(schema){
+                    $schemaSelect.append('<option value="' + schema + '">' + schema + '</option>');
+                });
+
+            } else {
+                $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+            }
+        })
+        .fail(function() {
+            // Tell user error
+            $alertBox.html(bootstrapAlert('danger', 'Something went wrong, please try again.')).slideDown();
+        });
+}
+
 function bindEvents() {
+    $(document).on('change', '#databaseSelect', function(){
+        populateSchemas($(this).val());
+    });
+
     $(document).on('change', '.tableRowCheckbox', function(){
         var $this = $(this);
         var value = $this.is(':checked');
@@ -87,11 +145,12 @@ function bindEvents() {
             }
         }
     });
+
+    $(document).on('change', '#templateSelect', function(){
+        loadTemplate($(this).val());
+    });
 }
 
 $(document).ready(function(){
     bindEvents();
-    $(document).on('change', '#templateSelect', function(){
-        loadTemplate($(this).val());
-    });
 });

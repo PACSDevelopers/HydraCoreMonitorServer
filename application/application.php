@@ -53,6 +53,9 @@
                 case 'HCMS\Template':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/template.class.php');
                     break;
+                case 'HCMS\Export':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/export.class.php');
+                    break;
                 
                 /* Hooks */
                 case 'HCMS\Hooks\Cron\ProcessDatabases':
@@ -82,7 +85,10 @@
                 case 'HCMS\Hooks\Cron\ProcessTransfers':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processTransfers.class.php');
                     break;
-                
+                case 'HCMS\Hooks\Cron\ProcessExports':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processExports.class.php');
+                    break;
+
                 /* System classes */
                 case 'HCMS\Session':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/session.class.php');
