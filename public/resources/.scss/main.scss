@@ -120,6 +120,23 @@ header {
   box-shadow: none;
 }
 
+.btn:hover, .btn-default:hover, .btn-default:focus, .btn-primary:hover, .btn-primary:focus, .btn-success:hover, .btn-success:focus, .btn-info:hover, .btn-info:focus, .btn-warning:hover, .btn-warning:focus, .btn-danger:hover, .btn-danger:focus {
+  margin-top: inherit !important;
+}
+
+.flexbox-container {
+  display: flex;
+  display: -webkit-flex;
+  display: -moz-flex;
+  justify-content: center;
+  -webkit-justify-content: center;
+  -moz-justify-content: center;
+  flex-flow: row wrap;
+  -webkit-flex-flow: row wrap;
+  -moz-flex-flow: row wrap;
+  align-self: center;
+}
+
 /* Drag and Drop */
 .icon-bar {
   display: block;

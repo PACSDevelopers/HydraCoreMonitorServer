@@ -20,18 +20,11 @@ class LoadAllAjax extends \HC\Ajax {
 
 		if(count($response['errors']) == 0){
             if(isset($POST['data']['templateID'])) {
-                $db = new \HC\DB();
-                $result = $db->query('SELECT `id`, `name`, `alias` FROM `data_template_tables` WHERE `templateID` = ? ORDER BY `name`;', [$POST['data']['templateID']]);
-                
+                $template = new \HCMS\Template(['id' => $POST['data']['templateID']]);
+
+                $result = $template->load();
+
                 if($result){
-                    foreach($result as $key => $row) {
-                        $colResult = $db->read('data_template_columns', ['id', 'name', 'alias', 'relationTable', 'relationColumn'], ['templateID' => $POST['data']['templateID'], 'tableID' => $row['id']]);
-                        if(!$colResult) {
-                            $colResult = [];
-                        }
-                        $result[$key]['columns'] = $colResult;
-                    }
-                    
                     $response = ['status' => 1, 'result' => $result];
                 } else {
                     $response = ['status' => 1, 'result' => []];

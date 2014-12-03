@@ -30,9 +30,8 @@
             '@^/servers/(?<id>\d+)$@' => '/servers/server.hh',
             '@^/databases/(?<id>\d+)$@' => '/databases/database.hh',
             '@^/downloads/backups/(?<id>\d+)$@' => '/downloads/backups.hh',
+            '@^/downloads/exports/(?<id>\d+)/(?<format>\w+)$@' => '/downloads/exports.hh',
             '@^/data/templates/(?<id>\d+)$@' => '/data/templates/template.hh',
-            '@^/data/exports/(?<id>\d+)$@' => '/data/exports/export.hh',
-            '@^/data/exports/(?<id>\d+)/(?<name>[a-zA-Z0-9]+)$@' => '/data/exports/schemaExport.hh',
         ]
     ];
 
@@ -78,6 +77,9 @@
                 'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessTransfers' => [
+                'microtime' => 60
+            ],
+            'HCMS\Hooks\Cron\ProcessExports' => [
                 'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessVault' => [

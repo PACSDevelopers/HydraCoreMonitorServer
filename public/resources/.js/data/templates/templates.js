@@ -621,7 +621,7 @@ function importTemplate(databaseID, schema) {
             }).done(function(response) {
                 if (response.status) {
                     if(response.result) {
-                        var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
+                        var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select A Schema</option>';
 
                         response.result.forEach(function(value){
                             select += '<option>' + value + '</option>';
@@ -659,7 +659,7 @@ function importTemplate(databaseID, schema) {
         }).done(function(response) {
             if (response.status) {
                 if(response.result) {
-                    var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select</option>';
+                    var select = '<select id="importTemplateModalSelect" class="form-control"><option selected="selected" disabled="disabled" value="">Please Select A Database</option>';
 
                     response.result.forEach(function(value){
                         select += '<option value="' + value['id'] + '">' + value['title'] + '</option>';

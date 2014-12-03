@@ -164,7 +164,9 @@ $(document).ready(function (){
     });
 
     $(window).bind('beforeunload', function () {
-        $.xhrPool.abortAll();
+        if($.xhrPoo) {
+            $.xhrPool.abortAll();
+        }
     });
     
 });
