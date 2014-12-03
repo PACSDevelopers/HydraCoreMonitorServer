@@ -157,7 +157,7 @@ class DB extends Core
                     Error::exceptionHandler(new \Exception('Unable to connect to database.'));
                 }
             } else {
-                $result = $this->query('SET @@session.time_zone = :time, @@global.time_zone = :time;', ['time' => TIMEZONE_OFFSET]);
+                $result = $this->query('SET @@session.time_zone = :time;', ['time' => TIMEZONE_OFFSET]);
                 if(!$result) {
                     if($this->settings['throwExceptions']) {
                         throw new \Exception('Unable to set timezone.');
