@@ -58,6 +58,9 @@ if(!defined('MODE')) {
 
 if(!defined('TIMEZONE')) {
     define('TIMEZONE', 'Europe/London');
+    date_default_timezone_set('Europe/London');
+} else {
+    date_default_timezone_set(TIMEZONE);
 }
 
 if(!defined('TIMEZONE_OFFSET')) {
