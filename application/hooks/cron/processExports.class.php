@@ -63,10 +63,8 @@
                   } catch (\Exception $e) {
                       $result = false;
                       $db->update('data_exports', ['id' => $row['id']], ['status' => 4]);
-                      var_dump($e);
                   }
 
-                  var_dump($result);
                   if($result) {
                       echo 'Export Success: ' . $row['id'] . PHP_EOL;
                   } else {

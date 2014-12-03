@@ -353,10 +353,6 @@
         public static function errorHandler($errno = 1, $errstr = '?', $errfile = '?', $errline = '?', $skipTrace = 0, $traceArray = [], $isException = false, $customError = false)
 
         {
-            echo '<pre>';
-            var_dump(func_get_args());
-            exit(0);
-            return false;
             $errorTypeInteger = self::friendlyErrorTypeInt($errno);
             
             if(($errorTypeInteger !== E_ERROR && $errorTypeInteger !== E_PARSE) && !$isException) {
