@@ -63,6 +63,7 @@
                   } catch (\Exception $e) {
                       $result = false;
                       $db->update('data_exports', ['id' => $row['id']], ['status' => 4]);
+                      throw $e;
                   }
 
                   if($result) {
