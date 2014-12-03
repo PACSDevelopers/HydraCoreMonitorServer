@@ -51,6 +51,11 @@
           echo 'Processing Cleanup' . PHP_EOL;
           $df = disk_free_space($this->settings['archive']);
           $dt = disk_total_space($this->settings['archive']);
+
+          if(!$df || !$dt) {
+              return false;
+          }
+
           $ds = (($dt - $df) / $dt) * 100;
 
           if($ds > 85) {

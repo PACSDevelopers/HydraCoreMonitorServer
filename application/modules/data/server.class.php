@@ -117,8 +117,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
-        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($handle, CURLOPT_TIMEOUT, 3);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 10);
 
         $curlResponse = curl_exec($handle);
         
@@ -228,8 +228,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
-        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 3);
-        curl_setopt($handle, CURLOPT_TIMEOUT, 3);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 10);
 
         $curlResponse = curl_exec($handle);
         if($curlResponse) {
