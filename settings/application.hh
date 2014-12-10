@@ -8,7 +8,7 @@
     const AUTHOR = 'PACS Tools';
     const REGISTER_SHUTDOWN = true;
     const MODE = 'MVC';
-    const LOGIN_PAGE = 'login';
+    const LOGIN_PAGE = '';
 
     /**
      * Pages
@@ -59,34 +59,34 @@
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [
-                'microtime' => 300
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessDomains' => [
-                'microtime' => 300
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessServers' => [
-                'microtime' => 300
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessBackups' => [
-                'microtime' => 3600
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessCleanup' => [
-                'microtime' => 60
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessManualBackups' => [
-                'microtime' => 60
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessTransfers' => [
-                'microtime' => 60
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessExports' => [
-                'microtime' => 60
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessVault' => [
-                'microtime' => 120
+                'microtime' => 999999999
             ],
             'HCMS\Hooks\Cron\ProcessVaultCleanup' => [
-                'microtime' => 3600
+                'microtime' => 999999999
             ],
         ]
     ];

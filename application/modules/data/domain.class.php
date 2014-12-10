@@ -163,6 +163,8 @@ class Domain extends \HC\Core
         } else {
             $data['Code Message'] = \HC\Error::curl_strerror($data['Code']);
         }
+
+        $data = array_reverse($data, 1);
         
         $db = new \HC\DB();
         $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);

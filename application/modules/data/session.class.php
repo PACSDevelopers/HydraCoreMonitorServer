@@ -76,7 +76,7 @@ class Session extends \HC\Core implements \SessionHandlerInterface
     }
 
     protected function generateNewSession($data = '') {
-        $isLoggedIn = isset($_SESSION['user']);
+        $isLoggedIn = (isset($_SESSION) && isset($_SESSION['user']));
         
         $this->gc(1);
 

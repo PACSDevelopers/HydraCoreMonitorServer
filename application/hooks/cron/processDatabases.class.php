@@ -48,7 +48,7 @@
           echo 'Processing Databases' . PHP_EOL;
           
           $db = new \HC\DB();
-          $result = $db->read('databases', ['id', 'title', 'extIP'], ['status' => 1]);
+          $result = $db->read('databases', ['id', 'title', 'extIP', 'hasIssue'], ['status' => 1]);
           if($result) {
               $before = microtime(true);
               $dateTokens = explode('.', $before);
@@ -62,21 +62,27 @@
 
                   $database = new \HCMS\Database(['id' => $row['id']]);
 
+                  $isValidConnection = false;
                   $isActive = false;
+                  $exception = null;
+                  $after = 0;
                   $before = microtime(true);
-                  $connection = $database->getDatabaseConnection();
-                  if($connection) {
-                      $isActive = $connection->isActive();
-                  }
-                  $after = microtime(true) - $before;
+                  $time = $before;
 
-                  if($isActive) {
-                      $isValidConnection = true;
-                      $connection->disconnect();
+                  if(ENVIRONMENT === 'PRODUCTION') {
+                      $connection = $database->getDatabaseConnection('mysql', 1, $time, $exception);
                   } else {
-                      $isValidConnection = false;
+                      $connection = $database->getDatabaseConnection('mysql', 2, $time, $exception);
                   }
-                  
+
+                  if($connection) {
+                      if($connection->isActive()) {
+                          $isValidConnection = true;
+                          $connection->disconnect();
+                          $after = $time - $before;
+                      }
+                  }
+
                   $dateTokens = explode('.', $before);
                   if(!isset($dateTokens[1])) {
                       $dateTokens[1] = 0;
@@ -85,6 +91,18 @@
 
                   if($isValidConnection) {
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Passed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
+                      // Resolve any auto issues
+                      $result = $db->query('SELECT `I`.`id` FROM `issues` `I` WHERE `I`.`databaseID` = ? AND `I`.`auto` = ? AND `I`.`status` IN (1,2);', [$row['id'], 1]);
+                      if($result) {
+                          $db->beginTransaction();
+                          foreach($result as $issue) {
+                              $db->update('issues', ['id' => $issue['id']], ['status' => 3, 'dateClosed' => time()]);
+                          }
+                          $db->update('databases', ['id' => $row['id']], ['hasIssue' => 0]);
+                          $db->commit();
+                      } else if($row['hasIssue']) {
+                          $db->update('databases', ['id' => $row['id']], ['hasIssue' => 0]);
+                      }
                   } else {
                       $data = [
                               'Code'                    => $isValidConnection,
@@ -97,6 +115,47 @@
                       ];
                       
                       \HCMS\Database::alertDown($data);
+
+                      $errorID = null;
+                      if($exception !== null) {
+                          $error = [
+                              'status' => $isValidConnection,
+                              'errorCode' => $exception->getCode(),
+                              'errorMessage' => $exception->getMessage(),
+                          ];
+
+                          $error['hash'] = crc32(serialize($error));
+
+                          $errors = $db->read('errors', ['id'], ['hash' => $error['hash']]);
+                          if($errors) {
+                              $errorID = $errors[0]['id'];
+                          } else {
+                              $error['dateCreated'] = time();
+                              $error = \HCMS\Error::create($error);
+                              $errorID = $error->id;
+                          }
+
+                      }
+
+                      // Check if issue exists for this error
+                      $result = $db->query('SELECT `I`.`id` FROM `issues` `I` WHERE `I`.`databaseID` = ? AND `I`.`errorID` = ? AND `I`.`auto` = ? AND `I`.`status` IN (1,2);', [$row['id'], $errorID, 1]);
+                      if($result) {
+                          // Confirm it
+                          $db->update('issues', ['id' => $result[0]['id']], ['dateLastConfirmed' => time()]);
+                      } else {
+                          // Create it
+                          $time = time();
+                          $issue = \HCMS\Issue::create([
+                              'databaseID'   => $row['id'],
+                              'errorID'      => $errorID,
+                              'status'       => 1,
+                              'dateCreated'  => $time,
+                              'dateLastConfirmed' => $time,
+                              'auto'         => 1
+                          ]);
+
+                          $db->update('databases', ['id' => $row['id']], ['hasIssue' => 1]);
+                      }
                       echo $row['title'] . ' (' .  $row['id'] . '): ' . 'Failed in ' . $after . 'ms on ' . $dateCreated . PHP_EOL;
                   }
                   
