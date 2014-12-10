@@ -24,8 +24,8 @@ class HomePage extends \HC\Page {
 
 	public function init($GET = [], $POST = []) {
 
-        $scheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: scroll; overflow-x: hidden;"></ul>;
-        $unscheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: scroll; overflow-x: hidden;"></ul>;
+        $scheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: auto; overflow-x: hidden;"></ul>;
+        $unscheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: auto; overflow-x: hidden;"></ul>;
 
         $db = new \HC\DB();
         $result = $db->query('SELECT
