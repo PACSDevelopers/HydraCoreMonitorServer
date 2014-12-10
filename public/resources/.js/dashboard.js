@@ -40,11 +40,8 @@ function serversUp() {
         .done(function(response) {
             if (response.status) {
                 if(response.status) {
-                    console.log(response);
                     var green = parseFloat(response['result'][0]['percent']);
                     var red = (100 - green);
-
-                    console.log(red, green);
 
                     var data = [
                         {
@@ -85,11 +82,8 @@ function domainsUp() {
         .done(function(response) {
             if (response.status) {
                 if(response.status) {
-                    console.log(response);
                     var green = parseFloat(response['result'][0]['percent']);
                     var red = (100 - green);
-
-                    console.log(red, green);
 
                     var data = [
                         {
@@ -130,11 +124,8 @@ function databasesUp() {
         .done(function(response) {
             if (response.status) {
                 if(response.status) {
-                    console.log(response);
                     var green = parseFloat(response['result'][0]['percent']);
                     var red = (100 - green);
-
-                    console.log(red, green);
 
                     var data = [
                         {

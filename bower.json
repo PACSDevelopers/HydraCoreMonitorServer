@@ -1,28 +1,29 @@
 {
-    "name": "TheRyanHowell/HydraCoreMonitorServer",
-    "version": "0.0.1",
-    "description": "This module is a management interface and data aggregator for HydraCore Monitor Client(s).",
-    "authors": [
-        "Ryan Howell"
-    ],
-    "license": "GNU GENERAL PUBLIC LICENSE (Version 3, 29 June 2007) - http://www.gnu.org/licenses/gpl.html",
-    "private": true,
-    "analytics": false,
-    "ignore": [
-        "**/.*",
-        "node_modules",
-        "bower_components",
-        "public/components"
-    ],
-    "dependencies": {
-        "jquery": "*",
-        "bootstrap": "*",
-        "font-awesome": "*",
-        "html5shiv": "*",
-        "modernizr": "*",
-        "respond": "*",
-        "screenfull": "*",
-        "webshim": "*",
-        "bootstrap-toggle": "*"
-    }
+  "name": "TheRyanHowell/HydraCoreMonitorServer",
+  "version": "0.0.1",
+  "description": "This module is a management interface and data aggregator for HydraCore Monitor Client(s).",
+  "authors": [
+    "Ryan Howell"
+  ],
+  "license": "GNU GENERAL PUBLIC LICENSE (Version 3, 29 June 2007) - http://www.gnu.org/licenses/gpl.html",
+  "private": true,
+  "analytics": false,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/components"
+  ],
+  "dependencies": {
+    "jquery": "*",
+    "bootstrap": "*",
+    "font-awesome": "*",
+    "html5shiv": "*",
+    "modernizr": "*",
+    "respond": "*",
+    "screenfull": "*",
+    "webshim": "*",
+    "bootstrap-toggle": "*",
+    "chartjs": "~0.2.0"
+  }
 }
