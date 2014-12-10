@@ -44,7 +44,7 @@ class BodyView extends \HC\View {
                     <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
                         <div class="container">
                             <div class="navbar-header">
-                                <a class="navbar-brand" href={$logoURL}><img src={PROTOCOL.'://'.SITE_DOMAIN . '/resources/images/logo.png'} alt="PACSTools" id="mainLogo" width="400" height="94" /></a>
+                                <a class="navbar-brand" href={$logoURL}><img src={PROTOCOL.'://'.SITE_DOMAIN . '/resources/images/logo.png'} alt="PACSTools" id="mainLogo" width="186" height="50" /></a>
                                 <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
                                     <span class="icon-bar"></span>
                                     <span class="icon-bar"></span>
