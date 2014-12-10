@@ -24,11 +24,11 @@
                     ini_set('session.cookie_secure', 1);
                 }
                 
-                $handler = new Session();
+                $handler = new DBSession();
                 session_set_save_handler($handler, true);
                 \HC\User::startSession();
                 $db = new \HC\DB();
-                $db->update('sessions', ['hash' => session_id()], ['lifeTime' => time() + Session::$lifetime]);
+                $db->update('sessions', ['hash' => session_id()], ['lifeTime' => time() + DBSession::$lifetime]);
             }
             
             return true;
@@ -96,8 +96,8 @@
                     break;
 
                 /* System classes */
-                case 'HCMS\Session':
-                    require_once(HC_APPLICATION_LOCATION . '/modules/data/session.class.php');
+                case 'HCMS\DBSession':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/dbSession.class.php');
                     break;
             }
         }

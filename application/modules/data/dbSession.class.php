@@ -2,7 +2,7 @@
 
 namespace HCMS;
 
-class Session extends \HC\Core implements \SessionHandlerInterface
+class DBSession extends \HC\Core implements \SessionHandlerInterface
 {
     protected $connection = null;
     static public $lifetime = 3600;
