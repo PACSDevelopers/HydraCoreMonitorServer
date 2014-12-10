@@ -31,7 +31,7 @@ class IndexPage extends \HC\Page {
         }
 
         $scheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: auto; overflow-x: hidden;"></ul>;
-        $unscheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: auto; overflow-x: hidden;"></ul>;
+        $unscheduledDowntime = <ul class="list-group" style="max-height: 100px; overflow-y: auto; overflow-x: hidden;"></ul>;
 
         $db = new \HC\DB();
         $result = $db->query('SELECT
@@ -87,13 +87,13 @@ class IndexPage extends \HC\Page {
 
                 switch($row['status']) {
                     case 2:
-                        $class .= ' list-group-item-warning';
+                        $class .= ' text-warning';
                         break;
                     case 3:
-                        $class .= ' list-group-item-success';
+                        $class .= ' text-success';
                         break;
                     default:
-                        $class .= ' list-group-item-danger';
+                        $class .= 'text-danger';
                         break;
                 }
 
@@ -149,7 +149,7 @@ class IndexPage extends \HC\Page {
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <h4 class="text-center">Statistics</h4>
                         <div class="row">
                             <select class="form-control" id="timeScale">
@@ -193,14 +193,14 @@ class IndexPage extends \HC\Page {
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <h4 class="text-center">Unscheduled Downtime</h4>
-                        {$unscheduledDowntime}
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <h4 class="text-center">Scheduled Downtime</h4>
                         {$scheduledDowntime}
                     </div>
+                </div>
+                <div class="row">
+                    <h4 class="text-center">Unscheduled Downtime</h4>
+                    {$unscheduledDowntime}
                 </div>
             </div>
         </x:frag>;
