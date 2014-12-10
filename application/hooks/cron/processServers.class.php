@@ -106,6 +106,15 @@
                   $isValidConnection = \HCMS\Server::checkHTTP(long2ip($row['ip']), $row['url'], true, $extraData, $errorDetails, $key, $auth);
                   $after = microtime(true) - $before;
 
+                  if($isValidConnection === 503) {
+                      if(isset($errorDetails['status'])) {
+                          if($errorDetails['status'] === '503-2') {
+                              $isValidConnection = 200;
+                          }
+                      }
+                  }
+
+
                   if(isset($extraData['total_time']) && isset($extraData['redirect_time'])) {
                       $after = ($extraData['total_time'] - $extraData['redirect_time']);
                   }
