@@ -32,6 +32,139 @@ function showHideSeries (chart, data, series, columns, view, options) {
     }
 }
 
+function serversUp() {
+    $.ajax({
+        type: 'POST',
+        url: '/ajax/servers/charts/processServersUp'
+    })
+        .done(function(response) {
+            if (response.status) {
+                if(response.status) {
+                    console.log(response);
+                    var green = parseFloat(response['result'][0]['percent']);
+                    var red = (100 - green);
+
+                    console.log(red, green);
+
+                    var data = [
+                        {
+                            value: red,
+                            color:"#FF544A",
+                            highlight: "#FF3A2F",
+                            label: "Red"
+                        },
+                        {
+                            value: green,
+                            color: "#64CE60",
+                            highlight: "#46D041",
+                            label: "Green"
+                        }
+                    ];
+
+                    $('#serversUp').replaceWith('<canvas id="serversUp" class="chart forceGPU noselect" width="360" height="200"></canvas>');
+                    var chartContext = $('#serversUp').get(0).getContext('2d');
+                    var chart = new Chart(chartContext).Doughnut(data, {
+                        animateScale: true,
+                        responsive: true,
+                        percentageInnerCutout : 70,
+                        showTooltips: true
+                    });
+                }
+            }
+        })
+        .fail(function() {
+
+        });
+}
+
+function domainsUp() {
+    $.ajax({
+        type: 'POST',
+        url: '/ajax/domains/charts/processDomainsUp'
+    })
+        .done(function(response) {
+            if (response.status) {
+                if(response.status) {
+                    console.log(response);
+                    var green = parseFloat(response['result'][0]['percent']);
+                    var red = (100 - green);
+
+                    console.log(red, green);
+
+                    var data = [
+                        {
+                            value: red,
+                            color:"#FF544A",
+                            highlight: "#FF3A2F",
+                            label: "Red"
+                        },
+                        {
+                            value: green,
+                            color: "#64CE60",
+                            highlight: "#46D041",
+                            label: "Green"
+                        }
+                    ];
+
+                    $('#domainsUp').replaceWith('<canvas id="domainsUp" class="chart forceGPU noselect" width="360" height="200"></canvas>');
+                    var chartContext = $('#domainsUp').get(0).getContext('2d');
+                    var chart = new Chart(chartContext).Doughnut(data, {
+                        animateScale: true,
+                        responsive: true,
+                        percentageInnerCutout : 70,
+                        showTooltips: true
+                    });
+                }
+            }
+        })
+        .fail(function() {
+
+        });
+}
+
+function databasesUp() {
+    $.ajax({
+        type: 'POST',
+        url: '/ajax/databases/charts/processDatabasesUp'
+    })
+        .done(function(response) {
+            if (response.status) {
+                if(response.status) {
+                    console.log(response);
+                    var green = parseFloat(response['result'][0]['percent']);
+                    var red = (100 - green);
+
+                    console.log(red, green);
+
+                    var data = [
+                        {
+                            value: red,
+                            color:"#FF544A",
+                            highlight: "#FF3A2F",
+                            label: "Red"
+                        },
+                        {
+                            value: green,
+                            color: "#64CE60",
+                            highlight: "#46D041",
+                            label: "Green"
+                        }
+                    ];
+
+                    $('#databasesUp').replaceWith('<canvas id="databasesUp" class="chart forceGPU noselect" width="360" height="200"></canvas>');
+                    var chartContext = $('#databasesUp').get(0).getContext('2d');
+                    var chart = new Chart(chartContext).Doughnut(data, {
+                        animateScale: true,
+                        responsive: true,
+                        percentageInnerCutout : 70
+                    });
+                }
+            }
+        })
+        .fail(function() {
+
+        });
+}
 
 function domainData(scale, callback, availability, responseTimes) {
     $.ajax({
@@ -510,9 +643,9 @@ function drawAvailability(availability, result, type) {
         
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', '');
-        data.addColumn('number', 'Server');
-        data.addColumn('number', 'Domain');
-        data.addColumn('number', 'Database');
+        data.addColumn('number', 'Servers');
+        data.addColumn('number', 'Domains');
+        data.addColumn('number', 'Databases');
         data.addRows(dataArray);
 
         var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
@@ -588,9 +721,9 @@ function drawResponseTimes(responseTimes, result, type) {
         
         var data = new google.visualization.DataTable();
         data.addColumn('datetime', '');
-        data.addColumn('number', 'Server');
-        data.addColumn('number', 'Domain');
-        data.addColumn('number', 'Database');
+        data.addColumn('number', 'Servers');
+        data.addColumn('number', 'Domains');
+        data.addColumn('number', 'Databases');
         data.addRows(dataArray);
 
         var dateFormatter = new google.visualization.DateFormat({pattern: 'dd/MM/yyyy hh:mm:ss.SSSS aa'});
@@ -622,7 +755,12 @@ function drawResponseTimes(responseTimes, result, type) {
 }
 
 function drawChart(id, options, data, columns, series) {
-    var chart = new google.visualization.AreaChart(document.getElementById(id));
+    var element = document.getElementById(id);
+    if(!element) {
+        return false;
+    }
+
+    var chart = new google.visualization.AreaChart(element);
     
     if(!columns) {
         // create columns array
@@ -695,7 +833,8 @@ function drawChartsTrigger() {
     var availability = {};
     var responseTimes = {};
     var scale = $('#timeScale').val();
-    $('.chart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
+    $('.serverSideChart').html('<div class="spinner"><div class="rect1"></div><div class="rect2"></div><div class="rect3"></div><div class="rect4"></div><div class="rect5"></div></div>');
+
     setTimeout(function(){
         domainData(scale, drawDomainCharts, availability, responseTimes);
     },0);
@@ -707,7 +846,21 @@ function drawChartsTrigger() {
     },0);
 }
 
+function drawClientSideChartsTrigger() {
+    setTimeout(function(){
+        serversUp();
+    }, 0);
+    setTimeout(function(){
+        domainsUp();
+    }, 0);
+    setTimeout(function(){
+        databasesUp();
+    }, 0);
+}
+
 $(document).ready(function (){
+    drawClientSideChartsTrigger();
+
     $(document).on('chartDraw', function(){
         drawChartsTrigger();
     });

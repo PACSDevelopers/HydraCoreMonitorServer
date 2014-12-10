@@ -50,6 +50,12 @@
                 case 'HCMS\Database':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/database.class.php');
                     break;
+                case 'HCMS\Error':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/error.class.php');
+                    break;
+                case 'HCMS\Issue':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/issue.class.php');
+                    break;
                 case 'HCMS\Template':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/template.class.php');
                     break;

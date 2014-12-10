@@ -168,9 +168,12 @@ class Database extends \HC\Core
         return false;
     }
 
-    public static function testMySQLPort($ip, $port = 3306, $attempts = 1) {
+    public static function testMySQLPort($ip, $port = 3306, $attempts = 1, $timeout = 5) {
         if($ip) {
-            if($fp = @fsockopen($ip, $port)){
+            $errno = 0;
+            $errstr = '';
+
+            if($fp = @fsockopen($ip, $port, $errno, $errstr, $timeout)){
                 fclose($fp);
                 return true;
             }
@@ -178,7 +181,7 @@ class Database extends \HC\Core
 
         if($attempts < 3) {
             $attempts++;
-            return self::testMySQLPort($ip, $port, $attempts);
+            return self::testMySQLPort($ip, $port, $attempts, $timeout);
         }
 
         return false;
@@ -255,22 +258,64 @@ class Database extends \HC\Core
         return $response;
     }
     
-    public function getDatabaseConnection($databasename = 'mysql') {
-        $ip = long2ip($this->intIP);
-        
-        if(self::testMySQLPort($ip)) {
-            try {
-                return new \HC\DB(['databasename' => $databasename, 'host' => $ip, 'username' => $this->username, 'password' => $this->password]);
-            } catch (\Exception $e) {}
+    public function getDatabaseConnection($databasename = 'mysql', $prefer = 1, &$time = null, &$exception = null) {
+        switch($prefer) {
+            case 1:
+                $connection = $this->getInternalConnection($databasename, $time, $exception);
+                if(!$connection) {
+                    $connection = $this->getExternalConnection($databasename, $time, $exception);
+                }
+                break;
+
+            case 2:
+                $connection = $this->getExternalConnection($databasename, $time, $exception);
+                if(!$connection) {
+                    $connection = $this->getInternalConnection($databasename, $time, $exception);
+                }
+                break;
+            case 3:
+                $connection = $this->getInternalConnection($databasename, $time, $exception);
+                break;
+            case 4:
+                $connection = $this->getExternalConnection($databasename, $time, $exception);
+                break;
+            default:
+                throw new \Exception('Unknown prefer integer');
+                break;
         }
 
-        $ip = long2ip($this->extIP);
+        return $connection;
+    }
+
+    protected function getInternalConnection($databasename = 'mysql', &$time = null, &$exception = null) {
+        $ip = long2ip($this->intIP);
+
         if(self::testMySQLPort($ip)) {
             try {
+                $before = microtime(true);
                 return new \HC\DB(['databasename' => $databasename, 'host' => $ip, 'username' => $this->username, 'password' => $this->password]);
-            } catch (\Exception $e) {}
+                $time = microtime(true) - $before;
+            } catch (\Exception $e) {
+                $exception = $e;
+            }
         }
-        
+
+        return false;
+    }
+
+    protected function getExternalConnection($databasename = 'mysql', &$time = null, &$exception = null) {
+        $ip = long2ip($this->extIP);
+
+        if(self::testMySQLPort($ip)) {
+            try {
+                $before = microtime(true);
+                return new \HC\DB(['databasename' => $databasename, 'host' => $ip, 'username' => $this->username, 'password' => $this->password]);
+                $time = microtime(true) - $before;
+            } catch (\Exception $e) {
+                $exception = $e;
+            }
+        }
+
         return false;
     }
     
