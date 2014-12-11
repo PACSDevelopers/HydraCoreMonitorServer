@@ -59,34 +59,34 @@
         ],
         'cron' => [
             'HCMS\Hooks\Cron\ProcessDatabases' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessDomains' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessServers' => [
-                'microtime' => 60
+                'microtime' => 300
             ],
             'HCMS\Hooks\Cron\ProcessBackups' => [
-                'microtime' => 999999999
+                'microtime' => 3600
             ],
             'HCMS\Hooks\Cron\ProcessCleanup' => [
-                'microtime' => 999999999
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessManualBackups' => [
-                'microtime' => 999999999
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessTransfers' => [
-                'microtime' => 999999999
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessExports' => [
-                'microtime' => 999999999
+                'microtime' => 60
             ],
             'HCMS\Hooks\Cron\ProcessVault' => [
-                'microtime' => 999999999
+                'microtime' => 120
             ],
             'HCMS\Hooks\Cron\ProcessVaultCleanup' => [
-                'microtime' => 999999999
+                'microtime' => 3600
             ],
         ]
     ];
