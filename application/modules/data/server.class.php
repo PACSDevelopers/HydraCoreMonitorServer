@@ -117,8 +117,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
-        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
         
@@ -228,8 +228,8 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
-        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 10);
-        curl_setopt($handle, CURLOPT_TIMEOUT, 10);
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
         if($curlResponse) {
@@ -309,9 +309,10 @@ class Server extends \HC\Core
 
         $data = array_reverse($data, 1);
         $db = new \HC\DB();
-        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
+        $users = $db->read('users', ['firstName', 'lastName', 'email', 'phoneNumber'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
+            $text = new \HC\Text();
             $title = $data['Server Title'] . ' - ' . $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
             $tableBody = <tbody></tbody>;
             
@@ -336,6 +337,9 @@ class Server extends \HC\Core
             
             foreach($users as $user) {
                 $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                if(!empty($user['phoneNumber'])) {
+                    $text->send($user['phoneNumber'], $title);
+                }
             }
         }
         return false;

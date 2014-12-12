@@ -127,9 +127,10 @@ class Database extends \HC\Core
         }
 
         $db = new \HC\DB();
-        $users = $db->read('users', ['firstName', 'lastName', 'email'], ['notify' => 1]);
+        $users = $db->read('users', ['firstName', 'lastName', 'email', 'phoneNumber'], ['notify' => 1]);
         if($users) {
             $email = new \HC\Email();
+            $text = new \HC\Text();
             $title = $data['Database Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
             $tableBody = <tbody></tbody>;
             
@@ -154,6 +155,9 @@ class Database extends \HC\Core
             
             foreach($users as $user) {
                 $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                if(!empty($user['phoneNumber'])) {
+                    $text->send($user['phoneNumber'], $title);
+                }
             }
         }
         return false;
