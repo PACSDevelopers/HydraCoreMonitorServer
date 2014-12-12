@@ -31,75 +31,6 @@ class IndexPage extends \HC\Page {
         }
 
         $scheduledDowntime = <ul class="list-group" style="max-height: 600px; overflow-y: auto; overflow-x: hidden;"></ul>;
-        $unscheduledDowntime = <ul class="list-group" style="max-height: 100px; overflow-y: auto; overflow-x: hidden;"></ul>;
-
-        $db = new \HC\DB();
-        $result = $db->query('SELECT
-                                `I`.`dateCreated`,
-                                `I`.`dateLastConfirmed`,
-                                `I`.`dateClosed`,
-                                `I`.`status`,
-                                `I`.`domainID`,
-                                `I`.`databaseID`,
-                                `I`.`serverID`
-                              FROM
-                                `issues` `I`
-                              WHERE
-                                `I`.`auto` = 1 ORDER BY `I`.`status` ASC, `I`.`id` DESC;');
-        if($result) {
-            foreach($result as $row) {
-                $class = 'list-group-item';
-                $content = <small class="text-center" style="display: block;">
-
-                           </small>;
-
-
-
-                if($row['dateClosed']) {
-                    $content->appendChild(<x:frag>{date('Y-m-d H:i:s', $row['dateCreated'])}</x:frag>);
-
-                    $datetime1 = new \DateTime();
-                    $datetime1->setTimestamp($row['dateCreated']);
-
-                    $datetime2 = new \DateTime();
-                    $datetime2->setTimestamp($row['dateClosed']);
-
-                    $duration = $datetime1->diff($datetime2);
-
-                    $content->appendChild(<x:frag> - {$duration->format('%h:%i:%s')}</x:frag>);
-                } else {
-                    $content->appendChild(<x:frag>{date('Y-m-d H:i:s', $row['dateCreated'])}</x:frag>);
-                    if($row['dateCreated'] !== $row['dateLastConfirmed']) {
-                        $content->appendChild(<x:frag> - {date('Y-m-d H:i:s', $row['dateLastConfirmed'])}</x:frag>);
-                    }
-                }
-
-                $affected = '';
-                if($row['domainID'] && $row['serverID']) {
-                    $affected = 'D' . $row['domainID'] . ' S' . $row['serverID'];
-                } else if($row['databaseID']) {
-                    $affected = 'DB' . $row['databaseID'];
-                } else {
-                    $affected = 'D' . $row['domainID'];
-                }
-
-                $content->appendChild(<x:frag> - {$affected}</x:frag>);
-
-                switch($row['status']) {
-                    case 2:
-                        $class .= ' text-warning';
-                        break;
-                    case 3:
-                        $class .= ' text-success';
-                        break;
-                    default:
-                        $class .= 'text-danger';
-                        break;
-                }
-
-                $unscheduledDowntime->appendChild(<li class={$class}>{$content}</li>);
-            }
-        }
 
         $this->body = <x:frag>
             <div class="container">
@@ -197,10 +128,6 @@ class IndexPage extends \HC\Page {
                         <h4 class="text-center">Scheduled Downtime</h4>
                         {$scheduledDowntime}
                     </div>
-                </div>
-                <div class="row">
-                    <h4 class="text-center">Unscheduled Downtime</h4>
-                    {$unscheduledDowntime}
                 </div>
             </div>
         </x:frag>;
