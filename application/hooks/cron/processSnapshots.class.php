@@ -11,7 +11,7 @@
   class ProcessSnapshots extends \HC\Hooks\Cron
 
   {
-      protected $settings;
+      protected $settings = [];
 
       public function __construct($settings = [])
 
