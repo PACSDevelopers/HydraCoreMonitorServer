@@ -23,14 +23,14 @@
                     ini_set('session.use_only_cookies', 1);
                     ini_set('session.cookie_secure', 1);
                 }
-                
+
                 $handler = new DBSession();
                 session_set_save_handler($handler, true);
                 \HC\User::startSession();
                 $db = new \HC\DB();
                 $db->update('sessions', ['hash' => session_id()], ['lifeTime' => time() + DBSession::$lifetime]);
             }
-            
+
             return true;
         }
 
@@ -62,7 +62,7 @@
                 case 'HCMS\Export':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/export.class.php');
                     break;
-                
+
                 /* Hooks */
                 case 'HCMS\Hooks\Cron\ProcessDatabases':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processDatabases.class.php');
@@ -93,6 +93,9 @@
                     break;
                 case 'HCMS\Hooks\Cron\ProcessExports':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processExports.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessSnapshots':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processSnapshots.class.php');
                     break;
 
                 /* System classes */

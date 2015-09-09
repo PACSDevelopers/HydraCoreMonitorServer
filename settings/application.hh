@@ -70,6 +70,9 @@
             'HCMS\Hooks\Cron\ProcessBackups' => [
                 'microtime' => 3600
             ],
+            'HCMS\Hooks\Cron\ProcessSnapshots' => [
+                'microtime' => 3600
+            ],
             'HCMS\Hooks\Cron\ProcessCleanup' => [
                 'microtime' => 60
             ],
