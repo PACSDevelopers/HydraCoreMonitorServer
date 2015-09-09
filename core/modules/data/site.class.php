@@ -152,7 +152,7 @@
             }
 
 
-            if(ENVIRONMENT !== 'PRODUCTION') {
+            if(\HC\Site::checkProductionAccess()) {
                 // Setup the data required to get cpu usage
                 $data = getrusage();
                 $this->rUsage = $data["ru_utime.tv_sec"]*1e6+$data["ru_utime.tv_usec"];
@@ -174,6 +174,11 @@
                 if (REGISTER_SHUTDOWN) {
                     register_shutdown_function('HC\Site::shutDown');
                 }
+            }
+
+            if(PHP_SAPI !== 'cli') {
+                http_response_code(200);
+                ob_start();
             }
 
             return true;
@@ -285,8 +290,7 @@
          */
 
         public static function shutDown() {
-
-
+            
             if (isset($GLOBALS['skipShutdown'])) {
 
                 if ($GLOBALS['skipShutdown']) {
@@ -300,25 +304,44 @@
 
 
             // Loop through all globals
-            foreach ($GLOBALS as &$global) {
+            foreach ($GLOBALS as $key => $value) {
 
                 // If it's an object
-                if (is_object($global)) {
-                    if(get_class($global) !== 'HC\\Site') {
-                        // Only destruct hydracore objects - or objects that extend hydracore
-                        if ((mb_strpos(get_class($global), 'HC\\') !== false) || (self::extendsHydraCore($global))) {
+                if (is_object($value)) {
+                    // Only destruct the page class - or anything that extends it
+                    if (self::extendsHydraCoreClass($value, 'Page')) {
 
-                            if (method_exists($global, '__destruct')) {
+                        // Call the destructor
+                        $GLOBALS[$key] = null;
+                        unset($GLOBALS[$key]);
 
-                                // Call the destructor
-                                $global->__destruct();
-
-                            }
-
-                        }
                     }
                 }
 
+            }
+
+            
+            if(function_exists('getallheaders')) {
+                if(http_response_code() === 200) {
+                    $headers = \getallheaders();
+                    $contents = ob_get_contents();
+                    if($contents) {
+                        $md5 = md5($contents);
+                        if(isset($headers['If-None-Match'])) {
+                            if($headers['If-None-Match'] === $md5) {
+                                ob_end_clean();
+                                header('HTTP/1.1 304 Not Modified');
+                            }
+                        }
+
+                        header('Pragma: public', true);
+                        header('Content-Length: ' . strlen($contents), true);
+                        header('ETag: '. $md5, true);
+                        header_remove('cache-control');
+                        header_remove('expires');
+                        header_remove('last-modified');
+                    }
+                }
             }
 
             $GLOBALS['skipShutdown'] = true;
@@ -403,13 +426,54 @@
                     }
                 }
             }
-
+            
             $GLOBALS['skipPostSend'] = true;
+
+            // Loop through all globals
+            foreach ($GLOBALS as $key => $value) {
+
+                // If it's an object
+                if (is_object($value)) {
+                    if(get_class($value) !== 'HC\\Site') {
+                        // Only destruct hydracore objects - or objects that extend hydracore
+                        if (self::extendsHydraCore($value)) {
+                            // Call the destructor
+                            $GLOBALS[$key] = null;
+                            unset($GLOBALS[$key]);
+                        }
+                    }
+                }
+
+            }
 
             return true;
 
         }
 
+        public static function checkProductionAccess() {
+            if(ENVIRONMENT === 'PRODUCTION') {
+                if(isset($_SESSION) && isset($_SESSION['HC_USER_HAS_PRODUCTION_ACCESS'])) {
+                    return true;
+                }
+                
+                if(function_exists('getallheaders') && isset($GLOBALS['HC_CORE'])) {
+                    $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+                    if(isset($globalSettings['monitor-client']) && isset($globalSettings['monitor-client']['key'])) {
+                        $headers = \getallheaders();
+                        if(isset($headers['X-Hc-Auth-Code'])) {
+                            $authenticator = new \HC\Authenticator();
+                            $authenticator->setCodeLength(9);
+                            if($authenticator->verifyCode($globalSettings['monitor-client']['key'], $headers['X-Hc-Auth-Code'])) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+                }
+            }
+            
+            return true;
+        }
 
         public static function extendsHydraCore($class) {
 

@@ -14,7 +14,7 @@ class CreatePage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms'      => true,
-									'databaseForm' => true
+									'databases/databaseForm' => true
 							]
 					],
 					'body' => true,
@@ -43,12 +43,57 @@ class CreatePage extends \HC\Page {
                                 </div>
 
                                 <div class="form-group">
-                                        <label class="col-sm-2 control-label" for="databaseIP">IP</label>
+                                        <label class="col-sm-2 control-label" for="databaseExtIP">External IP</label>
                                         <div class="col-sm-10">
-                                                <input type="text" class="form-control" placeholder="IP" id="databaseIP" required="required" />
+                                                <input type="text" class="form-control" placeholder="External IP" id="databaseExtIP" required="required" />
+                                        </div>
+                                </div>
+        
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databaseIntIP">Internal IP</label>
+                                        <div class="col-sm-10">
+                                                <input type="text" class="form-control" placeholder="Internal IP" id="databaseIntIP" required="required" />
+                                        </div>
+                                </div>
+        
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databaseUsername">Username</label>
+
+                                        <div class="col-sm-10">
+                                                <input type="text" class="form-control input-force-lowercase" placeholder="Username" id="databaseUsername"
+                                                            required="required" />
+                                        </div>
+                                </div>
+
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databasePassword">Password</label>
+
+                                        <div class="col-sm-10">
+                                                <input type="password" class="form-control" placeholder="Password" id="databasePassword"
+                                                            required="required" />
                                         </div>
                                 </div>
                                 
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databaseBackupType">Backup Type</label>
+
+                                        <div class="col-sm-10">
+                                                <select class="form-control" id="databaseBackupType" required="required">
+                                                    <option value="0">None</option>
+                                                    <option value="1">MySQLDump (direct)</option>
+                                                </select>
+                                        </div>
+                                </div>
+        
+                                <div class="form-group">
+                                        <label class="col-sm-2 control-label" for="databaseBackupInterval">Backup Interval <small>(hours)</small></label>
+
+                                        <div class="col-sm-10">
+                                                <input type="number" class="form-control" placeholder="Backup Interval" id="databaseBackupInterval"
+                                                            required="required" min="0" value="0" />
+                                        </div>
+                                </div>
+        
                                 <div class="form-group">
                                         <div id="alertBox"></div>
                                         <button type="button" class="btn btn-default pull-right" onclick="submitForm();">Create Database</button>

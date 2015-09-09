@@ -18,16 +18,19 @@
 
             spl_autoload_register('\HCMS\Core::autoLoader');
 
-            if(PROTOCOL === 'https') {
-                ini_set('session.use_only_cookies', 1);
-                ini_set('session.cookie_secure', 1);
+            if(PHP_SAPI !== 'cli') {
+                if(PROTOCOL === 'https') {
+                    ini_set('session.use_only_cookies', 1);
+                    ini_set('session.cookie_secure', 1);
+                }
+                
+                $handler = new DBSession();
+                session_set_save_handler($handler, true);
+                \HC\User::startSession();
+                $db = new \HC\DB();
+                $db->update('sessions', ['hash' => session_id()], ['lifeTime' => time() + DBSession::$lifetime]);
             }
-
-            // Bind Session Handler
-            $handler = new Session();
-            session_set_save_handler($handler, true);
-            \HC\User::startSession();
-
+            
             return true;
         }
 
@@ -47,6 +50,18 @@
                 case 'HCMS\Database':
                     require_once(HC_APPLICATION_LOCATION . '/modules/data/database.class.php');
                     break;
+                case 'HCMS\Error':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/error.class.php');
+                    break;
+                case 'HCMS\Issue':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/issue.class.php');
+                    break;
+                case 'HCMS\Template':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/template.class.php');
+                    break;
+                case 'HCMS\Export':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/export.class.php');
+                    break;
                 
                 /* Hooks */
                 case 'HCMS\Hooks\Cron\ProcessDatabases':
@@ -58,10 +73,31 @@
                 case 'HCMS\Hooks\Cron\ProcessServers':
                     require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processServers.class.php');
                     break;
-                
+                case 'HCMS\Hooks\Cron\ProcessBackups':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processBackups.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessManualBackups':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processManualBackups.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessVault':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processVault.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessCleanup':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processCleanup.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessVaultCleanup':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processVaultCleanup.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessTransfers':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processTransfers.class.php');
+                    break;
+                case 'HCMS\Hooks\Cron\ProcessExports':
+                    require_once(HC_APPLICATION_LOCATION . '/hooks/cron/processExports.class.php');
+                    break;
+
                 /* System classes */
-                case 'HCMS\Session':
-                    require_once(HC_APPLICATION_LOCATION . '/modules/data/session.class.php');
+                case 'HCMS\DBSession':
+                    require_once(HC_APPLICATION_LOCATION . '/modules/data/dbSession.class.php');
                     break;
             }
         }

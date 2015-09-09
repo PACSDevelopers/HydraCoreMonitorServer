@@ -15,7 +15,9 @@ class ServerPage extends \HC\Page {
 									'main' => true,
 									'bootstrap-functions' => true,
 									'forms' => true,
-									'serverForm' => true
+									'servers/serverForm' => true,
+                                    'servers/serverTable' => true,
+                                    'servers/serverCharts' => true
 							]
 					],
                     'body' => [
@@ -42,9 +44,23 @@ class ServerPage extends \HC\Page {
 		$db = new \HC\DB();
 
         if($_SESSION['user']->hasPermission('Delete')) {
-            $this->settings['views']['body']['headerButtonsRight'] = [<button class="btn btn-primary" onclick="deleteServer();">Delete Server</button>];
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="deleteServer();">Delete Server</button>;
         }
 
+        if($_SESSION['user']->hasPermission('Restart Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="restartServer();">Restart Server</button>;
+        }
+
+        if($_SESSION['user']->hasPermission('Reboot Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="rebootServer();">Reboot Server</button>;
+        }
+
+        if($_SESSION['user']->hasPermission('Update Server')) {
+            $this->settings['views']['body']['headerButtonsRight'][] = <button class="btn btn-primary pull-right" onclick="updateServer();">Update Server</button>;
+        }
+
+        
+        
         $isDisabled = !$_SESSION['user']->hasPermission('Edit');
 
         $results = $db->read([
@@ -91,13 +107,11 @@ class ServerPage extends \HC\Page {
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
-                            <div class="col-lg-8 col-md-12 col-sm-12">
+                            <div class="container">
                                 <h1>Server Details</h1>
                                 <div class="row">
                                         <form action="" class="form-horizontal" role="form"> 
-                                                <input type="hidden" name="serverD" id="serverID" value={$server->id} />
+                                                <input type="hidden" name="serverID" id="serverID" value={$server->id} />
                                                 <div class="form-group">
                                                         <label class="col-sm-2 control-label" for="serverTitle">Title</label>
         
@@ -119,6 +133,39 @@ class ServerPage extends \HC\Page {
                                                 </div>
         
                                                 <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverStatus">Status</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <span class="serverStatusIcon glyphicons circle_question_mark pull-right" data-id={$server->id}></span>
+                                                        </div>
+                                                </div>
+                                                
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverUpdates">Updates</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="number" disabled="disabled" class="form-control" placeholder="Updates" id="serverUpdates" value={$server->updates} />
+                                                        </div>
+                                                </div>
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverSecurityUpdates">Security Updates</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <input type="number" disabled="disabled" class="form-control" placeholder="Updates" id="serverSecurityUpdates" value={$server->securityUpdates} />
+                                                        </div>
+                                                </div>
+            
+                                                <div class="form-group">
+                                                        <label class="col-sm-2 control-label" for="serverRebootRequired">Reboot Required</label>
+        
+                                                        <div class="col-sm-10">
+                                                                <span class="pull-right">{$server->rebootRequired ? 'Yes' : 'No'}</span>
+                                                        </div>
+                                                </div>
+        
+                                                <div class="form-group">
                                                         <div id="alertBox"></div>
                                                         <div class="col-sm-2"></div>
                                                         <div class="col-sm-10 text-right">
@@ -128,14 +175,9 @@ class ServerPage extends \HC\Page {
                                         </form>
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-2 col-md-0 col-sm-0">
-                            </div>
-        
-                            <div class="col-lg-8 col-md-12 col-sm-12">
+                        <div class="row">        
+                            <div class="container">
                                 <h2>Domains</h2>
                                 <div class="row">
                                     <div class="table-responsive">
@@ -153,11 +195,142 @@ class ServerPage extends \HC\Page {
                                         <button type="button" disabled={$isDisabled} class="btn btn-primary pull-right" onclick="addDomain();">Add Domain</button>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="col-lg-2 col-md-0 col-sm-0">
+                                <div class="row">
+                                    <select class="form-control" id="timeScale">
+                                        <option value="0">Hour</option>
+                                        <option value="1">Day</option>
+                                        <option value="2">Week</option>
+                                        <option value="3">Month</option>
+                                    </select>
+                                </div>
+                                <div class="row">
+                                    <div id="serverHistoryApplicationResponseTime" class="chart forceGPU noselect">
+                                        <div class="spinner">
+                                          <div class="rect1"></div>
+                                          <div class="rect2"></div>
+                                          <div class="rect3"></div>
+                                          <div class="rect4"></div>
+                                          <div class="rect5"></div>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <div id="serverHistoryUsage" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div id="historyAvailability" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-lg-6">
+                                        <div id="historyResponseTime" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryApplicationRPM" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryApplicationQPM" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryApplicationAVGTimeCPUBound" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+        
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryIOWait" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryTPS" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+        
+                                    <div class="col-lg-4">
+                                        <div id="serverHistoryNetworkTraffic" class="chart forceGPU noselect">
+                                            <div class="spinner">
+                                              <div class="rect1"></div>
+                                              <div class="rect2"></div>
+                                              <div class="rect3"></div>
+                                              <div class="rect4"></div>
+                                              <div class="rect5"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                        
                       </x:frag>;
         
 		return 1;

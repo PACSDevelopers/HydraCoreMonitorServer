@@ -2,7 +2,7 @@
 namespace HCMS;
 
 class Server extends \HC\Core
-{
+{    
     protected $db;
     protected $data = [];
 
@@ -84,7 +84,7 @@ class Server extends \HC\Core
         return $response;
     }
 
-    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], $prefix = 'http', $suffix = '', $cookies = [], $trips = 0) {
+    public static function checkHTTP($ip, $url, $returnCode = false, &$extraData = [], &$errorDetails = [], $key = false, $auth = false, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -108,17 +108,24 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_FOLLOWLOCATION, false);
         curl_setopt($handle, CURLOPT_HEADER, true);
         curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handle, CURLOPT_HTTPHEADER, ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1']);
+        $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
+        if($key && $auth) {
+            $headers[] = 'X-Hc-Auth-Code: ' . $auth->getCode($key);
+        }
+        
+        curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
-
+        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
-            if($httpCode === 301 || $httpCode === 302) {
+            if($httpCode === 301 || $httpCode === 302 || $httpCode === 307) {
                 $oldCookies = $cookies;
                 $matches = [];
                 preg_match_all('/^Set-Cookie: (.*?)=(.*?);/m', $curlResponse, $matches);
@@ -154,7 +161,7 @@ class Server extends \HC\Core
                             $location['path'] .= '?' . $location['query'];
                         }
 
-                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $location['scheme'], $location['path'], $cookies, $trips);
+                        $returnValue = self::checkHTTP($ip, $location['host'], $returnCode, $extraData, $errorDetails, $key, $auth, $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                         $extraData['redirect_count'] = $trips;
                         return $returnValue;
                     }
@@ -167,9 +174,24 @@ class Server extends \HC\Core
             $httpCode = $curlErrorCode;
         }
 
-        curl_close($handle);
+        
 
-        if($returnCode) {
+        if($httpCode !== 200) {
+            $header_size = curl_getinfo($handle, CURLINFO_HEADER_SIZE);
+            $header = substr($curlResponse, 0, $header_size);
+            $body = substr($curlResponse, $header_size);
+            $json = json_decode($body, true);
+            if($json) {
+                $errorDetails = $json;
+            }
+        }
+
+        curl_close($handle);
+        
+        if($httpCode !== 200 && $attempts < 3) {
+            $attempts++;
+            return self::checkHTTP($ip, $url, $returnCode, $extraData, $errorDetails, $key, $auth, $prefix , $suffix, $cookies, $trips, $attempts);
+        } else if($returnCode) {
             return $httpCode;
         } else if($httpCode === 200) {
             return true;
@@ -178,7 +200,7 @@ class Server extends \HC\Core
         return false;
     }
 
-    public static function checkClient($ip, $url, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0) {
+    public static function checkClient($ip, $url, $prefix = 'http', $suffix = '', $cookies = [], $trips = 0, $attempts = 1) {
         $httpCode = false;
         $port = 80;
         if($prefix === 'https') {
@@ -206,13 +228,14 @@ class Server extends \HC\Core
         curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($handle, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($handle, CURLOPT_COOKIE, http_build_query($cookies));
+        curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+        curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
         $curlResponse = curl_exec($handle);
-        
         if($curlResponse) {
             $extraData = curl_getinfo($handle);
             $httpCode = $extraData['http_code'];
-            if($httpCode === 301 || $httpCode === 302) {
+            if($httpCode === 301 || $httpCode === 302 || $httpCode === 307) {
                 $oldCookies = $cookies;
                 $matches = [];
                 preg_match_all('/^Set-Cookie: (.*?)=(.*?);/m', $curlResponse, $matches);
@@ -248,8 +271,7 @@ class Server extends \HC\Core
                             $queryArr = explode('?', $location['query']);
                             $location['path'] .= '?' . $queryArr[0];
                         }
-                        $returnValue = self::checkClient($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips);
-                        return $returnValue;
+                        return self::checkClient($ip, $location['host'], $location['scheme'], $location['path'], $cookies, $trips, $attempts);
                     }
                 }
             }
@@ -268,17 +290,115 @@ class Server extends \HC\Core
         
         if($httpCode === 200) {
             return json_decode($body, true);
+        } else if($attempts < 3) {
+            $attempts++;
+            return self::checkClient($ip, $url, $prefix, $suffix, $cookies, $trips, $attempts);
         }
 
         return false;
     }
 
+    public static function alertDown($data){
+        $data = array_reverse($data, 1);
+
+        if(isset(\HC\Error::$errorTitle[$data['Code']])) {
+            $data['Code Message'] = \HC\Error::$errorTitle[$data['Code']];
+        } else {
+            $data['Code Message'] = \HC\Error::curl_strerror($data['Code']);
+        }
+
+        $data = array_reverse($data, 1);
+        $db = new \HC\DB();
+        $users = $db->read('users', ['firstName', 'lastName', 'email', 'phoneNumber'], ['notify' => 1]);
+        if($users) {
+            $email = new \HC\Email();
+            $text = new \HC\Text();
+            $title = $data['Server Title'] . ' - ' . $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
+            $tableBody = <tbody></tbody>;
+            
+            foreach($data as $key => $value) {
+                $tableBody->appendChild(<tr>
+                    <td>{$key}</td>
+                    <td>{$value}</td>
+                </tr>);
+            }
+            
+            $message = <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            {$tableBody}
+                        </table>;
+            
+            $message = $message->__toString();
+            
+            foreach($users as $user) {
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                if(!empty($user['phoneNumber'])) {
+                    $text->send($user['phoneNumber'], $title);
+                }
+            }
+        }
+        return false;
+    }
+    
     public static function create($data){
         $db = new \HC\DB();
         $query = $db->write('servers', $data);
         if($query) {
             return new self(['id' => $db->getLastID()]);
         }
+        return false;
+    }
+    
+    public function requestUpdate() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/update/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public function requestRestart() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/restart/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    public function requestReboot() {
+        $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+        if(isset($globalSettings['monitor-server']) && isset($globalSettings['monitor-server']['domain']) && isset($globalSettings['monitor-server']['key'])) {
+            $authenticator = new \HC\Authenticator();
+            $authenticator->setCodeLength(9);
+            $response = \HCMS\Server::checkClient($this->ip, $globalSettings['monitor-server']['domain'], 'http', '/v1/reboot/request?code=' . $authenticator->getCode($globalSettings['monitor-server']['key']));
+            if($response) {
+                if(isset($response['status']) && $response['status']) {
+                    return true;
+                }
+            }
+        }
+        
         return false;
     }
 

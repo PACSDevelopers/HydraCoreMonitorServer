@@ -159,8 +159,11 @@
 
 					if (!isset($_SESSION['user'])) {
 
-						header('Location: ' . PROTOCOL . '://' . SITE_DOMAIN);
+                        if(!$this->isAJAX) {
+                            header('Location: ' . PROTOCOL . '://' . SITE_DOMAIN . '/' . LOGIN_PAGE);
+                        }
 
+                        $_SESSION['desiredLoginPage'] = PROTOCOL . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 						exit();
 
 					}
@@ -221,39 +224,39 @@
                 }
 
                 if (isset($this->settings['views'])) {
-										if($this->isAJAX) {
-											$page = $this->body;
-										} else {
-											try {
-												$body = <x:frag></x:frag>;
-												$header = <x:frag></x:frag>;
+                    if($this->isAJAX) {
+                        $page = $this->body;
+                    } else {
+                        try {
+                            $body = <x:frag></x:frag>;
+                            $header = <x:frag></x:frag>;
 
-												foreach ($this->settings['views'] as $row => $value) {
-														if ($value) {
-																if($row === 'header') {
-																		$header = $this->getView($row, $value);
-																} else {
-																		// Render default view that was defined
-																		$body->appendChild($this->getView($row, $value));
-																}
-														}
-												}
+                            foreach ($this->settings['views'] as $row => $value) {
+                                    if ($value) {
+                                            if($row === 'header') {
+                                                    $header = $this->getView($row, $value);
+                                            } else {
+                                                    // Render default view that was defined
+                                                    $body->appendChild($this->getView($row, $value));
+                                            }
+                                    }
+                            }
 
-												$page = <x:doctype>
-                                                                <html>
-                                                                        <head>{$header}</head>
-                                                                        <body>{$body}</body>
-                                                                </html>
-                                                        </x:doctype>;
-											}	catch (\Exception $exception) {
-												Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 2, $exception->getTrace(), true);
-												return true;
-											}
-										}
+                            $page = <x:doctype>
+                                            <html>
+                                                    <head>{$header}</head>
+                                                    <body>{$body}</body>
+                                            </html>
+                                    </x:doctype>;
+                        }	catch (\Exception $exception) {
+                            Error::exceptionHandler($exception);
+                            return true;
+                        }
+                    }
 
-										$this->sendHeader();
+                    $this->sendHeader();
 
-										$this->rendered = true;
+                    $this->rendered = true;
                     return $page;
                 }
 
@@ -387,8 +390,6 @@
 
 					flush();
 
-					session_write_close();
-
 
 
 					return true;
@@ -403,17 +404,68 @@
 
 		}
 
+        /**
+         * @param  string [][] $viewSettings
+         * @return string
+         */
+
+        public static function generateComponents($additional = [], $type = 'all')
+
+        {
+            $output = <x:frag></x:frag>;
+            
+            $siteSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
+            if($type === 'all' || $type === 'css') {
+                if (isset($siteSettings['pages'])) {
+                    if (isset($siteSettings['pages']['components'])) {
+                        if (isset($siteSettings['pages']['components']['css'])) {
+                            foreach($siteSettings['pages']['components']['css'] as $css) {
+                                $output->appendChild(<link rel="stylesheet" type="text/css" href={PROTOCOL . '://' . SITE_DOMAIN . $css} />);
+                            }
+                        }
+                    }
+                }
+
+                if(isset($additional['css'])) {
+                    foreach($additional['css'] as $css) {
+                        $output->appendChild(<link rel="stylesheet" type="text/css" href={PROTOCOL . '://' . SITE_DOMAIN . $css} />);
+                    }
+                }
+            }
+            
+            if($type === 'all' || $type === 'js') {
+                if (isset($siteSettings['pages'])) {
+                    if (isset($siteSettings['pages']['components'])) {
+                        if (isset($siteSettings['pages']['components']['js'])) {
+                            foreach($siteSettings['pages']['components']['js'] as $js) {
+                                $output->appendChild(<script src={PROTOCOL . '://' . SITE_DOMAIN .  $js}></script>);
+                            }
+                        }
+                    }
+                }
+
+                if(isset($additional['js'])) {
+                    foreach($additional['js'] as $js) {
+                        $output->appendChild(<script src={PROTOCOL . '://' . SITE_DOMAIN .  $js}></script>);
+                    }
+                }
+            }
+            
+			return $output;
+
+		}
 
 
-		/**
-		 * @param  string [][] $viewSettings
-		 * @return string
-		 */
 
-		public static function generateResources($viewSettings, $type = 'all')
+        /**
+         * @param  string [][] $viewSettings
+         * @return string
+         */
 
-		{
-			$output = '';
+        public static function generateResources($viewSettings, $type = 'all')
+
+        {
+            $output = <x:frag></x:frag>;
 
 
 
@@ -422,72 +474,66 @@
 
 			if (isset($siteSettings['compilation'])) {
 
-				if (isset($siteSettings['compilation']['path'])) {
+                if (isset($siteSettings['compilation']['path'])) {
 
-					$resourcePath = $siteSettings['compilation']['path'];
+                    $resourcePath = $siteSettings['compilation']['path'];
 
-				} else {
+                } else {
 
-					$resourcePath = '/resources/';
+                    $resourcePath = '/resources/';
 
-				}
+                }
 
-			} else {
+            } else {
 
-				$resourcePath = '/resources/';
+                $resourcePath = '/resources/';
 
-			}
+            }
 
 
 
+            $viewSettings = Core::parseOptions($viewSettings, ['scss' => [], 'less' => [], 'js' => []]);
+            
 			// Exclude settings we no longer need
 			if (isset($siteSettings['pages'])) {
 
-				if (isset($siteSettings['pages']['resources'])) {
-
-					$siteSettings = $siteSettings['pages']['resources'];
-
-				}
-
-			}
+                if (isset($siteSettings['pages']['resources'])) {
+                    // Parse the view settings based on default
+                    $siteSettingsResources = Core::parseOptions($siteSettings['pages']['resources'], ['scss' => [], 'less' => [], 'js' => []]);
 
 
-
-			// Parse the view settings based on default
-			$siteSettings = Core::parseOptions($siteSettings, ['scss' => [], 'less' => [], 'js' => []]);
-
-
-
-			// Parse the view settings based on site settings
-			$viewSettings = Core::parseOptions($viewSettings, $siteSettings);
-
-
+                    // Parse the view settings based on site settings
+                    $viewSettings = Core::parseOptions($viewSettings, $siteSettingsResources);
+                }
+                
+            }
+            
 
 			switch($type) {
 
                 case 'js':
 
-					$output .= self::renderJS($resourcePath, $viewSettings);
+                    $output->appendChild(self::renderJS($resourcePath, $viewSettings));
 
-				break;
+                    break;
 
 
 
-				case 'css':
+                case 'css':
 
-					$output .= self::renderCSS($resourcePath, $viewSettings);
+                    $output->appendChild(self::renderCSS($resourcePath, $viewSettings));
 
-				break;
+                    break;
 
                 default:
 
-                    $output .= self::renderCSS($resourcePath, $viewSettings);
+                    $output->appendChild(self::renderCSS($resourcePath, $viewSettings));
 
-                    $output .= self::renderJS($resourcePath, $viewSettings);
+                    $output->appendChild(self::renderJS($resourcePath, $viewSettings));
 
-                break;
+                    break;
 
-			}
+            }
 
 
 
@@ -499,7 +545,7 @@
 
 		private static function renderCSS($resourcePath, $viewSettings) {
 
-			$output = '';
+			$output = <x:frag></x:frag>;
 
 
 
@@ -513,7 +559,7 @@
 						// Link the resources
 						foreach ($viewSettings[$css] as $row => $value) {
 
-							$output .= '<link rel="stylesheet" type="text/css" href="' . PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . $css . '/' . $row . '.' . $css . '.css">' . PHP_EOL;
+							$output->appendChild(<link rel="stylesheet" type="text/css" href={PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . $css . '/' . $row . '.' . $css . '.css'} />);
 
 						}
 
@@ -533,7 +579,7 @@
 
 		private static function renderJS($resourcePath, $viewSettings) {
 
-			$output = '';
+            $output = <x:frag></x:frag>;
 
 			if (isset($viewSettings['js'])) {
 
@@ -545,13 +591,13 @@
 									if (ENVIRONMENT === 'DEV') {
 
 											// Include un-compiled js for development environments
-											$output .= '<script src="' . PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . '.js/' . $row . '.js"></script>' . PHP_EOL;
+											$output->appendChild(<script src={PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . '.js/' . $row . '.js'}></script>);
 
 											continue;
 
 									}
 
-									$output .= '<script src="' . PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . 'js/' . $row . '.min.js"></script>' . PHP_EOL;
+                                $output->appendChild(<script src={PROTOCOL . '://' . SITE_DOMAIN . $resourcePath . 'js/' . $row . '.min.js'}></script>);
 
 							}
 

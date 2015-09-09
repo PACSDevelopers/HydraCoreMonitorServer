@@ -88,7 +88,7 @@ class Domain extends \HC\Core
         return false;
     }
     
-    public static function checkHTTP($url, $returnCode = false, &$extraData = []) {
+    public static function checkHTTP($url, $returnCode = false, &$extraData = [], &$errorDetails = [], $key = false, $auth = false, $attempts = 1) {
         $url = (string)$url;
         
         if(gethostbyname($url) !== $url) {
@@ -104,11 +104,18 @@ class Domain extends \HC\Core
                 touch($tempCookiesFile);
             }
 
-            curl_setopt($handle, CURLOPT_HTTPHEADER, ['X-Hc-Skip-App-Stats: 1']);
+            $headers = ['Host: ' . $url, 'X-Hc-Skip-App-Stats: 1', 'X-Requested-With: XMLHttpRequest'];
+            if($key && $auth) {
+                $headers[] = 'X-Hc-Auth-Code: ' . $auth->getCode($key);
+            }
+
+            curl_setopt($handle, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($handle, CURLOPT_COOKIEJAR, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_COOKIEFILE, $tempCookiesFile);
             curl_setopt($handle, CURLOPT_SSL_VERIFYPEER, true);
+            curl_setopt($handle, CURLOPT_CONNECTTIMEOUT, 60);
+            curl_setopt($handle, CURLOPT_TIMEOUT, 60);
 
             $curlResponse = curl_exec($handle);
             if($curlResponse) {
@@ -121,15 +128,78 @@ class Domain extends \HC\Core
                 $httpCode = $curlErrorCode;
             }
 
+            if($httpCode !== 200) {
+                $json = json_decode($curlResponse, true);
+                if($json) {
+                    $errorDetails = $json;
+                }
+            }
+
             curl_close($handle);
             
-            if($returnCode) {
+            if($httpCode !== 200 && $attempts < 3) {
+                $attempts++;
+                return self::checkHTTP($url, $returnCode, $extraData, $errorDetails, $key, $auth, $attempts);
+            } else if($returnCode) {
                 return $httpCode;
             } else if($httpCode === 200) {
                 return true;
             }
         }
         
+        if($attempts < 3) {
+            $attempts++;
+            return self::checkHTTP($url, $returnCode, $extraData, $attempts);
+        }
+        
+        return false;
+    }
+
+    public static function alertDown($data){
+        $data = array_reverse($data, 1);
+
+        if(isset(\HC\Error::$errorTitle[$data['Code']])) {
+            $data['Code Message'] = \HC\Error::$errorTitle[$data['Code']];
+        } else {
+            $data['Code Message'] = \HC\Error::curl_strerror($data['Code']);
+        }
+
+        $data = array_reverse($data, 1);
+        
+        $db = new \HC\DB();
+        $users = $db->read('users', ['firstName', 'lastName', 'email', 'phoneNumber'], ['notify' => 1]);
+        if($users) {
+            $email = new \HC\Email();
+            $text = new \HC\Text();
+            $title = $data['Domain Title'] . ': ' . 'Failed (' . $data['Code']. ' - ' . $data['Code Message'] . ')';
+            $tableBody = <tbody></tbody>;
+            
+            foreach($data as $key => $value) {
+                $tableBody->appendChild(<tr>
+                    <td>{$key}</td>
+                    <td>{$value}</td>
+                </tr>);
+            }
+            
+            $message = <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            {$tableBody}
+                        </table>;
+            
+            $message = $message->__toString();
+            
+            foreach($users as $user) {
+                $email->send($user['email'], $title, $message, ['toName' => $user['firstName'] . ' ' . $user['lastName']]);
+                if(!empty($user['phoneNumber'])) {
+                    $text->send($user['phoneNumber'], $title);
+                }
+            }
+        }
         return false;
     }
 

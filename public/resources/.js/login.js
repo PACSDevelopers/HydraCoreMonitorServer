@@ -48,7 +48,7 @@ function doLoginAJAX(data){
                     if (response.errors.length == 0) {
                         if(response['user']['loggedIn'] == 1) {
                             $('#alertBox').html(bootstrapAlert('success', 'Logging you in now, ' + response.user.f + ' ' + response.user.l + '.')).slideDown();
-                            document.location.href = '/home';
+                            document.location.href = response.url;
                         }
                     } else {
                         if (response.errors.e5 || response.errors.e6 || response.errors.e7) {

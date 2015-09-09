@@ -2960,6 +2960,10 @@ var MD5 = function (string) {
     };
 
     function ConvertToWordArray(string) {
+        if(!string || !string.length) {
+            return [];
+        }
+        
         var lWordCount;
         var lMessageLength = string.length;
         var lNumberOfWords_temp1=lMessageLength + 8;
@@ -2993,6 +2997,10 @@ var MD5 = function (string) {
     };
 
     function Utf8Encode(string) {
+        if(!string || !string.replace) {
+            return false;
+        }
+        
         string = string.replace(/\r\n/g,"\n");
         var utftext = "";
 

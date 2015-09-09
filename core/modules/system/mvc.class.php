@@ -51,6 +51,9 @@
 			// Parse default options
 			$this->settings = $this->parseOptions($settings, ['rewrites' => [], 'enabled' => false, 'api' => false]);
 
+            if($this->settings['enabled'] !== true) {
+                return false;
+            }
 
 
 			$this->GET = $_GET;
@@ -77,7 +80,7 @@
 
 					chdir(dirname($path));
 
-                    if(ENVIRONMENT !== 'PRODUCTION') {
+                    if(ENVIRONMENT === 'DEV') {
                         if(!\HC\Error::checkPHPSyntax($path)) {
                             return false;
                         }
@@ -109,7 +112,7 @@
                                         $status = $page->init($this->GET, $this->POST);
                                     }
 
-									if($status === 302 || $status === 301) {
+                                    if($status === 301 || $status === 302 || $status === 307) {
 										$page->setRendered(true);
 										$page = null;
 										unset($page);
@@ -127,7 +130,7 @@
                   return true;
 								} catch (\Exception $exception) {
 									// Trigger the error handler, based on exception details
-									Error::errorHandler($exception->getCode(), $exception->getMessage(), $exception->getFile(), $exception->getLine(), 0, $exception->getTrace(), true);
+                                    Error::exceptionHandler($exception);
                   return true;
 								}
 							}
@@ -145,30 +148,34 @@
 
 			}
 
-            if(isset($path)) {
-                if(is_file($path)) {
+            if($this->settings['enabled'] === true) {
+                if (isset($path)) {
+                    if (is_file($path)) {
 
-                    if($this->settings['enabled'] === true) {
+                        if ($this->settings['enabled'] === true) {
 
-                        if(isset($class)) {
+                            if (isset($class)) {
 
-                            // @todo: throw exception
-                            \HC\Error::errorHandler(404, 'No HydraCore page was defined, expected: ' . $class, $path, 0);
+                                // @todo: throw exception
+                                \HC\Error::errorHandler(404, 'No HydraCore page was defined, expected: ' . $class, $path, 0);
+                                return false;
+                                
+                            } else {
 
-                        } else {
-
-                            // @todo: throw exception
-                            \HC\Error::errorHandler(404, 'No HydraCore page was defined.', $path, 0);
+                                // @todo: throw exception
+                                \HC\Error::errorHandler(404, 'No HydraCore page was defined.', $path, 0);
+                                return false;
+                            }
 
                         }
 
                     }
-
                 }
-            }
 
-            $error = new \HC\Error();
-            $error->generateErrorPage(404);
+                $error = new \HC\Error();
+                $error->generateErrorPage(404);
+            }
+            
 			return false;
 
 		}

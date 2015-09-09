@@ -7,14 +7,18 @@
 	// Make sure we have enough time to finish
 	set_time_limit(0);
 	ini_set('max_execution_time', 0);
+    ini_set('memory_limit', -1);
 
 	if (!defined('HC_SKIP_LOCK_CHECK')) {
 		define('HC_SKIP_LOCK_CHECK', true);
 	}
 
 	if (!defined('HC_VERSION')) {
-		require_once '../core/HydraCore.php';
+        require_once __DIR__ . '/../core/HydraCore.php';
 	}
 
+    $cwd = getcwd();
+    chdir(__DIR__);
 	$process = new HC\Hooks\PostReceive();
 	$process->run();
+    chdir($cwd);

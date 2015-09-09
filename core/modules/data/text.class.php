@@ -207,6 +207,8 @@
 
 				if($resp) {
 					$resp = (array)json_decode($resp);
+                    echo '<pre>';
+                    var_dump($resp);
 					if(isset($resp['sid']) && $resp['sid']) {
 						return true;
 					}

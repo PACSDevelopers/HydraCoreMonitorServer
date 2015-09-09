@@ -68,17 +68,42 @@ function drawHCStats() {
     resourcesElement.innerHTML = 'Resources: ' + (numberOfScripts + numberOfStylesheets + numberOfImages) + ' (' + numberOfScripts + ', ' + numberOfStylesheets + ', ' + numberOfImages + ')';
 }
 
+$.xhrPool = [];
+$.xhrPool.abortAll = function() {
+    $(this).each(function(idx, jqXHR) {
+        jqXHR.abort();
+    });
+    $.xhrPool = [];
+};
+
+$.ajaxSetup({
+    beforeSend: function(jqXHR) {
+        $.xhrPool.push(jqXHR);
+    },
+    complete: function(jqXHR) {
+        var index = $.inArray(jqXHR, $.xhrPool);
+        if (index > -1) {
+            $.xhrPool.splice(index, 1);
+        }
+    }
+});
+
+
 $(document).ready(function (){
 
 	// Enable the polyfills that are needed
     $.webshims.polyfill();
-
+    
+    window.lastWidth = window.innerWidth;
     $(window).resize(function() {
-        $(this).trigger('resizeStart');
-        if(this.resizeTO) clearTimeout(this.resizeTO);
-        this.resizeTO = setTimeout(function() {
-            $(this).trigger('resizeEnd');
-        }, 500);
+        if(window.lastWidth != window.innerWidth) {
+            window.lastWidth = window.innerWidth;
+            $(this).trigger('resizeStart');
+            if(this.resizeTO) clearTimeout(this.resizeTO);
+            this.resizeTO = setTimeout(function() {
+                $(this).trigger('resizeEnd');
+            }, 500);
+        }
     });
     
     $('.falseLink').on('click', function(e){
@@ -129,6 +154,18 @@ $(document).ready(function (){
           });
           $this.tab('show');
           $($href).removeClass('hidden');
+        }
+    });
+    
+    $(document).on('keyup', '.input-force-lowercase', function(){
+        var val = $(this).val();
+        val = val.toLowerCase();
+        $(this).val(val);
+    });
+
+    $(window).bind('beforeunload', function () {
+        if($.xhrPoo) {
+            $.xhrPool.abortAll();
         }
     });
     
