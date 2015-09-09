@@ -4,13 +4,15 @@
   namespace HCMS\Hooks\Cron;
 
   /**
-   * Class ProcessVault
+   * Class ProcessSnapshots
    * @package HC\Hooks\Cron
    */
 
   class ProcessSnapshots extends \HC\Hooks\Cron
 
   {
+      protected $settings;
+
       public function __construct($settings = [])
 
       {
@@ -34,9 +36,9 @@
 
           // Authenticate with GCE Compute
           $credentials = new \Google_Auth_AssertionCredentials(
-              $this->settings['gcloud']['clientEmail'],
+              $this->settings['clientEmail'],
               ['https://www.googleapis.com/auth/compute'],
-              file_get_contents($this->settings['gcloud']['privateKey'])
+              file_get_contents($this->settings['privateKey'])
           );
 
           $client = new \Google_Client();
@@ -62,7 +64,7 @@
 
                   try {
                       $compute->disks->createSnapshot('pacs-tools-red', $zone, $disk, $snapshot);
-                      $db->update('snapshots', ['id' => $row['id']], ['lastSnapshot' => $date]);
+                      $db->update('disks', ['id' => $row['id']], ['lastSnapshot' => $date]);
                   } catch (\Exception $e) {
                       throw new \Exception('Could not create snapshot of disk "' . $disk . '": ' . $e->getMessage());
                       return false;
