@@ -64,9 +64,10 @@
 
                   try {
                       $compute->disks->createSnapshot('pacs-tools-red', $zone, $disk, $snapshot);
-                      $db->update('disks', ['id' => $row['id']], ['lastSnapshot' => $date]);
+                      $db->update('disks', ['id' => $row['id']], ['lastSnapshot' => $time]);
+                      echo 'Snapshotting Disk ' . $disk . PHP_EOL;
                   } catch (\Exception $e) {
-                      throw new \Exception('Could not create snapshot of disk "' . $disk . '": ' . $e->getMessage());
+                      throw new \Exception('Could not create snapshot of disk ' . $disk . ': ' . $e->getMessage());
                       return false;
                   }
               }
