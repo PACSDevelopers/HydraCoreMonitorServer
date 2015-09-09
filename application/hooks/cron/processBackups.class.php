@@ -2,7 +2,7 @@
 
 
   namespace HCMS\Hooks\Cron;
-  
+
   /**
    * Class ProcessBackups
    * @package HC\Hooks\Cron
@@ -34,8 +34,8 @@
           $globalSettings = $GLOBALS['HC_CORE']->getSite()->getSettings();
           if(isset($globalSettings['backups'])) {
               $this->settings = $this->parseOptions($this->settings, $globalSettings['backups']);
-          } 
-          
+          }
+
           if(is_array($settings)) {
               $this->settings = $settings = $this->parseOptions($this->settings, $settings);
           }
@@ -54,9 +54,11 @@
           $db = new \HC\DB();
           $result = $db->query('SELECT `D`.`id`,`D`.`title`, `D`.`backupType`, `D`.`backupInterval`, `D`.`lastBackUp` FROM `databases` `D` WHERE `D`.`status` = 1 AND `D`.`backupType` != 0 AND `D`.`backupInterval` > 0');
           if($result) {
+              $time = time();
               foreach($result as $row) {
-                  $checkTime = (time() - ($row['backupInterval'] * 3600));
-                  if(($checkTime - 30) > $row['lastBackUp']) {
+                  $checkTime = ($time - ($row['backupInterval'] * 3600));
+
+                  if ($checkTime >= $row['lastBackUp']) {
                       echo 'Processing: ' . $row['title'] . PHP_EOL;
                       $before = microtime(true);
                       $dateTokens = explode('.', $before);
@@ -65,10 +67,10 @@
                       }
 
                       $dateCreated = date('Y-m-d H:i:s', $dateTokens[0]) . '.' . str_pad($dateTokens[1], 4, '0', STR_PAD_LEFT);
-                      
+
                       $status = $db->write('database_backups', ['databaseID' =>  $row['id'], 'status' => 1, 'isLocal' => 1, 'isAuto' => 1, 'progress' => 0, 'dateCreated' => $dateCreated, 'dateEdited' => $dateCreated]);
                       if($status) {
-                          $status = $db->update('databases', ['id' => $row['id']], ['lastBackUp' => time()]);
+                          $status = $db->update('databases', ['id' => $row['id']], ['lastBackUp' => $time]);
                           if(!$status) {
                               throw new \Exception('Unable to write to database');
                           }
@@ -81,12 +83,12 @@
               }
 
               echo 'Processed Backups' . PHP_EOL;
-              
+
               return true;
           } else {
               return true;
           }
-          
+
           return false;
 
       }
