@@ -191,7 +191,7 @@
 
 				curl_setopt_array($curl, [
 						CURLOPT_RETURNTRANSFER => true,
-						CURLOPT_URL => 'https://api.twilio.com/2010-04-01/Accounts/' . $this->settings['accountKey'] . '/Messages.json',
+						CURLOPT_URL => 'https://api.twilio.com:8443/2010-04-01/Accounts/' . $this->settings['accountKey'] . '/Messages.json',
 						CURLOPT_USERAGENT => 'HydraCore ' . HC_VERSION,
 						CURLOPT_USERPWD => $this->settings['accountKey'] . ':' . $this->settings['apiKey'],
 						CURLOPT_POST => true,
